@@ -81,12 +81,12 @@ public abstract class Game implements Cloneable {
 	public Board.Grid getGrid() {return board.getGrid();}
 	
 	public void setKomi(float komi) {
-		if (numMoves > 0) throw new IllegalStateException("game already started");
+		if (numMoves > 0) System.out.println("game already started");
 		this.komi = komi;
 	}
 
 	public void setFixedHandicap(int handicap) {
-		if (numMoves > 0) throw new IllegalStateException("game already started");
+		if (numMoves > 0) System.out.println("game already started");
 		if (this.handicap > 0) board.clear();
 		this.handicap = handicap;
 		placeFixedHandicapStones();
@@ -105,7 +105,7 @@ public abstract class Game implements Cloneable {
 			|| handicap > (ss % 2 == 0 ? 4 : 9)
 			|| ss < 7
 			|| ss == 7 && handicap > 4
-		) throw new IllegalArgumentException("illegal handicap " + handicap);
+		) System.out.println("illegal handicap " + handicap);
 		
 		final int ho = ss < 13 ? 2 : 3;  // handicap offset
 		final int s = 1 + ho, b = ss - ho, m = (ss+1)/2;
@@ -232,10 +232,11 @@ public abstract class Game implements Cloneable {
 		if (offset == 0) return lastMove; //changed from throwing an exception to get this easily
 		if (offset < 0) offset = numMoves + offset + 1;
 		if (offset == numMoves) return lastMove;
-		else throw new IndexOutOfBoundsException("requested move is beyond history horizon");
+		else System.out.println("requested move is beyond history horizon");
+		return 0;
 	}
 	
-	protected void recordMove(int move) {
+	public void recordMove(int move) {
 		lastMove = move;
 		numMoves++;
 	}

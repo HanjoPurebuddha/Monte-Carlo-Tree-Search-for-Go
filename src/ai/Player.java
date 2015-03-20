@@ -1,7 +1,9 @@
 package ai;
 
 import java.util.Random;
+
 import com.ideanest.util.UnexpectedCaseException;
+
 import game.*;
 import gtp.*;
 
@@ -130,7 +132,8 @@ public abstract class Player {
 			move = emptyPoints.get(i);
 			if (game.play(move)) return move;			
 		}
-		throw new UnexpectedCaseException("no legal move left in game");
+		System.out.println("no legal move left in the game");
+		return -1;
 	}
 
 	public void setGame(SemiPrimitiveGame game2) {

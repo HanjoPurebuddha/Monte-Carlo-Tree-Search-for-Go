@@ -42,7 +42,9 @@ public class SemiPrimitiveGame extends TrompTaylorGame {
 		}
 	}
 	
-	protected boolean validateBoard(int z, Board oldBoard) {
+	
+	
+	public boolean validateBoard(int z, Board oldBoard) {
 		// check if z is playing into what looks like an eye
 		// (eye:  neighbours same color, no more than 1 diagonal other color, except at edges)
 		CHECK_EYE: {
@@ -64,7 +66,7 @@ public class SemiPrimitiveGame extends TrompTaylorGame {
 	}
 
 	public boolean isPassingAllowed() {
-		return false;
+		return true;
 	}
 
 }

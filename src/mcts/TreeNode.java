@@ -103,27 +103,30 @@ public class TreeNode {
         print("expanding" + cur);
         cur.expand();
         
-        /* and select the expanded node, adding it to the visited list */
-        print("selecting");
-        TreeNode newNode = cur.select();
-        print("Selected" +newNode);
-        visited.add(newNode);
-        
-        /* get the value for the simulation for the expanded node */
-        print("simulating" + newNode);
-        double value = simulate(newNode);
-        print("got result" + value);
-        
-        /* backpropogate the values of all visited nodes */
-        for (TreeNode node : visited) {
-            node.updateStats(value);
-        }
-        print("tree developed, size " + visited.size());
+        try {
+	        /* and select the expanded node, adding it to the visited list */
+	        print("selecting");
+	        TreeNode newNode = cur.select();
+	        print("Selected" +newNode);
+	        visited.add(newNode);
+	        
+	        /* get the value for the simulation for the expanded node */
+	        print("simulating" + newNode);
+	        double value = simulate(newNode);
+	        print("got result" + value);
+	        
+	        /* backpropogate the values of all visited nodes */
+	        for (TreeNode node : visited) {
+	            node.updateStats(value);
+	        }
+	        print("tree developed, size " + visited.size());
+        } catch(NullPointerException e) {
+            return;
+        } 
         
     }
     
     public int getMove() {
-    	
     	/* get the highest uct value child node of the gamestate given */
     	print("getting move");
     	TreeNode chosenNode = select();
@@ -134,7 +137,7 @@ public class TreeNode {
     }
     
     /* expand the tree node */
-
+    
     public void expand() {
     	
     	/* get all of the empty points on the board */
@@ -151,8 +154,8 @@ public class TreeNode {
         	/* and play one of the empty points */
         	boolean canPlay = replacementGame.play(emptyPoints.get(i));
         	
-        	/* if it is possible to play that point */
-        	if(canPlay) {
+        	/* checking if it is possible to play that point, checking if we're playing into an eye */
+        	if(canPlay && !replacementGame.validateBoard(emptyPoints.get(i), replacementGame.duplicate().board)) {
         		
         		/* create a new child for that point */
         		TreeNode newChild = new TreeNode(replacementGame, playerNode, playerColor);
@@ -165,6 +168,7 @@ public class TreeNode {
         }
         
     }
+
 
     private TreeNode select() {
     	
@@ -228,7 +232,13 @@ public class TreeNode {
     	
     	/* until the simulation has finished, play moves */
     	while(!duplicateGame.isOver()) {
-    		duplicateGame.play(randomPlayer.playMove());
+    		
+    		/* get the move, and play on the board */
+    		int move = randomPlayer.playMove();
+    		
+    		/* record the move, updating to see if the game is over */
+    		duplicateGame.recordMove(move);
+    		
     	}
     	
     	/* get the score for the players color */
