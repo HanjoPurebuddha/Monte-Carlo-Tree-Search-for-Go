@@ -5,6 +5,7 @@ import game.Color;
 import game.Game;
 import game.SemiPrimitiveGame;
 import gtp.Vertex;
+import mcts.ElapsedTimer;
 import mcts.TreeNode;
 
 /**
@@ -32,8 +33,8 @@ public class Dave extends Player {
 		/* create a node that has the players current position recorded */
 		TreeNode withPlayerNode = new TreeNode(game, tn, side);
 			
-		int n = 3000;
-	    for (int i=0; i<n; i++) {
+		ElapsedTimer t = new ElapsedTimer();
+		while(t.elapsed() < 3000) {
 	        /* develop the tree in the node with the players current position recorded */
 	        withPlayerNode.developTree();
 	    }

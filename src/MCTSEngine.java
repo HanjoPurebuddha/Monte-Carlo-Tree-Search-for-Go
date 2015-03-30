@@ -42,8 +42,8 @@ public class MCTSEngine {
 	
 	private Player[] players = new Player[2];
 	{
-		players[0] = new Tom();
-		players[1] = new Dave();
+		players[0] = new Dave();
+		players[1] = new Anthony();
 	}
 	
 	public void boardsize(int size) {

@@ -1,6 +1,7 @@
 package ai;
 
 
+import mcts.ElapsedTimer;
 import game.Color;
 import game.Game;
 import game.SemiPrimitiveGame;
@@ -31,9 +32,8 @@ public class Tom extends Player {
 		/* create a node that has the players current position recorded */
 		TreeNode withPlayerNode = new TreeNode(game, tn, side);
 		
-		
-		int n = 1000;
-	    for (int i=0; i<n; i++) {
+		ElapsedTimer t = new ElapsedTimer();
+		while(t.elapsed() < 1000) {
 	        /* develop the tree in the node with the players current position recorded */
 	        withPlayerNode.developTree();
 	    }
