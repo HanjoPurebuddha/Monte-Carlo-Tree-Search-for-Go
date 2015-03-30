@@ -68,7 +68,13 @@ public abstract class Game implements Cloneable {
 		return that;
 	}
 	
-
+	public SemiPrimitiveGame createSimulationGame() {
+		try {
+			return (SemiPrimitiveGame) clone();
+		} catch (CloneNotSupportedException e) {
+			return null;
+		}
+	}
 	
 	public Game duplicate() {
 		try {

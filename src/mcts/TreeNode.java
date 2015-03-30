@@ -26,10 +26,10 @@ public class TreeNode {
     boolean testing = false;
     private final Random rnd = new Random();
     
-    public TreeNode(SemiPrimitiveGame game, TreeNode playerNode, Color playerColor) {
-    	
+    public TreeNode(Game game, TreeNode playerNode, Color playerColor) {
+    	//System.out.println(game);
     	/* set the game so each node represents a gamestate */
-    	this.currentGame = game;
+    	this.currentGame = game.createSimulationGame();
     	
     	/* set the node to determine the move from */
     	this.playerNode = playerNode;
@@ -165,7 +165,14 @@ public class TreeNode {
         	} else {
         		print("cant play");
         	}
+        	
         }
+        
+        /* add a pass move */
+		//TreeNode newChild = new TreeNode(this.getGame().duplicate(), playerNode, playerColor);
+		
+		/* and add it to the current nodes children */
+		//children.add(newChild);
         
     }
 

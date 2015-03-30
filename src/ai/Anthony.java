@@ -8,31 +8,31 @@ import gtp.Vertex;
 import mcts.TreeNode;
 
 /**
- * A player that uses MCTS.
+ * A player that uses MCTS, but takes a gigantic amount of time to play a move
  * @author Thomas Ager (with thanks to mcts.ai)
  */
 
-public class Tom extends Player {
-	
-	public Tom() {
-		super("Tom");
+public class Anthony extends Player {
+
+	public Anthony() {
+		super("Anthony");
 		
 	}
+
 
 	public void setGame(Game game) {
 		this.game = game;
 	}
 
 	public int playMove() {
-
+		
 		/* initialize the node that represents the players current position */
 		TreeNode tn = new TreeNode(game, null, side);
 			
 		/* create a node that has the players current position recorded */
 		TreeNode withPlayerNode = new TreeNode(game, tn, side);
-		
-		
-		int n = 1000;
+			
+		int n = 10000;
 	    for (int i=0; i<n; i++) {
 	        /* develop the tree in the node with the players current position recorded */
 	        withPlayerNode.developTree();

@@ -6,6 +6,8 @@ import java.util.Random;
 
 import ai.Player;
 import ai.Randy;
+import ai.Dave;
+import ai.Anthony;
 import ai.Tom;
 import mcts.ElapsedTimer;
 import mcts.TreeNode;
@@ -40,8 +42,8 @@ public class MCTSEngine {
 	
 	private Player[] players = new Player[2];
 	{
-		players[0] = new Randy();
-		players[1] = new Tom();
+		players[0] = new Tom();
+		players[1] = new Dave();
 	}
 	
 	public void boardsize(int size) {
@@ -51,12 +53,12 @@ public class MCTSEngine {
 	
 	
 	public void clear_board() {
-		//endGame();
+		endGame();
 		game = createGame(game.getSideSize(), allowSuicides);
 	}
 	
 	public void allow_suicides(boolean flag) {
-		//endGame();
+		endGame();
 		this.allowSuicides = flag;
 		game = createGame(game.getSideSize(), allowSuicides);
 	}
@@ -78,11 +80,11 @@ public class MCTSEngine {
 		return vs;
 	}
 	
-	/*private void endGame() {
+	private void endGame() {
 		for (int i = 0; i < players.length; i++) {
 			if (players[i].getPlayingColor() != null) players[i].endGame();
 		}
-	}*/
+	}
 	
 	/**
 	 * Set the AI that will take care of playing moves for the given color.
@@ -210,30 +212,36 @@ public class MCTSEngine {
 	}*/
 	
 	public void play(Move move) {
-		if (game.isOver()) throw new IllegalStateException("game is over, no more moves allowed");
-		if (move.color != game.getNextToPlay()) {
+		
+		/* if the game is over or it isn't our move */
+		if (game.isOver() || move.color != game.getNextToPlay()) { //throw new IllegalStateException("game is over, no more moves allowed");
 			// play out of order, simulate a pass
 			boolean r = game.play(Game.MOVE_PASS);
 			assert r;
 		}
 		assert move.color == game.getNextToPlay();
 		boolean r = game.play(move.vertex.toPosition(game.getGrid()));
-		if (!r) throw new IllegalArgumentException("illegal move");
+		//if (!r) throw new IllegalArgumentException("illegal move");
 	}
 	
 	public Vertex genmove(Color color) {
 		//try to use policy/open book/etc to find a move, if it fails...
 		//get the move with the UCT tree with the game given
 		
-		
-		if (game.isOver()) throw new IllegalStateException("game is over, no more moves allowed");
 		Player player = players[color.getIndex()];
 		if (player.getPlayingColor() != color) {
 			// bring player into the game
 			player.startGame(game, color);
 		}
 		player.setGame(game);
-		int move = player.playMove();
+		
+		int move;
+		
+		if (game.isOver()) { //throw new IllegalStateException("game is over, no more moves allowed");
+			move = -1;
+		} else {
+			move = player.playMove();
+		}
 		return Vertex.get(move, game.getGrid());
 		
 	}

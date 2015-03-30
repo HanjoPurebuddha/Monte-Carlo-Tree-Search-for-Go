@@ -12,7 +12,7 @@ import gtp.*;
  * @author Piotr Kaminski
  */
 public abstract class Player {
-	Game game;
+	public Game game;
 	Color side;
 	String name;
 	final Random random = new Random();
