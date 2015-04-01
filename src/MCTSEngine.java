@@ -4,11 +4,10 @@ import java.io.InputStreamReader;
 import java.io.OutputStreamWriter;
 import java.util.Random;
 
+import ai.IterationPlayer;
 import ai.Player;
 import ai.Randy;
-import ai.Dave;
-import ai.Anthony;
-import ai.Tom;
+import ai.MCTSPlayer;
 import mcts.ElapsedTimer;
 import mcts.TreeNode;
 import game.*;
@@ -42,8 +41,9 @@ public class MCTSEngine {
 	
 	private Player[] players = new Player[2];
 	{
-		players[0] = new Tom();
-		players[1] = new Dave();
+		// binaryScoring,  uct,  rave,  weightedRave,  weight,  heuristicRave,  raveHeuristic,  raveSkip
+		players[0] = new MCTSPlayer(1000, 0, true, true, false, false, 0, false, 30000, false);
+		players[1] = new MCTSPlayer(1000, 0, true, true, true, false, 0, false, 30000, false);
 	}
 	
 	public void boardsize(int size) {

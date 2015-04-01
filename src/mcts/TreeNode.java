@@ -1,5 +1,6 @@
 package mcts;
 
+import ai.Configuration;
 import java.util.LinkedList;
 
 import game.*;
@@ -13,7 +14,7 @@ import java.util.Random;
 import ai.Player;
 import ai.Randy;
 
-public class TreeNode {
+public class TreeNode extends Configuration {
     static Random r = new Random();
     static int nActions = 5;
     static double epsilon = 1e-6;
@@ -26,15 +27,9 @@ public class TreeNode {
     boolean testing = false;
     private final Random rnd = new Random();
     
-    /* begin values for adjusting different features */
-    
-    boolean binaryScoring = false;
-    boolean RAVE = false;
-    int raveParameter = 0;
-    boolean RAVESkip = false;
-    
+
     public TreeNode(Game game, TreeNode playerNode, Color playerColor, 
-    		boolean binaryScoring, boolean RAVE, int raveParameter, boolean RAVESkip) {
+    		boolean binaryScoring, boolean uct, boolean rave, boolean weightedRave, int weight, boolean heuristicRave, int raveHeuristic, boolean raveSkip) {
     	//System.out.println(game);
     	/* set the game so each node represents a gamestate */
     	this.currentGame = game.createSimulationGame();
@@ -47,9 +42,13 @@ public class TreeNode {
     	
     	/* set the values for different features */
     	this.binaryScoring = binaryScoring;
-    	this.RAVE = RAVE;
-    	this.raveParameter = raveParameter;
-    	this.RAVESkip = RAVESkip;
+    	this.uct = uct;
+    	this.rave = rave;
+    	this.weightedRave = weightedRave;
+    	this.weight = weight;
+    	this.heuristicRave = heuristicRave;
+    	this.raveHeuristic = raveHeuristic;
+    	this.raveSkip = raveSkip;
     	
     }
     
@@ -173,7 +172,7 @@ public class TreeNode {
         		
         		/* create a new child for that point */
         		TreeNode newChild = new TreeNode(replacementGame, playerNode, playerColor
-        				, binaryScoring, RAVE, raveParameter, RAVESkip);
+        				, binaryScoring,  uct,  rave,  weightedRave,  weight,  heuristicRave,  raveHeuristic,  raveSkip);
         		
         		/* and add it to the current nodes children */
         		children.add(newChild);
@@ -202,22 +201,64 @@ public class TreeNode {
         /* for every child node of the current node being selected */
         for (TreeNode c : children) {
         	
-        	/* calculate the uct value of that child */ // small random number to break ties randomly in unexpanded nodes
-            double uctValue =
+        	double uctValue;
+        	double raveValue;
+        	
+        	/* if we are using UCT at all calculate it */
+        	if (uct) {
+        		/* calculate the uct value of that child */ // small random number to break ties randomly in unexpanded nodes
+        		uctValue =
                     c.totValue / (c.nVisits + epsilon) +
                             Math.sqrt(Math.log(nVisits+1) / (c.nVisits + epsilon)) +
                             r.nextDouble() * epsilon;
-            print("UCT value = " + uctValue);
-            
-            /* if the uctvalue is larger than the best value */
-            if (uctValue > bestValue) {
+        		/* if we are just using UCT */
+                if (!rave) {
+    	            /* if the uctvalue is larger than the best value */
+    	            if (uctValue > bestValue) {
+    	            	
+    	            	/*the selected node is that child */
+    	                selected = c;
+    	                /* and the best value is the current value */
+    	                bestValue = uctValue;
+    	                
+    	            }
+                }
+            //print("UCT value = " + uctValue);
+        	}
+        	
+            /* if we are using RAVE */
+            if (rave) {
+            	/* use the AMAF map to get the rave value for the node */
+            	raveValue = 0;
+            	/* if we are just using RAVE */
+            	if(!weightedRave && !heuristicRave && !uct) {
+            		if (raveValue > bestValue) {
+    	            	
+    	            	/*the selected node is that child */
+    	                selected = c;
+    	                /* and the best value is the current value */
+    	                bestValue = raveValue;
+    	                
+    	            }
+            	}
             	
-            	/*the selected node is that child */
-                selected = c;
-                /* and the best value is the current value */
-                bestValue = uctValue;
-                
+            	/* if we are using RAVE and UCT */
+            	if(!weightedRave && !heuristicRave && uct) {
+            		/* calculate the bestValue using both uct and RAVE */
+            	}
+            	
+            	/* if we are using weightedRave */
+            	if(weightedRave) {
+            		/* calculate the bestValue using rave, uct and a weight to make rave more effective early on */
+            	}
+            	
+            	/* if we are using heuristicRave */
+            	if(heuristicRave) {
+            		/* calculate the bestValue using rave, uct, and an additional heuristic value */
+            	}
             }
+            
+            
         }
         
         /* and then it is returned */

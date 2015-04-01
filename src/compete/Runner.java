@@ -1,5 +1,5 @@
 package compete;
-import ai.Tom;
+import ai.MCTSPlayer;
 import java.io.*;
 
 import ai.*;
@@ -19,7 +19,7 @@ public class Runner {
 		};
 
 		Player[] players0 = new Player[] {
-			new Tom()
+			new MCTSPlayer(1000, true, true, 30000, true)
 		};
 		Player[] players1 = new Player[] {
 			new Randy()
