@@ -26,7 +26,15 @@ public class TreeNode {
     boolean testing = false;
     private final Random rnd = new Random();
     
-    public TreeNode(Game game, TreeNode playerNode, Color playerColor) {
+    /* begin values for adjusting different features */
+    
+    boolean binaryScoring = false;
+    boolean RAVE = false;
+    int raveParameter = 0;
+    boolean RAVESkip = false;
+    
+    public TreeNode(Game game, TreeNode playerNode, Color playerColor, 
+    		boolean binaryScoring, boolean RAVE, int raveParameter, boolean RAVESkip) {
     	//System.out.println(game);
     	/* set the game so each node represents a gamestate */
     	this.currentGame = game.createSimulationGame();
@@ -36,6 +44,12 @@ public class TreeNode {
     	
     	/* set the color to determine the move from */
     	this.playerColor = playerColor;
+    	
+    	/* set the values for different features */
+    	this.binaryScoring = binaryScoring;
+    	this.RAVE = RAVE;
+    	this.raveParameter = raveParameter;
+    	this.RAVESkip = RAVESkip;
     	
     }
     
@@ -158,7 +172,8 @@ public class TreeNode {
         	if(canPlay && !replacementGame.validateBoard(emptyPoints.get(i), replacementGame.duplicate().board)) {
         		
         		/* create a new child for that point */
-        		TreeNode newChild = new TreeNode(replacementGame, playerNode, playerColor);
+        		TreeNode newChild = new TreeNode(replacementGame, playerNode, playerColor
+        				, binaryScoring, RAVE, raveParameter, RAVESkip);
         		
         		/* and add it to the current nodes children */
         		children.add(newChild);
@@ -248,13 +263,19 @@ public class TreeNode {
     		
     	}
     	
-    	/* get the score for the players color */
+    	/* get the score for the players color, positive or negative depending on colour */
     	float score = duplicateGame.score(playerColor);
     	
-    	/* return 0 for loss, 1 for win */
-    	if(score > 0)
-    		return 1;
-    	return 0;
+    	/* if using binary scoring */
+    	if(binaryScoring) {
+    		/* return 0 for loss, 1 for win */
+	    	if(score > 0)
+	    		return 1;
+	    	return 0;
+    	} else {
+    		/* return the score value, positive for  */
+    		return score;
+    	}
     	
     }
     

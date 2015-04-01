@@ -15,9 +15,14 @@ import mcts.TreeNode;
 
 public class Tom extends Player {
 	
-	public Tom() {
+	public Tom(boolean binaryScoring, boolean RAVE, int raveParameter, boolean RAVESkip) {
 		super("Tom");
-		
+
+    	/* set the values for different features */
+    	this.binaryScoring = binaryScoring;
+    	this.RAVE = RAVE;
+    	this.raveParameter = raveParameter;
+    	this.RAVESkip = RAVESkip;
 	}
 
 	public void setGame(Game game) {
@@ -27,10 +32,10 @@ public class Tom extends Player {
 	public int playMove() {
 
 		/* initialize the node that represents the players current position */
-		TreeNode tn = new TreeNode(game, null, side);
+		TreeNode tn = new TreeNode(game, null, side, binaryScoring, RAVE, raveParameter, RAVESkip);
 			
 		/* create a node that has the players current position recorded */
-		TreeNode withPlayerNode = new TreeNode(game, tn, side);
+		TreeNode withPlayerNode = new TreeNode(game, tn, side, binaryScoring, RAVE, raveParameter, RAVESkip);
 		
 		ElapsedTimer t = new ElapsedTimer();
 		while(t.elapsed() < 1000) {

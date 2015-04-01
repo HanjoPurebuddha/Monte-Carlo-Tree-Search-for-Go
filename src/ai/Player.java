@@ -17,6 +17,13 @@ public abstract class Player {
 	String name;
 	final Random random = new Random();
 
+	/* begin values for adjusting different features */
+    
+    boolean binaryScoring = false;
+    boolean RAVE = false;
+    int raveParameter = 0;
+    boolean RAVESkip = false;
+	
 	private static final int MAX_RANDOM_MOVE_PICKS = 10;
 	
 	public Player(String name) {
