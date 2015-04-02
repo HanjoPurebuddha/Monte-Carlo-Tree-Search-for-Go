@@ -19,7 +19,7 @@ public class Runner {
 		};
 
 		Player[] players0 = new Player[] {
-			new MCTSPlayer(1000, true, true, 30000, true)
+				new MCTSPlayer(1000, 0, true, true, true, false, 0, false, 30000, false)
 		};
 		Player[] players1 = new Player[] {
 			new Randy()

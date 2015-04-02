@@ -26,10 +26,13 @@ public class TreeNode extends Configuration {
     Color playerColor;
     boolean testing = false;
     private final Random rnd = new Random();
+    double[] amafValue;
+    double[] moveSimulations;
+    double[] moveWins;
     
-
     public TreeNode(Game game, TreeNode playerNode, Color playerColor, 
-    		boolean binaryScoring, boolean uct, boolean rave, boolean weightedRave, int weight, boolean heuristicRave, int raveHeuristic, boolean raveSkip) {
+    		boolean binaryScoring, boolean uct, boolean rave, double[] amafValue, double[] moveSimulations, double[] moveWins, boolean weightedRave, int weight, 
+    		boolean heuristicRave, int raveHeuristic, boolean raveSkip) {
     	//System.out.println(game);
     	/* set the game so each node represents a gamestate */
     	this.currentGame = game.createSimulationGame();
@@ -40,12 +43,23 @@ public class TreeNode extends Configuration {
     	/* set the color to determine the move from */
     	this.playerColor = playerColor;
     	
+    	/* set the amount of simulations */
+    	this.moveSimulations = moveSimulations;
+    	
     	/* set the values for different features */
     	this.binaryScoring = binaryScoring;
     	this.uct = uct;
     	this.rave = rave;
+    	if(rave) {
+	    	this.amafValue = amafValue;
+	    	this.moveSimulations = moveSimulations;
+	    	this.moveWins = moveWins;
+    	}
+    	
     	this.weightedRave = weightedRave;
-    	this.weight = weight;
+    	if(weightedRave) {
+    		this.weight = weight;
+    	}
     	this.heuristicRave = heuristicRave;
     	this.raveHeuristic = raveHeuristic;
     	this.raveSkip = raveSkip;
@@ -128,6 +142,11 @@ public class TreeNode extends Configuration {
 	        double value = simulate(newNode);
 	        print("got result" + value);
 	        
+	        /* update the amaf value for the node */
+	        if(rave) {
+	        	print("updating amaf with sim result" + value);
+	        	updateAmaf(newNode, value);
+	        }
 	        /* backpropogate the values of all visited nodes */
 	        for (TreeNode node : visited) {
 	            node.updateStats(value);
@@ -143,10 +162,14 @@ public class TreeNode extends Configuration {
     	/* get the highest uct value child node of the gamestate given */
     	print("getting move");
     	TreeNode chosenNode = select();
-    	Game nodeGame = chosenNode.getGame();
+    	return nodeMove(chosenNode);
+    	
+    }
+    
+    public int nodeMove(TreeNode node) {
+    	Game nodeGame = node.getGame();
     	int move = nodeGame.getMove(0);
     	return move;
-    	
     }
     
     /* expand the tree node */
@@ -172,7 +195,7 @@ public class TreeNode extends Configuration {
         		
         		/* create a new child for that point */
         		TreeNode newChild = new TreeNode(replacementGame, playerNode, playerColor
-        				, binaryScoring,  uct,  rave,  weightedRave,  weight,  heuristicRave,  raveHeuristic,  raveSkip);
+        				, binaryScoring,  uct,  rave, amafValue, moveSimulations, moveWins, weightedRave,  weight,  heuristicRave,  raveHeuristic,  raveSkip);
         		
         		/* and add it to the current nodes children */
         		children.add(newChild);
@@ -196,21 +219,16 @@ public class TreeNode extends Configuration {
     	/* initialize the values, with the bestvalue put at its smallest possible value */
     	printChildren();
         TreeNode selected = null;
-        double bestValue = Double.MIN_VALUE;
-        
+        double bestValue = -1;
         /* for every child node of the current node being selected */
         for (TreeNode c : children) {
-        	
-        	double uctValue;
-        	double raveValue;
-        	
         	/* if we are using UCT at all calculate it */
         	if (uct) {
         		/* calculate the uct value of that child */ // small random number to break ties randomly in unexpanded nodes
-        		uctValue =
-                    c.totValue / (c.nVisits + epsilon) +
-                            Math.sqrt(Math.log(nVisits+1) / (c.nVisits + epsilon)) +
-                            r.nextDouble() * epsilon;
+
+        		double uctValue = getUctValue(c.totValue, c.nVisits);
+        		print("UCT value = " + uctValue);
+        		
         		/* if we are just using UCT */
                 if (!rave) {
     	            /* if the uctvalue is larger than the best value */
@@ -222,40 +240,55 @@ public class TreeNode extends Configuration {
     	                bestValue = uctValue;
     	                
     	            }
+                } else { /* if we are using RAVE and UCT */
+                	//print("before amaf");
+                	double currentAmafValue = amafValue[nodeMove(c)];
+                	//print("after amaf");
+                	/* if we arent using the weightedrave or heuristic rave calculate the bestValue using both uct and RAVE */
+                	if(!weightedRave && !heuristicRave) {
+	            		if ((currentAmafValue + uctValue) > bestValue) {
+	    	            	
+	    	            	/*the selected node is that child */
+	    	                selected = c;
+	    	                /* and the best value is the current value */
+	    	                bestValue = (currentAmafValue + uctValue);
+	    	                
+	    	            }
+                	}
+                	
+                	/* if we are using weightedRave */
+                	if(weightedRave) {
+                		/* calculate the bestValue using rave, uct and a weight to make rave more effective early on */
+                	}
+                	
+                	/* if we are using heuristicRave */
+                	if(heuristicRave) {
+                		/* calculate the bestValue using rave, uct, and an additional heuristic value */
+                	}
                 }
-            //print("UCT value = " + uctValue);
-        	}
-        	
-            /* if we are using RAVE */
-            if (rave) {
-            	/* use the AMAF map to get the rave value for the node */
-            	raveValue = 0;
+
+            	
+        	} else {
+        		
             	/* if we are just using RAVE */
-            	if(!weightedRave && !heuristicRave && !uct) {
-            		if (raveValue > bestValue) {
+        		double currentAmafValue = amafValue[nodeMove(c)];
+        		//System.out.println(currentAmafValue);
+        		/* just calculate using the rave value */
+            	if(!weightedRave && !heuristicRave) {
+            		//System.out.println(currentAmafValue);
+            		//System.out.println(bestValue);
+            		if (currentAmafValue > bestValue) {
     	            	
     	            	/*the selected node is that child */
     	                selected = c;
+    	                //System.out.println(selected);
     	                /* and the best value is the current value */
-    	                bestValue = raveValue;
+    	                bestValue = currentAmafValue;
     	                
     	            }
             	}
             	
-            	/* if we are using RAVE and UCT */
-            	if(!weightedRave && !heuristicRave && uct) {
-            		/* calculate the bestValue using both uct and RAVE */
-            	}
             	
-            	/* if we are using weightedRave */
-            	if(weightedRave) {
-            		/* calculate the bestValue using rave, uct and a weight to make rave more effective early on */
-            	}
-            	
-            	/* if we are using heuristicRave */
-            	if(heuristicRave) {
-            		/* calculate the bestValue using rave, uct, and an additional heuristic value */
-            	}
             }
             
             
@@ -278,7 +311,23 @@ public class TreeNode extends Configuration {
     	
     }
     
+    public double getUctValue(double totalValue, double visits) {
+
+        return totValue / (nVisits + epsilon) +
+                Math.sqrt(Math.log(nVisits+1) / (nVisits + epsilon)) +
+                r.nextDouble() * epsilon;
+    }
     
+    public void updateAmaf(TreeNode node, double value) {
+    	int move = nodeMove(this);
+    	node.moveSimulations[move]++;
+    	if(value == 1)
+    		node.moveWins[move]++;
+    	//System.out.println("NEW SIMS VALUE " + node.moveSimulations[move]);
+    	//System.out.println("NEW WINS VALUE " + node.moveWins[move]);
+    	node.amafValue[move] = getUctValue(node.moveWins[move], node.moveSimulations[move]);
+    	//System.out.println("NEW AMAF VALUE " + node.amafValue[move]);
+    }
 
     public double simulate(TreeNode tn) {
 

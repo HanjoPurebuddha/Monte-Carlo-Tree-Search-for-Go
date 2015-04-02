@@ -27,6 +27,7 @@ public abstract class Player extends Configuration {
 	
 	public String toString() {return name;}
 	
+	public void makeArrays(){};
 	/**
 	 * Start playing the given game, but don't make a move yet.
 	 * @param game the game this player will be playing in
