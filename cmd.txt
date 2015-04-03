@@ -1,0 +1,1 @@
+gogui-twogtp -black "gnugo --mode gtp --level 5" -white "java MCTSEngine" -games 100 -size 9 -sgffile gnuGo1VSuctBigTree -auto -force -referee "gnugo --mode gtp"

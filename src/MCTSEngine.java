@@ -4,6 +4,7 @@ import java.io.InputStreamReader;
 import java.io.OutputStreamWriter;
 import java.util.Random;
 
+import ai.CopyOfMCTSPlayer;
 import ai.Player;
 import ai.Randy;
 import ai.MCTSPlayer;
@@ -33,7 +34,7 @@ public class MCTSEngine {
 	private int boardSize;
 	private final Random rnd = new Random();
 	private boolean allowSuicides = false;
-	private SemiPrimitiveGame game = null;  // some default game, to avoid null checks
+	private Game game = null;  // some default game, to avoid null checks
 	
 	public String name() {return "MCTS";}
 	public String version() {return "0.1";}	
@@ -44,9 +45,9 @@ public class MCTSEngine {
 		//black
 		players[0] = new MCTSPlayer(1000, 0, true, true, true, false, 0, false, 30000, false);
 		//white
-		players[1] = new MCTSPlayer(1000, 0, true, true, false, false, 0, false, 30000, false);
+		players[1] = new CopyOfMCTSPlayer(1000, 0, true, true, true, false, 0, false, 30000, false);
 	}
-	
+
 	public void boardsize(int size) {
 		this.boardSize = size;
 		game = createGame(boardSize, true);
@@ -84,6 +85,14 @@ public class MCTSEngine {
 	private void endGame() {
 		for (int i = 0; i < players.length; i++) {
 			if (players[i].getPlayingColor() != null) players[i].endGame();
+		}
+		this.players = new Player[2];
+		{
+			// binaryScoring,  uct,  rave,  weightedRave,  weight,  heuristicRave,  raveHeuristic,  raveSkip
+			//black
+			players[0] = new MCTSPlayer(1000, 0, true, true, true, false, 0, false, 30000, false);
+			//white
+			players[1] = new CopyOfMCTSPlayer(1000, 0, true, true, true, false, 0, false, 30000, false);
 		}
 	}
 	
@@ -222,8 +231,11 @@ public class MCTSEngine {
 		}
 		assert move.color == game.getNextToPlay();
 		boolean r = game.play(move.vertex.toPosition(game.getGrid()));
+		
 		//if (!r) throw new IllegalArgumentException("illegal move");
 	}
+	
+	boolean noTree = false;
 	
 	public Vertex genmove(Color color) {
 		//try to use policy/open book/etc to find a move, if it fails...
@@ -235,7 +247,7 @@ public class MCTSEngine {
 			player.startGame(game, color);
 		}
 		player.setGame(game);
-		player.makeArrays();
+		player.initializeTree();
 		int move;
 		
 		if (game.isOver()) { //throw new IllegalStateException("game is over, no more moves allowed");
@@ -247,8 +259,8 @@ public class MCTSEngine {
 		
 	}
 	
-	private SemiPrimitiveGame createGame(int size, boolean allowSuicides) {
-		 return new SemiPrimitiveGame(size);
+	private Game createGame(int size, boolean allowSuicides) {
+		 return new TrompTaylorGame(size, false);
 	}
 	
 	/**
