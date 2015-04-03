@@ -57,7 +57,7 @@ public class TrompTaylorGame extends Game {
 		return that;
 	}
 	
-	protected boolean validateBoard(int z, Board oldBoard) {
+	public boolean validateBoard(int z, Board oldBoard) {
 		Color other = nextToPlay.inverse();
 		
 		// check for kills

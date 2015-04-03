@@ -44,8 +44,8 @@ public class CopyOfMCTSPlayer extends Player {
 		this.game = game;
 		//System.out.println(game);
 		this.copyGame = new SemiPrimitiveGame(game.getSideSize());
-		this.copyGame.equals(game);
-		System.out.println(copyGame);
+		this.game.equals(copyGame);
+		//System.out.println(copyGame);
 	}
 	
 	public void initializeTree() {
@@ -63,7 +63,7 @@ public class CopyOfMCTSPlayer extends Player {
 		
 		/* select the correct child node given the last move played in the game */
 		//System.out.println(playNode + " " + playNode.move);
-		playNode = playNode.getChild(game.getMove(0));
+		TreeNode playNode = this.playNode.getChild(game.getMove(-1));
 		
 		//developNode.prune();
 		//System.out.println(playNode + " " + playNode.move);
@@ -97,9 +97,9 @@ public class CopyOfMCTSPlayer extends Player {
 	    /* play the move on the board for this player */
 	    game.play(move);
 	    //game.recordMove(move);
-	    
+	    playNode = this.playNode.getChild(game.getMove(-1));
 	    /* make the move just played the new node to derive a child from */
-	    playNode = playNode.getChild(move);
+	    //playNode = playNode.getChild(move);
 	    
 	    /* return the move */
 	    return move;

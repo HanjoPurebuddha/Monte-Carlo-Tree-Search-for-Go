@@ -17,7 +17,7 @@ public class MCTSPlayer extends Player {
 	
 	int time;
 	int iterations;
-	SemiPrimitiveGame copyGame;
+	
 	public MCTSPlayer(int time, int iterations, 
 			boolean binaryScoring, boolean uct, boolean rave, boolean weightedRave, int weight, boolean heuristicRave, int raveHeuristic, boolean raveSkip) {
 		super("TimedPlayer");
@@ -39,15 +39,13 @@ public class MCTSPlayer extends Player {
 	public void setGame(Game game) {
 		
 		this.game = game;
-
-		this.copyGame.equals(game);
 	}
 	
 
 	public int playMove() {
 		
 		/* initialize the node that represents the players current position */
-		TreeNode tn = new TreeNode(copyGame, side, 1, 0,
+		TreeNode tn = new TreeNode(game, side, 1, 0,
 				binaryScoring,  uct,  rave, null,  weightedRave,  weight,  heuristicRave,  raveHeuristic,  raveSkip);
 		/* if the player is on time or iterations */
 		if(time > 0) {
@@ -79,7 +77,7 @@ public class MCTSPlayer extends Player {
 	    
 	    /* play the move on the board for this player */
 	    game.play(move);
-	    game.recordMove(move);
+	    //game.recordMove(move);
 	    
 	    /* return the move */
 	    return move;

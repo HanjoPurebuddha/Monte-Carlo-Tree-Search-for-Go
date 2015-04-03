@@ -85,7 +85,7 @@ public class GTPClient implements Runnable {
 	}
 
 	public void run() {
-		boolean startupRun = false; //used to check if startup commands have run
+		boolean startupRun = true; //used to check if startup commands have run
 		thread = Thread.currentThread();
 		try {
 			while(!Thread.interrupted()) {

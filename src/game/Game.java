@@ -22,7 +22,7 @@ public abstract class Game implements Cloneable {
 	public Board board;
 	protected int numMoves;
 	
-	private int lastMove;
+	protected int lastMove;
 	
 	public boolean equals(Object o) {
 		Game that = (Game) o;
@@ -33,6 +33,17 @@ public abstract class Game implements Cloneable {
 			this.board.equals(that.board) &&
 			this.numMoves == that.numMoves &&
 			this.lastMove == that.lastMove;
+	}
+	
+	public SemiPrimitiveGame copy() {
+		SemiPrimitiveGame copyGame = new SemiPrimitiveGame(this.getSideSize());
+		copyGame.komi = this.komi;
+		copyGame.handicap = this.handicap;
+		copyGame.nextToPlay = this.nextToPlay;
+		copyGame.board = this.board.copy();
+		copyGame.numMoves = this.numMoves;
+		copyGame.lastMove = this.lastMove;
+		return copyGame;
 	}
 	
 	public int hashCode() {
@@ -290,6 +301,11 @@ public abstract class Game implements Cloneable {
 	 */
 	public int getNumMoves() {
 		return numMoves;
+	}
+
+	public boolean validateBoard(int i, Board board2) {
+		// TODO Auto-generated method stub
+		return false;
 	}
 
 }

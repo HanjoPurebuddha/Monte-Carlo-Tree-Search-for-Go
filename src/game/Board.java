@@ -141,6 +141,17 @@ public class Board implements Cloneable {
 			Arrays.equals(this.points, that.points) &&
 			this.nextToPlay == that.nextToPlay;
 	}
+	
+	public Board copy() {
+		Board copyBoard = new Board(this.sideSize);
+		
+		System.arraycopy(this.points, 0, copyBoard.points, 0, points.length);
+		System.arraycopy(this.pointCounts, 0, copyBoard.pointCounts, 0, pointCounts.length);
+		
+		copyBoard.nextToPlay = this.nextToPlay;
+		
+		return copyBoard;
+	}
 
 	public Color getNextToPlay() {
 		return nextToPlay;

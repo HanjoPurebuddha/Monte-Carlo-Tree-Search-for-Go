@@ -1,6 +1,7 @@
 package mcts;
 
 import ai.Configuration;
+
 import java.util.LinkedList;
 
 import game.*;
@@ -18,7 +19,7 @@ public class TreeNode extends Configuration {
     static Random r = new Random();
     static int nActions = 5;
     static double epsilon = 1e-6;
-    SemiPrimitiveGame currentGame;
+    Game currentGame;
      //TreeNode previousNode;
     List<TreeNode> children = new ArrayList<TreeNode>();
     double nVisits, totValue;
@@ -29,7 +30,7 @@ public class TreeNode extends Configuration {
     Color[] amafMap;
     public int move;
     int amountOfNodes;
-    public TreeNode(SemiPrimitiveGame game, Color playerColor, int move, int amountOfNodes,
+    public TreeNode(Game game, Color playerColor, int move, int amountOfNodes,
     		boolean binaryScoring, boolean uct, boolean rave, Color[] amafMap, boolean weightedRave, int weight, 
     		boolean heuristicRave, int raveHeuristic, boolean raveSkip) {
     	//System.out.println(game);
@@ -77,7 +78,7 @@ public class TreeNode extends Configuration {
     
     /* return the current game */
     
-    public SemiPrimitiveGame getGame() {
+    public Game getGame() {
     	return currentGame;
     }
     
@@ -158,7 +159,7 @@ public class TreeNode extends Configuration {
     
     public int getMove() {
     	/* get the highest uct value child node of the gamestate given */
-    	print("getting move");
+    	//System.out.println("getting move");
     	TreeNode chosenNode = select();
     	return nodeMove(chosenNode);
     	
@@ -175,7 +176,8 @@ public class TreeNode extends Configuration {
     public void expand() {
     	
     	/* get all of the empty points on the board */
-    	PositionList emptyPoints = this.getGame().board.getEmptyPoints();
+    	PositionList emptyPoints = currentGame.board.getEmptyPoints();
+    	System.out.println(emptyPoints.size());
     	int sizeOfPoints = emptyPoints.size();
     	print(sizeOfPoints);
     	int amountOfChildren = 0;
@@ -183,7 +185,7 @@ public class TreeNode extends Configuration {
         for (int i=0; i<emptyPoints.size(); i++) {
         	
         	/* duplicate the board */
-        	SemiPrimitiveGame replacementGame = this.getGame().duplicate();
+        	Game replacementGame = currentGame.duplicate();
         	
         	/* and play one of the empty points */
         	boolean canPlay = replacementGame.play(emptyPoints.get(i));
@@ -222,14 +224,14 @@ public class TreeNode extends Configuration {
         TreeNode selected = null;
         double bestValue = -1;
         /* for every child node of the current node being selected */
-       
+       //System.out.println(" children: " +children.size() + " ");
         for (TreeNode c : children) {
         	/* if we are using UCT at all calculate it */
         	if (uct) {
         		/* calculate the uct value of that child */ // small random number to break ties randomly in unexpanded nodes
 
         		double uctValue = getUctValue(c.totValue, c.nVisits);
-        		print("UCT value = " + uctValue);
+        		//print("UCT value = " + uctValue);
         		
         		/* if we are just using UCT, or just using RAVE */
                 if (!rave || rave && !weightedRave && !heuristicRave) {
@@ -314,9 +316,7 @@ public class TreeNode extends Configuration {
     	Randy randomPlayer = new Randy();
     	
     	/* create a duplicate of the game */
-    	TreeNode simulateNode = tn;
-    	Game simulateGame = simulateNode.getGame();
-    	Game duplicateGame = simulateGame.duplicate();
+    	Game duplicateGame = currentGame.duplicate();
     	
     	/* initialize the game using the duplicate */
     	randomPlayer.startGame(duplicateGame, null);
