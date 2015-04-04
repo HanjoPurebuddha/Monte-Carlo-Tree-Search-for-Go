@@ -53,7 +53,7 @@ public class MCTSPlayer extends Player {
 		if(!noTree || !rememberTree) {
 		/* initialize the node that represents the players current position */
 			noTree = true;
-			playNode = new TreeNode(this.game, side, 1, 0, new ArrayList<TreeNode>(),
+			playNode = new TreeNode(this.game, side, game.getMove(0), 0, new ArrayList<TreeNode>(),
 				binaryScoring,  uct,  rave, null,  weightedRave,  weight,  heuristicRave,  raveHeuristic,  raveSkip);
 		} else if(rememberTree) {
 			

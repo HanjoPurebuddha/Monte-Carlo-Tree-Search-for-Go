@@ -45,7 +45,7 @@ public class MCTSEngine {
 		players[0] = new MCTSPlayer(1000, 0, false, 
 				true, true, false, false, 0, false, 30000, false);
 		//white
-		players[1] = new MCTSPlayer(1000, 0, false, 
+		players[1] = new MCTSPlayer(1000, 0, true, 
 				true, true, false, false, 0, false, 30000, false);
 	}
 

@@ -82,7 +82,7 @@ public class TreeNode extends Configuration {
     	//System.out.println("Amount of children on parent node: " + children.size());
     	for(TreeNode c : children) {
     		//System.out.println("Amount of children on child node: " + c.children.size());
-    		if(c.move == lastMove) {
+    		if(nodeMove(c) == lastMove) {
     			System.out.println("Found child:" +c.move + " ");
     			return c;
     		}
