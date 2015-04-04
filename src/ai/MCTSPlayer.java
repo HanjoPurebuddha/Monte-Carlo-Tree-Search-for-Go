@@ -1,6 +1,8 @@
 package ai;
 
 
+import java.util.ArrayList;
+
 import mcts.ElapsedTimer;
 import game.Color;
 import game.Game;
@@ -17,8 +19,9 @@ public class MCTSPlayer extends Player {
 	
 	int time;
 	int iterations;
+	boolean rememberTree;
 	
-	public MCTSPlayer(int time, int iterations, 
+	public MCTSPlayer(int time, int iterations, boolean rememberTree,
 			boolean binaryScoring, boolean uct, boolean rave, boolean weightedRave, int weight, boolean heuristicRave, int raveHeuristic, boolean raveSkip) {
 		super("TimedPlayer");
 		this.time = time;
@@ -32,7 +35,7 @@ public class MCTSPlayer extends Player {
     	this.heuristicRave = heuristicRave;
     	this.raveHeuristic = raveHeuristic;
     	this.raveSkip = raveSkip;
-    	
+    	this.rememberTree = rememberTree;
     	
 	}
 
@@ -41,33 +44,41 @@ public class MCTSPlayer extends Player {
 		this.game = game;
 		//System.out.println(this.game);
 	}
-	
-
+	boolean noTree;
+	TreeNode playNode;
+	TreeNode childNode;
 	public int playMove() {
-		//System.out.println("hi");
-		//System.out.println(game);
+		
+		/* if the tree hasn't been initialized or we aren't remembering the tree */
+		if(!noTree || !rememberTree) {
 		/* initialize the node that represents the players current position */
-		TreeNode tn = new TreeNode(this.game, side, 1, 0,
+			noTree = true;
+			playNode = new TreeNode(this.game, side, 1, 0, new ArrayList<TreeNode>(),
 				binaryScoring,  uct,  rave, null,  weightedRave,  weight,  heuristicRave,  raveHeuristic,  raveSkip);
+		} else if(rememberTree) {
+			
+			/* set the current node to the child of the previous last move played that matches the move last played */
+	    	playNode = playNode.getChild(game.getMove(0));
+	    }
 		/* if the player is on time or iterations */
 		if(time > 0) {
 			ElapsedTimer t = new ElapsedTimer();
 			while(t.elapsed() < time) {
 		        /* develop the tree in the node with the players current position recorded */
-				tn.developTree();
+				playNode.developTree();
 		        
 		    }
 		}
 		if (iterations > 0) {
 			for(int i=0;i<iterations;i++) {
 		        /* develop the tree in the node with the players current position recorded */
-				tn.developTree();
+				playNode.developTree();
 		        
 		    }
 		}
 	        
 	    /* select the move from within the node with the developed tree, making use of the recorded position */
-	    int move = tn.getMove();
+	    int move = playNode.getMove();
 
 	    /* if the opposing players move was a pass and the players current move is useless */
 	    if(game.getMove(0) == -1 && getMoveValue(move) <= 0) {
@@ -79,7 +90,13 @@ public class MCTSPlayer extends Player {
 	    
 	    /* play the move on the board for this player */
 	    game.play(move);
-	    game.recordMove(move);
+	    //game.recordMove(move);
+	    
+	    /* if we are remembering the tree */
+	    if(rememberTree) {
+	    	/* set the child node to the child of the current node that matches the move */
+	    	playNode = playNode.getChild(game.getMove(0));
+	    }
 	    
 	    /* return the move */
 	    return move;

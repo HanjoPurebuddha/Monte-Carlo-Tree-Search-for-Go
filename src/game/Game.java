@@ -40,7 +40,7 @@ public abstract class Game implements Cloneable {
 		copyGame.komi = this.komi;
 		copyGame.handicap = this.handicap;
 		copyGame.nextToPlay = this.nextToPlay;
-		copyGame.board = this.board.copy();
+		copyGame.board = this.board.duplicate();
 		copyGame.numMoves = this.numMoves;
 		copyGame.lastMove = this.lastMove;
 		return copyGame;

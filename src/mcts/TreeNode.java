@@ -21,7 +21,7 @@ public class TreeNode extends Configuration {
     static double epsilon = 1e-6;
     Game currentGame;
      //TreeNode previousNode;
-    List<TreeNode> children = new ArrayList<TreeNode>();
+    List<TreeNode> children;
     double nVisits, totValue;
     Color playerColor;
     boolean testing = false;
@@ -30,13 +30,14 @@ public class TreeNode extends Configuration {
     Color[] amafMap;
     public int move;
     int amountOfNodes;
-    public TreeNode(Game game, Color playerColor, int move, int amountOfNodes,
+    
+    public TreeNode(Game game, Color playerColor, int move, int amountOfNodes, List<TreeNode> children,
     		boolean binaryScoring, boolean uct, boolean rave, Color[] amafMap, boolean weightedRave, int weight, 
     		boolean heuristicRave, int raveHeuristic, boolean raveSkip) {
     	//System.out.println(game);
     	/* set the game so each node represents a gamestate */
     	this.currentGame = game;
-    	
+    	this.children = children;
     	/* set the color to determine the move from */
     	this.playerColor = playerColor;
     	this.amountOfNodes = 0;
@@ -54,28 +55,7 @@ public class TreeNode extends Configuration {
     	this.raveSkip = raveSkip;
     	
     }
-    
-   /* public List<GameState> getPath() {
-        List<GameState> res;
-        if (previousNode != null)
-            res = previousNode.getPath(); //gets state objects for all previous nodes
-        else
-            res = new ArrayList();
-        res.add(st);  //adds current state to end of object list
-        return res;
-    }       */ 
-    
-   /* public List<Action> getActions() {
-        List<Action> res;
-        if (previousNode != null){
-            res = previousNode.getActions();
-            res.add(lastAction);
-        }
-        else
-            res = new ArrayList();       
-        return res;
-    }  */
-    
+
     /* return the current game */
     
     public Game getGame() {
@@ -99,15 +79,37 @@ public class TreeNode extends Configuration {
     /* get the child node that matches the game state given (last move played, from MCTSPlayer) */
     
     public TreeNode getChild(int lastMove) {
-    	//System.out.println("children: " +children.size());
+    	//System.out.println("Amount of children on parent node: " + children.size());
     	for(TreeNode c : children) {
-    		//System.out.println(c.move + ":" + lastMove + " ");
+    		//System.out.println("Amount of children on child node: " + c.children.size());
     		if(c.move == lastMove) {
-    			//System.out.println("found child" + c.move + c);
+    			System.out.println("Found child:" +c.move + " ");
     			return c;
     		}
     	}
+    	System.out.println("No children that match: " + lastMove + " out of " +children.size() + " children. ");
     	return this;
+    }
+    
+    /* get all the children of the node two moves down the tree from the current one */
+    
+    public List<TreeNode> getChildren(int twoMovesAgo, int lastMove) {
+    	//System.out.println("Amount of children on parent node: " + children.size());
+    	for(TreeNode c : children) {
+    		//System.out.println("Amount of children on child node: " + c.children.size());
+    		if(c.move == twoMovesAgo) {
+    			for(TreeNode c2 : c.children) {
+    				if(c2.move == lastMove) {
+    					List<TreeNode> returnChildren = new ArrayList<TreeNode>();
+    					for(TreeNode c3 : c2.children) {
+    						returnChildren.add(c3);
+    					}
+    					return returnChildren;
+    				}
+    			}
+    		}
+    	}
+    	return new ArrayList<TreeNode>();
     }
     
     /* develop the tree */
@@ -160,14 +162,10 @@ public class TreeNode extends Configuration {
 		        	updateStatsRave(node, value);
 		        }
 	        }
-        
-	        //System.out.println("tree developed, size " + visited.size());
-        //System.out.println(amountOfNodes + " ");
     }
     
     public int getMove() {
     	/* get the highest uct value child node of the gamestate given */
-    	//System.out.println("getting move");
     	TreeNode chosenNode = select();
     	if(chosenNode != null) {
     		return nodeMove(chosenNode);
@@ -189,7 +187,6 @@ public class TreeNode extends Configuration {
     	
     	/* get all of the empty points on the board */
     	PositionList emptyPoints = currentGame.board.getEmptyPoints();
-    	//System.out.println(emptyPoints.size());
     	int sizeOfPoints = emptyPoints.size();
     	print(sizeOfPoints);
     	int amountOfChildren = 0;
@@ -206,7 +203,7 @@ public class TreeNode extends Configuration {
         	if(canPlay && canPlayDuplicate) {
         		amountOfNodes++;
         		/* create a new child for that point */
-        		TreeNode newChild = new TreeNode(normalGame, playerColor, amountOfNodes, emptyPoints.get(i)
+        		TreeNode newChild = new TreeNode(normalGame, playerColor, amountOfNodes, emptyPoints.get(i), new ArrayList<TreeNode>()
         				, binaryScoring,  uct,  rave, amafMap, weightedRave,  weight,  heuristicRave,  raveHeuristic,  raveSkip);
         		
         		/* and add it to the current nodes children */
@@ -301,9 +298,7 @@ public class TreeNode extends Configuration {
 
     public void updateStatsRave(TreeNode tn, double simulationResult) {
     	/* for every child of this node */
-    	//if(tn.amafVisited)
     	for (TreeNode c : tn.children) {
-    		//c.amafVisited = true;
     		/* if that child contains any move played in the simulation, that matches the players colour */
     		for (int i=0; i<amafMap.length; i++) {
     			/* if the move was played during the simulation */

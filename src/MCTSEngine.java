@@ -4,7 +4,6 @@ import java.io.InputStreamReader;
 import java.io.OutputStreamWriter;
 import java.util.Random;
 
-import ai.CopyOfMCTSPlayer;
 import ai.Player;
 import ai.Randy;
 import ai.MCTSPlayer;
@@ -43,9 +42,11 @@ public class MCTSEngine {
 	{
 		// binaryScoring,  uct,  rave,  weightedRave,  weight,  heuristicRave,  raveHeuristic,  raveSkip
 		//black
-		players[0] = new MCTSPlayer(1000, 0, true, true, true, false, 0, false, 30000, false);
+		players[0] = new MCTSPlayer(1000, 0, false, 
+				true, true, false, false, 0, false, 30000, false);
 		//white
-		players[1] = new MCTSPlayer(1000, 0, true, true, true, false, 0, false, 30000, false);
+		players[1] = new MCTSPlayer(1000, 0, false, 
+				true, true, false, false, 0, false, 30000, false);
 	}
 
 	public void boardsize(int size) {
@@ -223,7 +224,7 @@ public class MCTSEngine {
 		}
 		assert move.color == game.getNextToPlay();
 		boolean r = game.play(move.vertex.toPosition(game.getGrid()));
-		
+		game.recordMove(move.vertex.toPosition(game.getGrid()));
 		//if (!r) throw new IllegalArgumentException("illegal move");
 	}
 	
