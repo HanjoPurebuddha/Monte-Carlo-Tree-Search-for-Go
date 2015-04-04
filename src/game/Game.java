@@ -303,9 +303,6 @@ public abstract class Game implements Cloneable {
 		return numMoves;
 	}
 
-	public boolean validateBoard(int i, Board board2) {
-		// TODO Auto-generated method stub
-		return false;
-	}
+
 
 }

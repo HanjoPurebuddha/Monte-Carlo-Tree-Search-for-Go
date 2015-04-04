@@ -86,14 +86,6 @@ public class MCTSEngine {
 		for (int i = 0; i < players.length; i++) {
 			if (players[i].getPlayingColor() != null) players[i].endGame();
 		}
-		this.players = new Player[2];
-		{
-			// binaryScoring,  uct,  rave,  weightedRave,  weight,  heuristicRave,  raveHeuristic,  raveSkip
-			//black
-			players[0] = new MCTSPlayer(1000, 0, true, true, true, false, 0, false, 30000, false);
-			//white
-			players[1] = new CopyOfMCTSPlayer(1000, 0, true, true, true, false, 0, false, 30000, false);
-		}
 	}
 	
 	/**
@@ -246,8 +238,10 @@ public class MCTSEngine {
 			// bring player into the game
 			player.startGame(game, color);
 		}
+		//System.out.println(game);
 		player.setGame(game);
-		player.initializeTree();
+		//System.out.println(player.game);
+		//player.initializeTree();
 		int move;
 		
 		if (game.isOver()) { //throw new IllegalStateException("game is over, no more moves allowed");

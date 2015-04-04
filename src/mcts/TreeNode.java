@@ -132,12 +132,19 @@ public class TreeNode extends Configuration {
         /*once we've reached a leaf node, expand it */
         print("expanding" + cur);
         cur.expand();
-        
-	        /* and select the highest value node, adding it to the visited list */
+        TreeNode newNode = null;
+        /* if it was possible to expand the node */
+	        /* select the highest value child, adding it to the visited list */
 	        print("selecting");
-	        TreeNode newNode = cur.select();
-	        print("Selected" +newNode);
+	        newNode = cur.select();
+        if(newNode == null) {
+        	/* just do a simulation from the current node */
+        	newNode = cur;
+        } else {
+        	print("Selected" +newNode);
 	        visited.add(newNode);
+	        
+        }
 	        
 	        /* get the value for the simulation for the expanded node */
 	        print("simulating" + newNode);
@@ -153,6 +160,7 @@ public class TreeNode extends Configuration {
 		        	updateStatsRave(node, value);
 		        }
 	        }
+        
 	        //System.out.println("tree developed, size " + visited.size());
         //System.out.println(amountOfNodes + " ");
     }
@@ -161,7 +169,11 @@ public class TreeNode extends Configuration {
     	/* get the highest uct value child node of the gamestate given */
     	//System.out.println("getting move");
     	TreeNode chosenNode = select();
-    	return nodeMove(chosenNode);
+    	if(chosenNode != null) {
+    		return nodeMove(chosenNode);
+    	} else {
+    		return -1;
+    	}
     	
     }
     
@@ -177,7 +189,7 @@ public class TreeNode extends Configuration {
     	
     	/* get all of the empty points on the board */
     	PositionList emptyPoints = currentGame.board.getEmptyPoints();
-    	System.out.println(emptyPoints.size());
+    	//System.out.println(emptyPoints.size());
     	int sizeOfPoints = emptyPoints.size();
     	print(sizeOfPoints);
     	int amountOfChildren = 0;
@@ -185,16 +197,16 @@ public class TreeNode extends Configuration {
         for (int i=0; i<emptyPoints.size(); i++) {
         	
         	/* duplicate the board */
-        	Game replacementGame = currentGame.duplicate();
-        	
+        	SemiPrimitiveGame duplicateBoard = currentGame.copy();     
+        	Game normalGame = currentGame.duplicate();
         	/* and play one of the empty points */
-        	boolean canPlay = replacementGame.play(emptyPoints.get(i));
-        	
+        	boolean canPlay = duplicateBoard.play(emptyPoints.get(i));
+        	boolean canPlayDuplicate = normalGame.play(emptyPoints.get(i));
         	/* checking if it is possible to play that point, checking if we're playing into an eye */
-        	if(canPlay && !replacementGame.validateBoard(emptyPoints.get(i), replacementGame.duplicate().board)) {
+        	if(canPlay && canPlayDuplicate) {
         		amountOfNodes++;
         		/* create a new child for that point */
-        		TreeNode newChild = new TreeNode(replacementGame, playerColor, amountOfNodes, emptyPoints.get(i)
+        		TreeNode newChild = new TreeNode(normalGame, playerColor, amountOfNodes, emptyPoints.get(i)
         				, binaryScoring,  uct,  rave, amafMap, weightedRave,  weight,  heuristicRave,  raveHeuristic,  raveSkip);
         		
         		/* and add it to the current nodes children */
@@ -225,42 +237,44 @@ public class TreeNode extends Configuration {
         double bestValue = -1;
         /* for every child node of the current node being selected */
        //System.out.println(" children: " +children.size() + " ");
-        for (TreeNode c : children) {
-        	/* if we are using UCT at all calculate it */
-        	if (uct) {
-        		/* calculate the uct value of that child */ // small random number to break ties randomly in unexpanded nodes
-
-        		double uctValue = getUctValue(c.totValue, c.nVisits);
-        		//print("UCT value = " + uctValue);
-        		
-        		/* if we are just using UCT, or just using RAVE */
-                if (!rave || rave && !weightedRave && !heuristicRave) {
-    	            /* if the uctvalue is larger than the best value */
-    	            if (uctValue > bestValue) {
-    	            	
-    	            	/*the selected node is that child */
-    	                selected = c;
-    	                /* and the best value is the current value */
-    	                bestValue = uctValue;
-    	                
-    	            }
-                } else { /* if we are using RAVE and UCT */
-                	/* if we arent using the weightedrave or heuristic rave calculate the bestValue using both uct and RAVE */
-                	if(!weightedRave && !heuristicRave) {
-                	}
-                	
-                	/* if we are using weightedRave */
-                	if(weightedRave) {
-                		/* calculate the bestValue using rave, uct and a weight to make rave more effective early on */
-                	}
-                	
-                	/* if we are using heuristicRave */
-                	if(heuristicRave) {
-                		/* calculate the bestValue using rave, uct, and an additional heuristic value */
-                	}
-                }
-        	}
-        }
+       
+	        for (TreeNode c : children) {
+	        	/* if we are using UCT at all calculate it */
+	        	if (uct) {
+	        		/* calculate the uct value of that child */ // small random number to break ties randomly in unexpanded nodes
+	
+	        		double uctValue = getUctValue(c.totValue, c.nVisits);
+	        		//print("UCT value = " + uctValue);
+	        		
+	        		/* if we are just using UCT, or just using RAVE */
+	                if (!rave || rave && !weightedRave && !heuristicRave) {
+	    	            /* if the uctvalue is larger than the best value */
+	    	            if (uctValue > bestValue) {
+	    	            	
+	    	            	/*the selected node is that child */
+	    	                selected = c;
+	    	                /* and the best value is the current value */
+	    	                bestValue = uctValue;
+	    	                
+	    	            }
+	                } else { /* if we are using RAVE and UCT */
+	                	/* if we arent using the weightedrave or heuristic rave calculate the bestValue using both uct and RAVE */
+	                	if(!weightedRave && !heuristicRave) {
+	                	}
+	                	
+	                	/* if we are using weightedRave */
+	                	if(weightedRave) {
+	                		/* calculate the bestValue using rave, uct and a weight to make rave more effective early on */
+	                	}
+	                	
+	                	/* if we are using heuristicRave */
+	                	if(heuristicRave) {
+	                		/* calculate the bestValue using rave, uct, and an additional heuristic value */
+	                	}
+	                }
+	        	}
+	        
+        } 
         /* and then it is returned */
         return selected;
         
@@ -316,7 +330,7 @@ public class TreeNode extends Configuration {
     	Randy randomPlayer = new Randy();
     	
     	/* create a duplicate of the game */
-    	Game duplicateGame = currentGame.duplicate();
+    	Game duplicateGame = currentGame.copy();
     	
     	/* initialize the game using the duplicate */
     	randomPlayer.startGame(duplicateGame, null);

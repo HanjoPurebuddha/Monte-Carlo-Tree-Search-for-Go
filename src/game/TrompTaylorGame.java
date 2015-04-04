@@ -77,6 +77,7 @@ public class TrompTaylorGame extends Game {
 		return true;
 	}
 	
+
 	public boolean play(int z) {
 		if (!isPassingAllowed() && z == MOVE_PASS) return false;
 		if (isOver()) return false;
