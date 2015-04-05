@@ -40,13 +40,14 @@ public class MCTSEngine {
 	
 	private Player[] players = new Player[2];
 	{
+		// time, iterations, pers/non-pers
 		// binaryScoring,  uct,  rave,  weightedRave,  weight,  heuristicRave,  raveHeuristic,  raveSkip
 		//black
-		players[0] = new MCTSPlayer(1000, 0, false, 
-				true, true, false, false, 0, false, 30000, false);
+		players[0] = new MCTSPlayer(1000, 0, true, 
+				false, true, true, false, 0, false, 30000, false);
 		//white
 		players[1] = new MCTSPlayer(1000, 0, true, 
-				true, true, false, false, 0, false, 30000, false);
+				true, true, true, false, 0, false, 30000, false);
 	}
 
 	public void boardsize(int size) {
@@ -86,7 +87,9 @@ public class MCTSEngine {
 	private void endGame() {
 		for (int i = 0; i < players.length; i++) {
 			if (players[i].getPlayingColor() != null) players[i].endGame();
+			players[i].noTree = false;
 		}
+		
 	}
 	
 	/**

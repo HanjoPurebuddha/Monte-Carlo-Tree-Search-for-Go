@@ -20,22 +20,17 @@ public class MCTSPlayer extends Player {
 	int time;
 	int iterations;
 	boolean rememberTree;
+	Configuration nodeRuleSet;
+	TreeNode playNode;
 	
 	public MCTSPlayer(int time, int iterations, boolean rememberTree,
 			boolean binaryScoring, boolean uct, boolean rave, boolean weightedRave, int weight, boolean heuristicRave, int raveHeuristic, boolean raveSkip) {
 		super("TimedPlayer");
 		this.time = time;
 		this.iterations = iterations;
+		this.rememberTree = rememberTree;
 		/* set the values for different features */
-    	this.binaryScoring = binaryScoring;
-    	this.uct = uct;
-    	this.rave = rave;
-    	this.weightedRave = weightedRave;
-    	this.weight = weight;
-    	this.heuristicRave = heuristicRave;
-    	this.raveHeuristic = raveHeuristic;
-    	this.raveSkip = raveSkip;
-    	this.rememberTree = rememberTree;
+    	this.nodeRuleSet = new Configuration(binaryScoring, uct, rave, weightedRave, weight, heuristicRave, raveHeuristic, raveSkip);
     	
 	}
 
@@ -44,17 +39,17 @@ public class MCTSPlayer extends Player {
 		this.game = game;
 		//System.out.println(this.game);
 	}
-	boolean noTree;
-	TreeNode playNode;
-	TreeNode childNode;
+
+	
+	
 	public int playMove() {
 		
 		/* if the tree hasn't been initialized or we aren't remembering the tree */
 		if(!noTree || !rememberTree) {
 		/* initialize the node that represents the players current position */
 			noTree = true;
-			playNode = new TreeNode(this.game, side, game.getMove(0), 0, new ArrayList<TreeNode>(),
-				binaryScoring,  uct,  rave, null,  weightedRave,  weight,  heuristicRave,  raveHeuristic,  raveSkip);
+			//System.out.println(game.getMove(0));
+			playNode = new TreeNode(game, null, side, game.getMove(0), nodeRuleSet);
 		} else if(rememberTree) {
 			
 			/* set the current node to the child of the previous last move played that matches the move last played */
@@ -90,7 +85,6 @@ public class MCTSPlayer extends Player {
 	    
 	    /* play the move on the board for this player */
 	    game.play(move);
-	    //game.recordMove(move);
 	    
 	    /* if we are remembering the tree */
 	    if(rememberTree) {

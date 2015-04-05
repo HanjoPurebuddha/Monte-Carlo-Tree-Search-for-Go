@@ -11,11 +11,12 @@ import gtp.*;
  * 
  * @author Piotr Kaminski
  */
-public abstract class Player extends Configuration {
+public abstract class Player {
 	public Game game;
 	Color side;
 	String name;
 	final Random random = new Random();
+	public boolean noTree;
 
 	
 	
