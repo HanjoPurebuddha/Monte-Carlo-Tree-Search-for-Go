@@ -47,7 +47,7 @@ public class MCTSEngine {
 				false, true, true, false, 0, false, 30000, false);
 		//white
 		players[1] = new MCTSPlayer(1000, 0, true, 
-				true, true, true, false, 0, false, 30000, false);
+				false, true, true, false, 0, false, 30000, false);
 	}
 
 	public void boardsize(int size) {
