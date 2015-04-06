@@ -49,12 +49,14 @@ public class MCTSPlayer extends Player {
 		/* initialize the node that represents the players current position */
 			noTree = true;
 			//System.out.println(game.getMove(0));
-			playNode = new TreeNode(game, null, side, game.getMove(0), nodeRuleSet);
+			playNode = new TreeNode(null, game, game.getMove(0), side, nodeRuleSet);
+			
 		} else if(rememberTree) {
 			
 			/* set the current node to the child of the previous last move played that matches the move last played */
 	    	playNode = playNode.getChild(game.getMove(0));
 	    }
+		
 		/* if the player is on time or iterations */
 		if(time > 0) {
 			ElapsedTimer t = new ElapsedTimer();
@@ -73,7 +75,7 @@ public class MCTSPlayer extends Player {
 		}
 	        
 	    /* select the move from within the node with the developed tree, making use of the recorded position */
-	    int move = playNode.getMove();
+	    int move = playNode.getHighestValueMove();
 
 	    /* if the opposing players move was a pass and the players current move is useless */
 	    if(game.getMove(0) == -1 && getMoveValue(move) <= 0) {
