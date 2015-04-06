@@ -49,7 +49,7 @@ public class MCTSPlayer extends Player {
 		/* initialize the node that represents the players current position */
 			noTree = true;
 			//System.out.println(game.getMove(0));
-			playNode = new TreeNode(null, game, game.getMove(0), side, nodeRuleSet);
+			playNode = new TreeNode(null, game, game.getMove(0), -Double.MAX_VALUE, side, nodeRuleSet);
 			
 		} else if(rememberTree) {
 			

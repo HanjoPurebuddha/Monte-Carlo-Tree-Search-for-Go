@@ -35,6 +35,9 @@ public class TreeNode {
     /* initialize the values used in uct, one for uct standard and one for rave */
     double[] nVisits = new double[2], totValue = new double[2];
     
+    /* initialize the actual uct value, used for quick navigation when searching the tree */
+    double uctValue;
+    
     /* initialize the playerColor for use in enforcing positive values for the player in the amaf map */
     Color playerColor;
     
@@ -51,7 +54,7 @@ public class TreeNode {
     Configuration nodeRuleSet;
     
     /* set all the values that change for every node */
-    public TreeNode(TreeNode parent, Game currentGame, int move,
+    public TreeNode(TreeNode parent, Game currentGame, int move, double uctValue,
     		Color playerColor, Configuration nodeRuleSet) {
     	this.parent = parent;
     	this.currentGame = currentGame;
@@ -98,7 +101,7 @@ public class TreeNode {
     	/* if we couldn't find a matching expanded child, then create one with the move played out */
     	Game normalGame = currentGame.duplicate();
     	normalGame.play(lastMove);
-    	TreeNode newChild = new TreeNode(this, normalGame, lastMove, playerColor, nodeRuleSet);
+    	TreeNode newChild = new TreeNode(this, normalGame, lastMove, uctValue, playerColor, nodeRuleSet);
     	
     	/* and return that one instead */
     	return newChild;
@@ -182,7 +185,7 @@ public class TreeNode {
         	if(canPlay && canPlayDuplicate) {
         		
         		/* create a new child for that point */
-        		TreeNode newChild = new TreeNode(this, normalGame, emptyPoints.get(i), playerColor, nodeRuleSet);
+        		TreeNode newChild = new TreeNode(this, normalGame, emptyPoints.get(i), uctValue, playerColor, nodeRuleSet);
         		
         		/* and add it to the current nodes children */
         		children.add(newChild);
@@ -198,7 +201,7 @@ public class TreeNode {
         passGame.play(-1);
         /* and retain the possible moves from that pass move, allowing this move to be skipped over for expansion,
          * but still updated if its child nodes have potential value */
-		TreeNode passChild = new TreeNode(this, passGame, -1, playerColor, nodeRuleSet);
+		TreeNode passChild = new TreeNode(this, passGame, -1, uctValue,  playerColor, nodeRuleSet);
 		
 		/* and add it to the current nodes children */
 		children.add(passChild);
@@ -220,8 +223,7 @@ public class TreeNode {
         /* for every child node of the current node being selected */
         for (TreeNode c : children) {
 
-        	/* if we are using UCT at all calculate it */
-    		double uctValue = 0;
+
     		/* if we are using UCT no rave */
             if (nodeRuleSet.uct) {
             	/* get the uct value just using the uct values */
