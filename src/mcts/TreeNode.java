@@ -35,16 +35,25 @@ public class TreeNode {
     /* initialize the values used in uct, one for uct standard and one for rave */
     double[] nVisits = new double[2], totValue = new double[2];
     
-    /* initialize the actual uct value, used for quick navigation when searching the tree */
-    double uctValue;
+    /* the actual uct value, used for quick navigation when searching the tree */
+    //double uctValue;
     
-    /* initialize the playerColor for use in enforcing positive values for the player in the amaf map */
+    /* the weight, used to balance rave and uct and recorded for quick navigation when 
+     * using weighted heuristics
+     */
+    //double weight;
+    
+    
+    /* the counter for skipping rave */
+    int raveSkipCounter;
+    
+    /* the playerColor for use in enforcing positive values for the player in the amaf map */
     Color playerColor;
     
     /* setup the testing variable to allow prints or disallow them */
     boolean testing = false;
     
-    /* initialize a map of colours used to record if a move was in the players color for amaf */
+    /* a map of colours used to record if a move was in the players color for amaf */
     Color[] amafMap;
     
     /* each node has the move taken to get to that move */
@@ -54,18 +63,14 @@ public class TreeNode {
     Configuration nodeRuleSet;
     
     /* set all the values that change for every node */
-    public TreeNode(TreeNode parent, Game currentGame, int move, double uctValue,
+    public TreeNode(TreeNode parent, Game currentGame, int move, int raveSkipCounter, //double uctValue, double weight, // NOTE // Might not need to m
     		Color playerColor, Configuration nodeRuleSet) {
     	this.parent = parent;
     	this.currentGame = currentGame;
     	this.move = move;
     	this.nodeRuleSet = nodeRuleSet;
     	this.playerColor = playerColor;
-    	/* and set the default values of the visits and total value for the node */
-    	for(int i=0; i<nVisits.length; i++) {
-    		nVisits[i] = 0;
-    		totValue[i] = 0;
-    	}
+    	this.raveSkipCounter = raveSkipCounter;
     }
     
     /* set the values that are persistent across nodes, but given by the user/player */
@@ -101,7 +106,7 @@ public class TreeNode {
     	/* if we couldn't find a matching expanded child, then create one with the move played out */
     	Game normalGame = currentGame.duplicate();
     	normalGame.play(lastMove);
-    	TreeNode newChild = new TreeNode(this, normalGame, lastMove, uctValue, playerColor, nodeRuleSet);
+    	TreeNode newChild = new TreeNode(this, normalGame, lastMove, raveSkipCounter, playerColor, nodeRuleSet);
     	
     	/* and return that one instead */
     	return newChild;
@@ -148,7 +153,7 @@ public class TreeNode {
 	    }
 	    
 	    /* and if using rave update the subtree of the parent of the simulated node */
-	    if(nodeRuleSet.rave) {
+	    if(nodeRuleSet.rave || nodeRuleSet.weightedRave) {
 	    	
 	    	/* based on the amaf map of the node that was just simulated */
 	    	updateStatsRave(newNode.amafMap, cur, value);
@@ -173,19 +178,23 @@ public class TreeNode {
     	/* for every empty point on the board */
         for (int i=0; i<emptyPoints.size(); i++) {
         	
-        	/* duplicate the board */
-        	SemiPrimitiveGame duplicateBoard = currentGame.copy();     
-        	Game normalGame = currentGame.duplicate();
         	
-        	/* and play one of the empty points */
-        	boolean canPlay = duplicateBoard.play(emptyPoints.get(i));
-        	boolean canPlayDuplicate = normalGame.play(emptyPoints.get(i));
+        	/* if disallowing playing in eyes, create a semiprimitive board with that rule and test playing on it */
+        	boolean canPlay = true;
+        	if(nodeRuleSet.dontExpandEyes) {
+	        	SemiPrimitiveGame duplicateBoard = currentGame.copy();    
+	        	canPlay = duplicateBoard.play(emptyPoints.get(i));
+        	}
+        	
+        	/* otherwise just try and play on it normally, ensuring the rules of the game are followed */
+        	Game normalGame = currentGame.duplicate();
+        	boolean canPlayNormal = normalGame.play(emptyPoints.get(i));
         	
         	/* checking if it is possible to play that point, checking if we're playing into an eye */
-        	if(canPlay && canPlayDuplicate) {
+        	if(canPlay && canPlayNormal) {
         		
         		/* create a new child for that point */
-        		TreeNode newChild = new TreeNode(this, normalGame, emptyPoints.get(i), uctValue, playerColor, nodeRuleSet);
+        		TreeNode newChild = new TreeNode(this, normalGame, emptyPoints.get(i), raveSkipCounter, playerColor, nodeRuleSet);
         		
         		/* and add it to the current nodes children */
         		children.add(newChild);
@@ -199,9 +208,7 @@ public class TreeNode {
         /* add a pass move as well as playing on every allowable empty point */
         Game passGame = currentGame.duplicate();
         passGame.play(-1);
-        /* and retain the possible moves from that pass move, allowing this move to be skipped over for expansion,
-         * but still updated if its child nodes have potential value */
-		TreeNode passChild = new TreeNode(this, passGame, -1, uctValue,  playerColor, nodeRuleSet);
+		TreeNode passChild = new TreeNode(this, passGame, -1, raveSkipCounter, playerColor, nodeRuleSet);
 		
 		/* and add it to the current nodes children */
 		children.add(passChild);
@@ -222,22 +229,57 @@ public class TreeNode {
 
         /* for every child node of the current node being selected */
         for (TreeNode c : children) {
+        	
+        	double uctValue = 0;
+        	
+        	/* if the rave skip counter has reached the amount of times to wait until skipping rave,
+        	 * or if it is not enabled */
+    		if(raveSkipCounter < nodeRuleSet.raveSkip || nodeRuleSet.raveSkip == -1) {
+    		    /* get the uct value using standard rules */
+    		    uctValue = getUctValue(c); // NOTE // Investigate avoiding recalculation if the node stats have not been updated // NOTE //
+    		    
+    		    /* and increment the counter */
+    		    raveSkipCounter++;
+    		    
+    		} else if(raveSkipCounter == nodeRuleSet.raveSkip) {
+    			/* used to record what was changed */
+    			boolean raveChanged = false;
+    			boolean weightedRaveChanged = false;
+    			boolean heuristicRaveChanged = false;
+    			
+    			/* otherwise disable rave */
+    			if(nodeRuleSet.rave = true) {
+    				raveChanged = true;
+    				nodeRuleSet.rave = false;
+    			}
+    			if(nodeRuleSet.weightedRave = true) {
+    				weightedRaveChanged = true;
+    				nodeRuleSet.weightedRave = false;
+    			}
+    			if(nodeRuleSet.heuristicRave = true) {
+    				heuristicRaveChanged = true;
+    				nodeRuleSet.heuristicRave = false;
+    			}
+    			
+    			/* get the uct value using new rules */
+    			uctValue = getUctValue(c);
+    		    
+    		    /* and set the counter to 0 */
+    		    raveSkipCounter = 0;
+    		    
+    		    /* and re-enable rave */
+    			if(raveChanged == true) {
+    				nodeRuleSet.rave = true;
+    			}
+    			if(weightedRaveChanged == true) {
+    				nodeRuleSet.weightedRave = true;
+    			}
+    			if(heuristicRaveChanged == true) {
+    				nodeRuleSet.heuristicRave = true;
+    			}
+    		}
 
-
-    		/* if we are using UCT no rave */
-            if (nodeRuleSet.uct) {
-            	/* get the uct value just using the uct values */
-        		uctValue = getUctValue(0, c);
-        		
-            }
-            
-            /* if we are using rave */
-            if (nodeRuleSet.rave) {
-            	
-            	/* get the uct value for the rave values */
-        		uctValue = getUctValue(1, c);
-            }
-    		print("UCT value = " + uctValue);
+        	print("UCT value = " + uctValue);
     		
             /* if the uctvalue is larger than the best value */
         	print("current best value is: "+bestValue);
@@ -267,13 +309,49 @@ public class TreeNode {
     	return false;
     }
     
-    /* get the uct value for a node with a small random number to break ties randomly in unexpanded nodes  */
-    public double getUctValue(int type, TreeNode tn) {
+    /* perform the calculation required for uct */
+    public double calculateUctValue(int type, TreeNode tn) {
     	
     	/* ((total value) / (visits + e)) + (log(visits) / (visits + e) + random number) */
-        return tn.totValue[type] / (tn.nVisits[type] + epsilon) +
+    	return tn.totValue[type] / (tn.nVisits[type] + epsilon) +
                 Math.sqrt(Math.log(tn.nVisits[type]+1) / (tn.nVisits[type] + epsilon)) +
                 r.nextDouble() * epsilon;
+    }
+    
+    /* perform the calculation needed to weight the node, in order to balance rave and uct */
+    public double calculateWeight(TreeNode tn) {
+    	
+    	/* when only a few simulations have been seen, the weight is closer to 1, weighting the RAVE value more highly
+    	 * when many simulations have been seen, the weight is closer to 0, weighting the MC value more highly
+    	 */
+    	if(tn.nVisits[0] == 0)
+    		return 0;
+    	return 1 - (nodeRuleSet.initialWeight / (tn.nVisits[0] / nodeRuleSet.finalWeight));
+    }
+    
+    /* get the uct value for a node with a small random number to break ties randomly in unexpanded nodes  */
+    public double getUctValue(TreeNode tn) {
+
+    	/* if we are using UCT no rave */
+        if (nodeRuleSet.uct) {
+        	
+        	/* get the uct value only */
+        	return calculateUctValue(0, tn);
+    		
+        } else if (nodeRuleSet.rave) {
+        	
+        	/* get the rave value only */
+        	return calculateUctValue(1, tn);
+    		
+        } else if (nodeRuleSet.weightedRave) {
+        	
+        	/* calculate it using the weight */
+        	double weight = calculateWeight(tn);
+        	//System.out.println(weight);
+    		return ((1 - weight) * calculateUctValue(0, tn)) + (weight * calculateUctValue(1, tn));
+	        
+    	}
+        return 0;
     }
 
     /* update the subtrees using RAVE */

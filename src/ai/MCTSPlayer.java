@@ -24,13 +24,15 @@ public class MCTSPlayer extends Player {
 	TreeNode playNode;
 	
 	public MCTSPlayer(int time, int iterations, boolean rememberTree,
-			boolean binaryScoring, boolean uct, boolean rave, boolean weightedRave, int weight, boolean heuristicRave, int raveHeuristic, boolean raveSkip) {
+			boolean binaryScoring, boolean uct, boolean rave, boolean weightedRave, double initialWeight, double finalWeight, 
+			boolean heuristicRave, int raveHeuristic, int raveSkip, boolean dontExpandEyes) {
 		super("TimedPlayer");
 		this.time = time;
 		this.iterations = iterations;
 		this.rememberTree = rememberTree;
 		/* set the values for different features */
-    	this.nodeRuleSet = new Configuration(binaryScoring, uct, rave, weightedRave, weight, heuristicRave, raveHeuristic, raveSkip);
+    	this.nodeRuleSet = new Configuration(binaryScoring, uct, rave, weightedRave, 
+    			initialWeight, finalWeight, heuristicRave, raveHeuristic, raveSkip, dontExpandEyes);
     	
 	}
 
@@ -49,7 +51,7 @@ public class MCTSPlayer extends Player {
 		/* initialize the node that represents the players current position */
 			noTree = true;
 			//System.out.println(game.getMove(0));
-			playNode = new TreeNode(null, game, game.getMove(0), -Double.MAX_VALUE, side, nodeRuleSet);
+			playNode = new TreeNode(null, game, game.getMove(0), 0, side, nodeRuleSet);
 			
 		} else if(rememberTree) {
 			

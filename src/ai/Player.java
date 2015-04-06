@@ -17,7 +17,7 @@ public abstract class Player {
 	String name;
 	final Random random = new Random();
 	public boolean noTree;
-
+	public int raveSkipCounter;
 	
 	
 	private static final int MAX_RANDOM_MOVE_PICKS = 10;

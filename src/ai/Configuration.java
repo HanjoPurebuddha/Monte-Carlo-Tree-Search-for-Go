@@ -4,21 +4,25 @@ package ai;
 public class Configuration {
 	/* begin values for adjusting different features */
     
-	public boolean binaryScoring = false;
-    public boolean uct = false;
-    public boolean rave = false;
-    public boolean weightedRave = false;
-    public int weight = 0;
-    public boolean heuristicRave = false;
-    public int raveHeuristic = 0;
-    public boolean raveSkip = false;
+	public boolean binaryScoring;
+    public boolean uct;
+    public boolean rave;
+    public boolean weightedRave;
+    public double initialWeight;
+    public double finalWeight;
+    public boolean heuristicRave;
+    public int raveHeuristic;
+    public int raveSkip;
+    public boolean dontExpandEyes;
     
-    public Configuration(boolean binaryScoring, boolean uct, boolean rave, boolean weightedRave, int weight, boolean heuristicRave, int raveHeuristic, boolean raveSkip) {
+    public Configuration(boolean binaryScoring, boolean uct, boolean rave, boolean weightedRave, double initialWeight, double finalWeight, boolean heuristicRave, int raveHeuristic, int raveSkip, boolean dontExpandEyes) {
     	this.binaryScoring = binaryScoring;
     	this.uct = uct;
+    	this.dontExpandEyes = dontExpandEyes;
     	this.rave = rave;
     	this.weightedRave = weightedRave;
-    	this.weight = weight;
+    	this.initialWeight = initialWeight;
+    	this.finalWeight = finalWeight;
     	this.heuristicRave = heuristicRave;
     	this.raveHeuristic = raveHeuristic;
     	this.raveSkip = raveSkip;
