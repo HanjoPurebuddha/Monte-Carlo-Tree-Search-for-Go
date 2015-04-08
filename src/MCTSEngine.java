@@ -43,11 +43,11 @@ public class MCTSEngine {
 		// time, iterations, pers/non-pers
 		// binaryScoring,  uct,  rave,  weightedRave,  weight,  heuristicRave,  raveHeuristic,  raveSkip
 		//black
-		players[0] = new MCTSPlayer(0, 3000, true, 
-				false, true, false, false, 1, 500, 20, false, true, false);
+		players[0] = new MCTSPlayer(1000, 0, true, 
+				false, false, false, true, 1, 15000, 20, false, true, true);
 		//white
-		players[1] = new MCTSPlayer(0, 3000, true, 
-				false, true, false, false, 1, 500, 20, false, true, true);
+		players[1] = new MCTSPlayer(1000, 0, true, 
+				false, false, false, true, 1, 10000, 20, false, true, true);
 	}
 
 	public void boardsize(int size) {
