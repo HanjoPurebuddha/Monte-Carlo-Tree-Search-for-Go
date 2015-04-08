@@ -25,14 +25,16 @@ public class MCTSPlayer extends Player {
 	
 	public MCTSPlayer(int time, int iterations, boolean rememberTree,
 			boolean binaryScoring, boolean uct, boolean rave, boolean weightedRave, double initialWeight, double finalWeight, 
-			 int raveSkip, boolean dontExpandEyes, boolean dynamicTree, boolean simulateAvoidEyes) {
+			 int raveSkip, boolean dontExpandEyes, int dynamicTree, double firstPlayUrgency, 
+			 boolean simulateAvoidEyes, boolean simulateAtari, boolean simulatePatterns, boolean simulateTakePieces) {
 		super("TimedPlayer");
 		this.time = time;
 		this.iterations = iterations;
 		this.rememberTree = rememberTree;
 		/* set the values for different features */
     	this.nodeRuleSet = new Configuration(binaryScoring, uct, rave, weightedRave, 
-    			initialWeight, finalWeight, raveSkip, dontExpandEyes, dynamicTree, simulateAvoidEyes);
+    			initialWeight, finalWeight, raveSkip, dontExpandEyes, dynamicTree, firstPlayUrgency,
+    			simulateAvoidEyes, simulateAtari, simulatePatterns, simulateTakePieces);
     	
 	}
 
@@ -49,7 +51,7 @@ public class MCTSPlayer extends Player {
 		/* initialize the node that represents the players current position */
 			noTree = true;
 			//System.out.println(game.getMove(0));
-			playNode = new TreeNode(null, game, game.getMove(0), 0, side, nodeRuleSet);
+			playNode = new TreeNode(null, game, game.getMove(0), 0, nodeRuleSet.firstPlayUrgencyValue(), side, false, nodeRuleSet);
 		} else if(rememberTree) {
 			
 			/* set the current node to the child of the previous last move played that matches the move last played */

@@ -41,13 +41,22 @@ public class MCTSEngine {
 	private Player[] players = new Player[2];
 	{
 		// time, iterations, pers/non-pers
-		// binaryScoring,  uct,  rave,  weightedRave,  weight,  heuristicRave,  raveHeuristic,  raveSkip
+		// binaryScoring,  uct,  rave,  weightedRave,  weight,  raveSkip
+		// expand eyes
+		// dynamic tree, first play urgency
+		// simulate eyes, simulate atari, simulate patterns, simulate taking pieces
 		//black
 		players[0] = new MCTSPlayer(1000, 0, true, 
-				false, false, false, true, 1, 15000, 20, false, true, true);
+				false, false, false, true, 1, 20000, 20, 
+				false, 
+				2, 0,
+				true, false, true, false);
 		//white
 		players[1] = new MCTSPlayer(1000, 0, true, 
-				false, false, false, true, 1, 10000, 20, false, true, true);
+				false, false, false, true, 1, 20000, 20, 
+				false, 
+				2, 1000, 
+				true, false, true, false);
 	}
 
 	public void boardsize(int size) {

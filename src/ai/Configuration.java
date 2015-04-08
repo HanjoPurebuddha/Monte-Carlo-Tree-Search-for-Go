@@ -4,23 +4,24 @@ package ai;
 public class Configuration {
 	/* to implement....#
 	 * uct changes */
-	boolean ucbTuned = false;
+	public boolean ucbTuned;
+	public double firstPlayUrgency;
 	
 	/* initialization changes */
-	boolean openBook = false;
-	boolean heuristicInitialization = false;
+	boolean openBook;
+	boolean heuristicInitialization;
 	
 	/* simulation changes */
-	boolean simulateAtari = false;
-	boolean simulatePatterns = false;
-	boolean simulateTakePiece = false;
-	public boolean simulateAvoidEyes = false;
+	public boolean simulateAtari;
+	public boolean simulatePatterns;
+	public boolean simulateTakePieces;
+	public boolean simulateAvoidEyes;
 	
 	/* bonus changes */
-	boolean bonusAtari = false;
-	boolean bonusPatterns = false;
-	boolean bonusTakePiece = false;
-	boolean bonusLocalNeighbourhood = false;
+	boolean bonusAtari;
+	boolean bonusPatterns;
+	boolean bonusTakePiece;
+	boolean bonusLocalNeighbourhood;
 	
 	/* begin values for adjusting different features */
 	public boolean binaryScoring;
@@ -33,10 +34,11 @@ public class Configuration {
     public int raveHeuristic;
     public int raveSkip;
     public boolean dontExpandEyes;
-    public boolean dynamicTree;
+    public int dynamicTree;
     
     public Configuration(boolean binaryScoring, boolean uct, boolean rave, boolean weightedRave, double initialWeight, 
-    		double finalWeight, int raveSkip, boolean dontExpandEyes, boolean dynamicTree, boolean simulateAvoidEyes) {
+    		double finalWeight, int raveSkip, boolean dontExpandEyes, int dynamicTree, double firstPlayUrgency,
+    		boolean simulateAvoidEyes, boolean simulateAtari, boolean simulatePatterns, boolean simulateTakePieces) {
     	this.binaryScoring = binaryScoring;
     	this.uct = uct;
     	this.dontExpandEyes = dontExpandEyes;
@@ -47,5 +49,15 @@ public class Configuration {
     	this.raveSkip = raveSkip;
     	this.dynamicTree = dynamicTree;
     	this.simulateAvoidEyes = simulateAvoidEyes;
+    	this.simulateAtari = simulateAtari;
+    	this.simulatePatterns = simulatePatterns;
+    	this.simulateTakePieces = simulateTakePieces;
+    	this.firstPlayUrgency = firstPlayUrgency;
+    }
+    
+    public double firstPlayUrgencyValue() {
+    	if(firstPlayUrgency > 0)
+    		return firstPlayUrgency;
+    	return -Double.MAX_VALUE;
     }
 }
