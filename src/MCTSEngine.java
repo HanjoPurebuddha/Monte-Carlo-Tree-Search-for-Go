@@ -5,7 +5,7 @@ import java.io.OutputStreamWriter;
 import java.util.Random;
 
 import ai.Player;
-import ai.Randy;
+import ai.RandomPlayer;
 import ai.MCTSPlayer;
 import mcts.ElapsedTimer;
 import mcts.TreeNode;
@@ -43,11 +43,11 @@ public class MCTSEngine {
 		// time, iterations, pers/non-pers
 		// binaryScoring,  uct,  rave,  weightedRave,  weight,  heuristicRave,  raveHeuristic,  raveSkip
 		//black
-		players[0] = new MCTSPlayer(1000, 0, true, 
-				false, false, false, true, 1, 5000, false, 30000, -1, false);
+		players[0] = new MCTSPlayer(0, 3000, true, 
+				false, true, false, false, 1, 500, 20, false, true, false);
 		//white
-		players[1] = new MCTSPlayer(1000, 0, true, 
-				false, false, false, true, 1, 5000, false, 0, 20, true);
+		players[1] = new MCTSPlayer(0, 3000, true, 
+				false, true, false, false, 1, 500, 20, false, true, true);
 	}
 
 	public void boardsize(int size) {

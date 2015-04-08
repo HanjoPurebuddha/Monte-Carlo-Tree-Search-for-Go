@@ -25,21 +25,19 @@ public class MCTSPlayer extends Player {
 	
 	public MCTSPlayer(int time, int iterations, boolean rememberTree,
 			boolean binaryScoring, boolean uct, boolean rave, boolean weightedRave, double initialWeight, double finalWeight, 
-			boolean heuristicRave, int raveHeuristic, int raveSkip, boolean dontExpandEyes) {
+			 int raveSkip, boolean dontExpandEyes, boolean dynamicTree, boolean simulateInEyes) {
 		super("TimedPlayer");
 		this.time = time;
 		this.iterations = iterations;
 		this.rememberTree = rememberTree;
 		/* set the values for different features */
     	this.nodeRuleSet = new Configuration(binaryScoring, uct, rave, weightedRave, 
-    			initialWeight, finalWeight, heuristicRave, raveHeuristic, raveSkip, dontExpandEyes);
+    			initialWeight, finalWeight, raveSkip, dontExpandEyes, dynamicTree, simulateInEyes);
     	
 	}
 
 	public void setGame(Game game) {
-		//System.out.println(game);
 		this.game = game;
-		//System.out.println(this.game);
 	}
 
 	
@@ -52,7 +50,6 @@ public class MCTSPlayer extends Player {
 			noTree = true;
 			//System.out.println(game.getMove(0));
 			playNode = new TreeNode(null, game, game.getMove(0), 0, side, nodeRuleSet);
-			
 		} else if(rememberTree) {
 			
 			/* set the current node to the child of the previous last move played that matches the move last played */
@@ -75,7 +72,7 @@ public class MCTSPlayer extends Player {
 		        
 		    }
 		}
-	        
+	    System.out.println(playNode.calculateWeight(playNode)); 
 	    /* select the move from within the node with the developed tree, making use of the recorded position */
 	    int move = playNode.getHighestValueMove();
 

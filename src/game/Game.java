@@ -46,6 +46,7 @@ public abstract class Game implements Cloneable {
 		return copyGame;
 	}
 	
+	
 	public int hashCode() {
 		return board.hashCode() ^ numMoves ^ handicap ^ getClass().hashCode();
 	}

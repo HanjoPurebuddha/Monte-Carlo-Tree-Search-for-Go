@@ -1,19 +1,19 @@
 package mcts;
 
 import ai.Configuration;
+import ai.Player;
+import ai.NoEyeRandomPlayer;
 
 import java.util.LinkedList;
 
 import game.*;
 import game.Board.PositionList;
-import gtp.Vertex;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
 
-import ai.Player;
-import ai.Randy;
+import ai.RandomPlayer;
 
 public class TreeNode {
 	
@@ -32,6 +32,9 @@ public class TreeNode {
     /* each node has children */
     List<TreeNode> children = new ArrayList<TreeNode>();
     
+    /* and a dynamic tree is maintained of only the children who have been visited more than once */
+    List<TreeNode> dynamicTreeChildren = new ArrayList<TreeNode>();
+    
     /* initialize the values used in uct, one for uct standard and one for rave */
     double[] nVisits = new double[2], totValue = new double[2];
     
@@ -42,7 +45,6 @@ public class TreeNode {
      * using weighted heuristics
      */
     //double weight;
-    
     
     /* the counter for skipping rave */
     int raveSkipCounter;
@@ -122,18 +124,34 @@ public class TreeNode {
         TreeNode cur = this;
         visited.add(this);
         
-        /* until the bottom of the tree is reached */
-        while (!cur.isLeaf()) {
+        /* until the bottom of the tree is reached
+         * in either dynamic or non-dynamic tree modes */
+        boolean atLeafNode = false;
+        if(nodeRuleSet.dynamicTree)
+        	atLeafNode = cur.isDynamicTreeLeaf();
+        else 
+        	atLeafNode = cur.isLeaf();
+        while (!atLeafNode) {
         	/* follow the highest uct value node, and add it to the visited list */
         	print("navigating to leaf node");
-            cur = cur.select();
+        	if(nodeRuleSet.dynamicTree)
+        		cur = cur.dynamicTreeSelect();
+        	else
+        		cur = cur.select();
             print("Adding: " + cur);
             visited.add(cur);
+            if(nodeRuleSet.dynamicTree)
+            	atLeafNode = cur.isDynamicTreeLeaf();
+            else 
+            	atLeafNode = cur.isLeaf();
         }
         
-        /* at the bottom of the tree expand the children for the node, including a pass move */
+        
+        /* at the bottom of the tree expand the children for the node, including a pass move
+         * but only if it hasn't been expanded before */
         print("found leaf node, expanding from: " + cur);
-        cur.expand();
+        if(cur.children.size() == 0)
+        	cur.expand();
 
         /* get the best child from the expanded nodes, even if it's just passing */
 	    print("selecting from: " + cur);
@@ -154,10 +172,14 @@ public class TreeNode {
 	    
 	    /* and if using rave update the subtree of the parent of the simulated node */
 	    if(nodeRuleSet.rave || nodeRuleSet.weightedRave) {
-	    	
+
 	    	/* based on the amaf map of the node that was just simulated */
 	    	updateStatsRave(newNode.amafMap, cur, value);
 	    }
+	    
+	    /* if we are using the dynamic tree, update that */
+	    if(nodeRuleSet.dynamicTree) 
+	    	cur.dynamicTreeExpand();
     }
     
     /* get the highest uct value child node of the node given */
@@ -165,6 +187,19 @@ public class TreeNode {
     	TreeNode highestValueNode = select();
     	print("NODE SELECTED:" +highestValueNode);
     	return highestValueNode.move;
+    }
+    
+    /* add the node to the dynamic tree if it has been visited more than once */
+    public void dynamicTreeExpand() {
+    	for (TreeNode c : children) {
+    		if(c.nVisits[0] > 1) {
+    			System.out.println("found child");
+    			dynamicTreeChildren.add(c);
+    			
+    			/* quitting the search once we've found it */
+    			break;
+    		}
+    	}
     }
     
     /* expand the children of the node */
@@ -222,16 +257,27 @@ public class TreeNode {
     
     /* get the highest value node according to the rules selected */
     private TreeNode select() {
-    	
+        /* get the best value child node from the tree */
+	    TreeNode selected = findBestValueNode(children);
+        /* and then it is returned, with a value always selected thanks to randomisation */
+        return selected;
+        
+    }
+    
+    public TreeNode dynamicTreeSelect() {
+    	/* get the best value child node from the dynamic tree children */
+	    TreeNode selected = findBestValueNode(dynamicTreeChildren);
+        /* and then it is returned, with a value always selected thanks to randomisation */
+        return selected;
+    }
+    
+    public TreeNode findBestValueNode(List<TreeNode> children) {
     	/* initialize the values, with the bestvalue put at the smallest possible value */
-        TreeNode selected = null;
+    	TreeNode selected = null;
         double bestValue = -Double.MAX_VALUE;
-
-        /* for every child node of the current node being selected */
+        print(""+children);
         for (TreeNode c : children) {
-        	
         	double uctValue = 0;
-        	
         	/* if the rave skip counter has reached the amount of times to wait until skipping rave,
         	 * or if it is not enabled */
     		if(raveSkipCounter < nodeRuleSet.raveSkip || nodeRuleSet.raveSkip == -1) {
@@ -242,43 +288,30 @@ public class TreeNode {
     		    raveSkipCounter++;
     		    
     		} else if(raveSkipCounter == nodeRuleSet.raveSkip) {
-    			/* used to record what was changed */
-    			boolean raveChanged = false;
-    			boolean weightedRaveChanged = false;
-    			boolean heuristicRaveChanged = false;
-    			
+
     			/* otherwise disable rave */
     			if(nodeRuleSet.rave = true) {
-    				raveChanged = true;
     				nodeRuleSet.rave = false;
+    				/* get the uct value using new rules */
+        			uctValue = getUctValue(c);
+        			nodeRuleSet.rave = true;
     			}
     			if(nodeRuleSet.weightedRave = true) {
-    				weightedRaveChanged = true;
     				nodeRuleSet.weightedRave = false;
+    				/* get the uct value using new rules */
+        			uctValue = getUctValue(c);
+        			nodeRuleSet.weightedRave = true;
     			}
     			if(nodeRuleSet.heuristicRave = true) {
-    				heuristicRaveChanged = true;
     				nodeRuleSet.heuristicRave = false;
+    				/* get the uct value using new rules */
+        			uctValue = getUctValue(c);
+        			nodeRuleSet.heuristicRave = true;
     			}
     			
-    			/* get the uct value using new rules */
-    			uctValue = getUctValue(c);
-    		    
     		    /* and set the counter to 0 */
     		    raveSkipCounter = 0;
-    		    
-    		    /* and re-enable rave */
-    			if(raveChanged == true) {
-    				nodeRuleSet.rave = true;
-    			}
-    			if(weightedRaveChanged == true) {
-    				nodeRuleSet.weightedRave = true;
-    			}
-    			if(heuristicRaveChanged == true) {
-    				nodeRuleSet.heuristicRave = true;
-    			}
     		}
-
         	print("UCT value = " + uctValue);
     		
             /* if the uctvalue is larger than the best value */
@@ -293,11 +326,8 @@ public class TreeNode {
                 print("found new bestValue: " + uctValue);
                 
             }
-        } 
-        
-        /* and then it is returned, with a value always selected thanks to randomisation */
+        }
         return selected;
-        
     }
 
     /* check if the current node is a leaf */ 
@@ -305,6 +335,11 @@ public class TreeNode {
     	
     	/* if the size of the children of the node is 0, its a leaf */
     	if(children.size() == 0)
+    		return true;
+    	return false;
+    }
+    public boolean isDynamicTreeLeaf() {
+    	if(dynamicTreeChildren.size() == 0)
     		return true;
     	return false;
     }
@@ -324,9 +359,14 @@ public class TreeNode {
     	/* when only a few simulations have been seen, the weight is closer to 1, weighting the RAVE value more highly
     	 * when many simulations have been seen, the weight is closer to 0, weighting the MC value more highly
     	 */
-    	if(tn.nVisits[0] == 0)
+    	double weight = 1 - (nodeRuleSet.initialWeight * (tn.nVisits[0] / nodeRuleSet.finalWeight));
+    	if(tn.nVisits[0] == 0) {
+    		return 1;
+    	}
+    	if(weight < 0) {
     		return 0;
-    	return 1 - (nodeRuleSet.initialWeight / (tn.nVisits[0] / nodeRuleSet.finalWeight));
+    	}
+    	return weight;
     }
     
     /* get the uct value for a node with a small random number to break ties randomly in unexpanded nodes  */
@@ -359,25 +399,23 @@ public class TreeNode {
     	
     	/* for every child of this node */
     	for (TreeNode c : tn.children) {
-    		
+
     		/* for every move on the amafmap */
     		for(int i =0; i<amafMap.length;i++) {
     			
-				/* that matches any moves on the board */
-				if(amafMap[i] != null && i != c.currentGame.board.getEmptyPoints().get(i)) {
-					
-					/* and the colour matches */
-					if(amafMap[c.currentGame.getMove(0)] != tn.currentGame.getNextToPlay()) {
-						
-						/* update the total value of that node with the simulation result */
-						tn.updateStats(1, simulationResult);
-					}
+				/* if that part is filled in on the amafMap and matches the childs most recently taken move 
+				 * and is the right colour */
+    			if(amafMap[i] != null && i == c.currentGame.getMove(0) 
+    					&& c.currentGame.getNextToPlay() != amafMap[i]) {
+
+    				/* update the total value of that node with the simulation result */
+					c.updateStats(1, simulationResult);
 					
 					/* and quit out of the loop, no need to update multiple times for multiple matches */
-					return;
-				}
-    		}
-    		
+					break;
+    			}
+			}
+		
     		/* if there is more subtree to explore */
     		if(c.children.size() > 0) {
     			
@@ -393,13 +431,13 @@ public class TreeNode {
     	/* initialize the map of who played where for this simulation
     	 * on the node that is to be simulated from */
 		tn.amafMap = new Color[tn.currentGame.getSideSize() * tn.currentGame.getSideSize()];
-
-    	/* create a random player */
-    	Randy randomPlayer = new Randy();
-    	
+		
+    	/* create a random player that cannot play in eyes */
+		RandomPlayer randomPlayer = new RandomPlayer();
+		
     	/* create a duplicate of the game */
-    	Game duplicateGame = currentGame.copy();
-    	
+		SemiPrimitiveGame duplicateGame = currentGame.copy();
+		
     	/* initialize the game using the duplicate */
     	randomPlayer.startGame(duplicateGame, null);
     	
@@ -408,10 +446,7 @@ public class TreeNode {
     		
     		/* get the move, and play on the board */
     		int move = randomPlayer.playMove();
-    		
-    		/* record the move, updating to see if the game is over */
-    		duplicateGame.recordMove(move);
-    		
+
     		/* if we are using any variation of rave */
     		if (nodeRuleSet.rave) {
     			
