@@ -9,20 +9,15 @@ import game.Board;
 
 /* that it is capable of playing! */
 
-public class NoEyeRandomPlayer extends Player {
+public class SimulatePlayer extends Player {
 	
-	public NoEyeRandomPlayer() {
+	public SimulatePlayer() {
 		super("NoEyeRandomPlayer");
 	}
 
 	public int playMove() {
 		int move = playRandomLegalMove(false);
-		boolean canPlay = game.play(move);
-		if(canPlay) {
-			return move;
-		} else {
-			return -1;
-		}
+		return move;
 	}
 
 }

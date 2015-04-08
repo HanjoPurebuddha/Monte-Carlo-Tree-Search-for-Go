@@ -6,11 +6,11 @@ import gtp.*;
  * Doesn't allow playing in eyes or passing.  Game is over when there are no more legal moves.
  * @author Piotr Kaminski
  */
-public class SemiPrimitiveGame extends TrompTaylorGame {
-
-	protected int passes;
+public class RandomGame extends TrompTaylorGame {
 	
-	public SemiPrimitiveGame(int sideSize) {
+	private boolean gameOver;
+
+	public RandomGame(int sideSize) {
 		super(sideSize, true);
 	}
 	
@@ -18,15 +18,14 @@ public class SemiPrimitiveGame extends TrompTaylorGame {
 		super.recordMove(z);
 		calculateGameOver();
 	}
-
 	
 	public boolean isOver() {
 		return gameOver;
 	}
 	
-	public SemiPrimitiveGame duplicate() {
+	public RandomGame duplicate() {
 		try {
-			return (SemiPrimitiveGame) clone();
+			return (RandomGame) clone();
 		} catch (CloneNotSupportedException e) {
 			return null;
 		}
@@ -48,17 +47,7 @@ public class SemiPrimitiveGame extends TrompTaylorGame {
 	public boolean validateBoard(int z, Board oldBoard) {
 		// check if z is playing into what looks like an eye
 		// (eye:  neighbours same color, no more than 1 diagonal other color, except at edges)
-		CHECK_EYE: {
-			temp1.clear();
-			temp1.addNeighbors(z);
-			for (int i=0; i<temp1.size(); i++) if (getPoint(temp1.get(i)) != nextToPlay) break CHECK_EYE;
-			temp1.clear();
-			temp1.addDiagonalNeighbors(z);
-			Color other = nextToPlay.inverse();
-			int numOther = 0;
-			for (int i=0; i<temp1.size(); i++) if (getPoint(temp1.get(i)) == other) numOther++;
-			if (numOther == 0 || numOther == 1 && temp1.size() == 4) return false;
-		}
+
 		return super.validateBoard(z, oldBoard);
 	}
 

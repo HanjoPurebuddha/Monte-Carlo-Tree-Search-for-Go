@@ -2,7 +2,7 @@ package mcts;
 
 import ai.Configuration;
 import ai.Player;
-import ai.NoEyeRandomPlayer;
+import ai.SimulatePlayer;
 
 import java.util.LinkedList;
 
@@ -217,7 +217,7 @@ public class TreeNode {
         	/* if disallowing playing in eyes, create a semiprimitive board with that rule and test playing on it */
         	boolean canPlay = true;
         	if(nodeRuleSet.dontExpandEyes) {
-	        	SemiPrimitiveGame duplicateBoard = currentGame.copy();    
+	        	SemiPrimitiveGame duplicateBoard = currentGame.semiPrimitiveCopy();    
 	        	canPlay = duplicateBoard.play(emptyPoints.get(i));
         	}
         	
@@ -433,11 +433,15 @@ public class TreeNode {
 		tn.amafMap = new Color[tn.currentGame.getSideSize() * tn.currentGame.getSideSize()];
 		
     	/* create a random player that cannot play in eyes */
-		RandomPlayer randomPlayer = new RandomPlayer();
+		SimulatePlayer randomPlayer = new SimulatePlayer();
 		
+		Game duplicateGame;
     	/* create a duplicate of the game */
-		SemiPrimitiveGame duplicateGame = currentGame.copy();
-		
+		if(nodeRuleSet.simulateAvoidEyes) {
+			duplicateGame = currentGame.semiPrimitiveCopy();
+		} else {
+			duplicateGame = currentGame.randomCopy();
+		}
     	/* initialize the game using the duplicate */
     	randomPlayer.startGame(duplicateGame, null);
     	

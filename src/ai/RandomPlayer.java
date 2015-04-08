@@ -14,7 +14,7 @@ public class RandomPlayer extends Player {
 	}
 
 	public int playMove() {
-		int move = playRandomLegalMove(game.isPassingAllowed());
+		int move = playRandomLegalMove(false);
 		return move;
 	}
 

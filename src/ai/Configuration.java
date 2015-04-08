@@ -14,7 +14,7 @@ public class Configuration {
 	boolean simulateAtari = false;
 	boolean simulatePatterns = false;
 	boolean simulateTakePiece = false;
-	public boolean simulateInEyes = false;
+	public boolean simulateAvoidEyes = false;
 	
 	/* bonus changes */
 	boolean bonusAtari = false;
@@ -36,7 +36,7 @@ public class Configuration {
     public boolean dynamicTree;
     
     public Configuration(boolean binaryScoring, boolean uct, boolean rave, boolean weightedRave, double initialWeight, 
-    		double finalWeight, int raveSkip, boolean dontExpandEyes, boolean dynamicTree, boolean simulateInEyes) {
+    		double finalWeight, int raveSkip, boolean dontExpandEyes, boolean dynamicTree, boolean simulateAvoidEyes) {
     	this.binaryScoring = binaryScoring;
     	this.uct = uct;
     	this.dontExpandEyes = dontExpandEyes;
@@ -46,6 +46,6 @@ public class Configuration {
     	this.finalWeight = finalWeight;
     	this.raveSkip = raveSkip;
     	this.dynamicTree = dynamicTree;
-    	this.simulateInEyes = simulateInEyes;
+    	this.simulateAvoidEyes = simulateAvoidEyes;
     }
 }

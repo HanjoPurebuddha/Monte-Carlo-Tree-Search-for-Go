@@ -25,14 +25,14 @@ public class MCTSPlayer extends Player {
 	
 	public MCTSPlayer(int time, int iterations, boolean rememberTree,
 			boolean binaryScoring, boolean uct, boolean rave, boolean weightedRave, double initialWeight, double finalWeight, 
-			 int raveSkip, boolean dontExpandEyes, boolean dynamicTree, boolean simulateInEyes) {
+			 int raveSkip, boolean dontExpandEyes, boolean dynamicTree, boolean simulateAvoidEyes) {
 		super("TimedPlayer");
 		this.time = time;
 		this.iterations = iterations;
 		this.rememberTree = rememberTree;
 		/* set the values for different features */
     	this.nodeRuleSet = new Configuration(binaryScoring, uct, rave, weightedRave, 
-    			initialWeight, finalWeight, raveSkip, dontExpandEyes, dynamicTree, simulateInEyes);
+    			initialWeight, finalWeight, raveSkip, dontExpandEyes, dynamicTree, simulateAvoidEyes);
     	
 	}
 

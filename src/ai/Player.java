@@ -119,23 +119,15 @@ public abstract class Player {
 	protected int playRandomLegalMove(boolean considerPass) {
 		checkPlaying(true);
 		int move;
-		// try a few random picks, in case the board is still fairly open
-		// to avoid overhead of generating empty position array
-		for (int i=0; i<MAX_RANDOM_MOVE_PICKS; i++) {
-			move = considerPass
-				? random.nextInt(game.getNumPoints()+1) - 1
-				: random.nextInt(game.getNumPoints());
-			if (game.play(move)) return move;
-		}
+
 		// difficulty finding legal move, go through exhaustive search
 		Board.PositionList emptyPoints = game.getPotentiallyPlayablePoints();
 		if (considerPass) emptyPoints.addPass();
 		emptyPoints.shuffle();
-		for (int i=0; i<emptyPoints.size(); i++) {
-			move = emptyPoints.get(i);
-			if (game.play(move)) return move;			
-		}
+		move = emptyPoints.get(0);
+		if (game.play(move)) return move;	
 		System.out.println("no legal move left in the game");
+		Game.gameOver = true;
 		return -1;
 	}
 	

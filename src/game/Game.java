@@ -35,7 +35,7 @@ public abstract class Game implements Cloneable {
 			this.lastMove == that.lastMove;
 	}
 	
-	public SemiPrimitiveGame copy() {
+	public SemiPrimitiveGame semiPrimitiveCopy() {
 		SemiPrimitiveGame copyGame = new SemiPrimitiveGame(this.getSideSize());
 		copyGame.komi = this.komi;
 		copyGame.handicap = this.handicap;
@@ -46,6 +46,16 @@ public abstract class Game implements Cloneable {
 		return copyGame;
 	}
 	
+	public RandomGame randomCopy() {
+		RandomGame copyGame = new RandomGame(this.getSideSize());
+		copyGame.komi = this.komi;
+		copyGame.handicap = this.handicap;
+		copyGame.nextToPlay = this.nextToPlay;
+		copyGame.board = this.board.duplicate();
+		copyGame.numMoves = this.numMoves;
+		copyGame.lastMove = this.lastMove;
+		return copyGame;
+	}
 	
 	public int hashCode() {
 		return board.hashCode() ^ numMoves ^ handicap ^ getClass().hashCode();
@@ -58,6 +68,7 @@ public abstract class Game implements Cloneable {
 	 * to the number of points on the board.
 	 */
 	protected Board.PositionList temp1, temp2;
+	public static boolean gameOver;
 		
 	public Game(int sideSize) {
 		board = new Board(sideSize);
