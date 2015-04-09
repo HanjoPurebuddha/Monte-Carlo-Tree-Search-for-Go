@@ -452,16 +452,14 @@ public class TreeNode {
     	 * on the node that is to be simulated from */
 		//tn.amafMap = new Color[tn.currentGame.getSideSize() * tn.currentGame.getSideSize()];
 		
-    	/* create a random player that cannot play in eyes */
-		SimulatePlayer randomPlayer = new SimulatePlayer();
-		
-		Game duplicateGame;
+    	/* create a random player that acts according to the ruleset */
+		SimulatePlayer randomPlayer = new SimulatePlayer(
+				nodeRuleSet.simulateAvoidEyes, nodeRuleSet.simulateAtari, nodeRuleSet.simulatePatterns, nodeRuleSet.simulateTakePieces, 
+				nodeRuleSet.simulateMercyRule);
+
     	/* create a duplicate of the game */
-		if(nodeRuleSet.simulateAvoidEyes) {
-			duplicateGame = currentGame.semiPrimitiveCopy();
-		} else {
-			duplicateGame = currentGame.randomCopy();
-		}
+		SemiPrimitiveGame duplicateGame = currentGame.semiPrimitiveCopy();
+		
     	/* initialize the game using the duplicate */
     	randomPlayer.startGame(duplicateGame, null);
     	

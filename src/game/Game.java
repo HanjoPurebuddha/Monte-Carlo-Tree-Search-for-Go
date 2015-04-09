@@ -24,6 +24,9 @@ public abstract class Game implements Cloneable {
 	
 	protected int lastMove;
 	
+	/* used to ignore eyes, or not */
+	public boolean avoidEyes;
+	
 	public boolean equals(Object o) {
 		Game that = (Game) o;
 		return
@@ -46,20 +49,101 @@ public abstract class Game implements Cloneable {
 		return copyGame;
 	}
 	
-	public RandomGame randomCopy() {
-		RandomGame copyGame = new RandomGame(this.getSideSize());
-		copyGame.komi = this.komi;
-		copyGame.handicap = this.handicap;
-		copyGame.nextToPlay = this.nextToPlay;
-		copyGame.board = this.board.duplicate();
-		copyGame.numMoves = this.numMoves;
-		copyGame.lastMove = this.lastMove;
-		return copyGame;
-	}
-	
 	public int hashCode() {
 		return board.hashCode() ^ numMoves ^ handicap ^ getClass().hashCode();
 	}
+	
+
+	/* code that checks if the opponent has over 30% of the board in captures */
+	
+	public boolean mercy() {
+		return false;
+	}
+	
+	/* code that recognizes atari states */
+	
+	public boolean atari(int z) {
+		return false;
+	}
+	
+	/* code that recognizes if stones can be saved from atari */
+	
+	public boolean saveStones(int z) {
+		return false;
+	}
+	
+	/* code that recognizes pieces it can take and takes them */
+	
+	public boolean takePiece(int z) {
+		return false;
+	}
+	
+	/* Some hard-coded pattern matching routines to match patterns used by MoGo.
+    See <a href="http://hal.inria.fr/docs/00/11/72/66/PDF/MoGoReport.pdf">
+    Modification of UCT with Patterns in Monte-Carlo Go</a>.
+
+    The move is always in the center of the pattern or at the middle edge
+    point (lower line) for edge patterns. The patterns are matched for both
+    colors, unless specified otherwise. Notation:
+    @verbatim
+    O  White            x = Black or Empty
+    X = Black           o = White or Empty
+    . = Empty           B = Black to Play
+    ? = Don't care      W = White to Play
+    @endverbatim */
+	
+	public boolean matchPattern(int z) {
+		return false;
+	}
+
+    /* Patterns for Hane. <br>
+    True is returned if any pattern is matched.
+    @verbatim
+    X O X   X O .   X O ?   X O O
+    . . .   . . .   X . .   . . .
+    ? ? ?   ? . ?   ? . ?   ? . ? B
+    @endverbatim */
+    
+    public boolean checkHane(int z, Board oldBoard) {
+    	temp1.clear();
+		temp1.addNeighbors(z);
+		for (int i=0; i<temp1.size(); i++) 
+			if (getPoint(temp1.get(i)) != nextToPlay) 
+				break;
+		temp1.clear();
+		temp1.addDiagonalNeighbors(z);
+		Color other = nextToPlay.inverse();
+		int numOther = 0;
+		for (int i=0; i<temp1.size(); i++)
+			if (getPoint(temp1.get(i)) == other)
+				numOther++;
+		if (numOther == 0 || numOther == 1 && temp1.size() == 4)
+			return false;
+		return false;
+	}
+
+    /* Patterns for Cut1. <br>
+    True is returned if the first pattern is matched, but not the next two.
+    @verbatim
+    X O ?   X O ?   X O ?
+    O . ?   O . O   O . .
+    ? ? ?   ? . ?   ? O ?
+    @endverbatim  */
+
+    /* Pattern for Cut2.
+    @verbatim
+    ? X ?
+    O . O
+    x x x
+    @endverbatim  */
+
+    /* Pattern for Edge. <br>
+    True is returned if any pattern is matched.
+    @verbatim
+    X . ?   ? X ?   ? X O    ? X O    ? X O
+    O . ?   o . O   ? . ? B  ? . o W  O . X W
+    @endverbatim  */
+	
 	
 	
 	

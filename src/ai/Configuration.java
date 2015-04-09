@@ -12,10 +12,11 @@ public class Configuration {
 	boolean heuristicInitialization;
 	
 	/* simulation changes */
+	public boolean simulateAvoidEyes;
 	public boolean simulateAtari;
 	public boolean simulatePatterns;
 	public boolean simulateTakePieces;
-	public boolean simulateAvoidEyes;
+	public boolean simulateMercyRule;
 	
 	/* bonus changes */
 	boolean bonusAtari;
@@ -38,7 +39,7 @@ public class Configuration {
     
     public Configuration(boolean binaryScoring, boolean uct, boolean rave, boolean weightedRave, double initialWeight, 
     		double finalWeight, int raveSkip, boolean dontExpandEyes, int dynamicTree, double firstPlayUrgency,
-    		boolean simulateAvoidEyes, boolean simulateAtari, boolean simulatePatterns, boolean simulateTakePieces) {
+    		boolean simulateAvoidEyes, boolean simulateAtari, boolean simulatePatterns, boolean simulateTakePieces, boolean simulateMercyRule) {
     	this.binaryScoring = binaryScoring;
     	this.uct = uct;
     	this.dontExpandEyes = dontExpandEyes;
@@ -53,6 +54,7 @@ public class Configuration {
     	this.simulatePatterns = simulatePatterns;
     	this.simulateTakePieces = simulateTakePieces;
     	this.firstPlayUrgency = firstPlayUrgency;
+    	this.simulateMercyRule = simulateMercyRule;
     }
     
     public double firstPlayUrgencyValue() {

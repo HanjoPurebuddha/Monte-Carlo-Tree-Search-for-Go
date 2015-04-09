@@ -110,29 +110,33 @@ public abstract class Player {
 			if (game != null) throw new IllegalStateException("already playing a game");
 		}
 	}
-	
+
 	/**
 	 * Play a random legal move in the current game (except resignation).
 	 * @param considerPass consider passing as a legal move
 	 * @return the move played
 	 */
-	protected int playRandomLegalMove(boolean considerPass) {
+	protected int playRandomLegalMove(boolean avoidEyes) {
+		game.avoidEyes = avoidEyes;
 		checkPlaying(true);
 		int move;
 		// try a few random picks, in case the board is still fairly open
 		// to avoid overhead of generating empty position array
-		for (int i=0; i<MAX_RANDOM_MOVE_PICKS; i++) {
-			move = considerPass
-				? random.nextInt(game.getNumPoints()+1) - 1
-				: random.nextInt(game.getNumPoints());
-			if (game.play(move)) return move;
-		}
+		/*for (int i=0; i<MAX_RANDOM_MOVE_PICKS; i++) {
+			move = random.nextInt(game.getNumPoints());
+			if (game.play(move)) { 
+				System.out.println("move was allowed for some reason " + move + " ");
+				return move;
+			}
+		}*/
 		// difficulty finding legal move, go through exhaustive search
 		Board.PositionList emptyPoints = game.getPotentiallyPlayablePoints();
 		emptyPoints.shuffle();
+		//System.out.println(emptyPoints);
 		for (int i=0; i<emptyPoints.size(); i++) {
 			move = emptyPoints.get(i);
-			if (game.play(move)) return move;			
+			if (game.play(move)) 
+				return move;			
 		}
 		//System.out.println("no legal move left in the game");
 		Game.gameOver = true;

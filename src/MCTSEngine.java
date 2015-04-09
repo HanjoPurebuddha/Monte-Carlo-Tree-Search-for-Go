@@ -7,6 +7,7 @@ import java.util.Random;
 import ai.Player;
 import ai.RandomPlayer;
 import ai.MCTSPlayer;
+import ai.SimulatePlayer;
 import mcts.ElapsedTimer;
 import mcts.TreeNode;
 import game.*;
@@ -44,19 +45,24 @@ public class MCTSEngine {
 		// binaryScoring,  uct,  rave,  weightedRave,  weight,  raveSkip
 		// expand eyes
 		// dynamic tree, first play urgency
-		// simulate eyes, simulate atari, simulate patterns, simulate taking pieces
+		// simulate avoid eyes, simulate atari, simulate patterns, simulate taking pieces
 		//black
-		players[0] = new MCTSPlayer(1000, 0, true, 
-				false, false, false, true, 1, 20000, 20, 
+		/*players[0] = new MCTSPlayer(1000, 0, true, 
+				false, false, false, true, 1, 10000, 20, 
 				false, 
-				2, 0,
-				true, false, true, false);
+				2, 1000,
+				true, false, false, false, false);*/
 		//white
-		players[1] = new MCTSPlayer(1000, 0, true, 
-				false, false, false, true, 1, 20000, 20, 
+		/*players[1] = new MCTSPlayer(1000, 0, true, 
+				false, false, false, true, 1, 10000, 20, 
 				false, 
 				2, 1000, 
-				true, false, true, false);
+				true, false, false, false, false);*/
+		players[0] = new SimulatePlayer(false, false, false, false, false);
+		players[1] = new SimulatePlayer(false, false, false, false, false);
+		
+		//players[0] = new RandomPlayer();
+		//players[1] = new RandomPlayer();
 	}
 
 	public void boardsize(int size) {
@@ -267,6 +273,7 @@ public class MCTSEngine {
 	}
 	
 	private Game createGame(int size, boolean allowSuicides) {
+		//return new SemiPrimitiveGame(size);
 		 return new TrompTaylorGame(size, false);
 	}
 	
