@@ -8,8 +8,6 @@ import gtp.*;
  */
 public class SimulateGame extends TrompTaylorGame {
 
-	protected int passes;
-	
 	public SimulateGame(int sideSize) {
 		super(sideSize, true);
 	}
@@ -21,7 +19,10 @@ public class SimulateGame extends TrompTaylorGame {
 
 	
 	public boolean isOver() {
-		return gameOver;
+		if(passes > 0)
+			return true;
+		return false;
+		//return gameOver;
 	}
 	
 	public SimulateGame duplicate() {

@@ -140,6 +140,7 @@ public abstract class Player {
 		}
 		//System.out.println("no legal move left in the game");
 		Game.gameOver = true;
+		game.play(-1);
 		return -1;
 	}
 	

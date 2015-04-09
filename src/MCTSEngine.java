@@ -272,7 +272,7 @@ public class MCTSEngine {
 	}
 	
 	private Game createGame(int size, boolean allowSuicides) {
-		//return new SemiPrimitiveGame(size);
+		//return new SimulateGame(size);
 		 return new TrompTaylorGame(size, false);
 	}
 	

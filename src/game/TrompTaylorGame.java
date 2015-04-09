@@ -15,7 +15,7 @@ import gtp.*;
 public class TrompTaylorGame extends Game {
 	
 	protected Set previousBoards = new HashSet();
-	protected int passes;
+	public int passes;
 	protected float score = Float.NaN;
 	
 	protected final boolean suicidesAllowed;
@@ -79,11 +79,12 @@ public class TrompTaylorGame extends Game {
 	
 
 	public boolean play(int z) {
-		if (!isPassingAllowed() && z == MOVE_PASS) return false;
+		//if (!isPassingAllowed() && z == MOVE_PASS) return false;
 		if (isOver()) return false;
 		Color other = nextToPlay.inverse();
 		if (z == MOVE_PASS || getPoint(z) != Point.EMPTY) {
 			passes++;
+			//System.out.println("pass");
 			nextToPlay = other;
 			return true;
 		}

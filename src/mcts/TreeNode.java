@@ -455,7 +455,9 @@ public class TreeNode {
 				nodeRuleSet.simulateMercyRule);
 
     	/* create a duplicate of the game */
-		SimulateGame duplicateGame = currentGame.semiPrimitiveCopy();
+		TreeNode simulateNode = tn;
+		Game simulateGame = simulateNode.currentGame;
+		SimulateGame duplicateGame = simulateGame.semiPrimitiveCopy();
 		
     	/* initialize the game using the duplicate */
     	randomPlayer.startGame(duplicateGame, null);
@@ -465,7 +467,9 @@ public class TreeNode {
     		
     		/* get the move, and play on the board */
     		int move = randomPlayer.playMove();
-
+    		//boolean canPlay = 
+    		//System.out.println("simulated move: " + move + " ");
+    		duplicateGame.recordMove(move);
     		/* if we are using any variation of rave */
     		//if (nodeRuleSet.rave) {
     			
@@ -484,7 +488,7 @@ public class TreeNode {
     	
     	/* get the score for the players color, positive or negative depending on colour */
     	float score = duplicateGame.score(playerColor);
-    	System.out.println(" score: " + score + " ");
+    	//System.out.println(" score: " + score + " ");
     	/* if using binary scoring */
     	if(nodeRuleSet.binaryScoring) {
     		
@@ -499,6 +503,26 @@ public class TreeNode {
     	}
     	
     }
+    
+
+   /* public double simulate(TreeNode tn) {
+    	Randy randomPlayer = new Randy();
+    	TreeNode simulateNode = tn;
+    	Game simulateGame = simulateNode.getGame();
+    	Game duplicateGame = simulateGame.duplicate();
+    	randomPlayer.startGame(duplicateGame, null);
+    	while(!duplicateGame.isOver()) {
+    		int move = randomPlayer.playMove();
+    		duplicateGame.recordMove(move);
+    		
+    	}
+    	float score = duplicateGame.score(playerColor);
+    	if(score > 0)
+    		return 1;
+    	return 0;
+    	
+    }*/
+    
     
     /* methods to print things when explicitly allowed to */
     public void print(String line) {

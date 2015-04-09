@@ -76,7 +76,7 @@ public class MCTSPlayer extends Player {
 	    if(game.getMove(0) == -1 && getMoveValue(move) <= 0) {
 	    	
 	    	/* make the move a pass */
-	    	move = -1;
+	    //	move = -1;
 	    	
 	    }
 	    
