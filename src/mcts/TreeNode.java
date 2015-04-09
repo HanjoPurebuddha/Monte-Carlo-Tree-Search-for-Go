@@ -484,7 +484,7 @@ public class TreeNode {
     	
     	/* get the score for the players color, positive or negative depending on colour */
     	float score = duplicateGame.score(playerColor);
-    	
+    	System.out.println(" score: " + score + " ");
     	/* if using binary scoring */
     	if(nodeRuleSet.binaryScoring) {
     		

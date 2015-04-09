@@ -147,8 +147,8 @@ public abstract class Player {
 
 	public void initializeTree() {}
 
-	public void setGame(Game game2) {
-		// TODO Auto-generated method stub
+	public void setGame(Game game) {
+		this.game = game;
 		
 	}
 

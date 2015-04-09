@@ -38,12 +38,6 @@ public class MCTSPlayer extends Player {
     	
 	}
 
-	public void setGame(Game game) {
-		this.game = game;
-	}
-
-	
-	
 	public int playMove() {
 		
 		/* if the tree hasn't been initialized or we aren't remembering the tree */

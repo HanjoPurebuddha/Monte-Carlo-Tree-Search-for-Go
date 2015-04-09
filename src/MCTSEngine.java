@@ -46,19 +46,19 @@ public class MCTSEngine {
 		// dynamic tree, first play urgency
 		// simulate avoid eyes, simulate atari, simulate patterns, simulate taking pieces
 		//black
-		/*players[0] = new MCTSPlayer(1000, 0, true, 
+		players[0] = new MCTSPlayer(1000, 0, true, 
 				false, false, false, true, 1, 10000, 20, 
 				false, 
 				2, 1000,
-				true, false, false, false, false);*/
+				true, false, false, false, false);
 		//white
-		/*players[1] = new MCTSPlayer(1000, 0, true, 
+		players[1] = new MCTSPlayer(1000, 0, true, 
 				false, false, false, true, 1, 10000, 20, 
 				false, 
 				2, 1000, 
-				true, false, false, false, false);*/
-		players[0] = new SimulatePlayer(true, false, false, false, false);
-		players[1] = new SimulatePlayer(true, false, false, false, false);
+				true, false, false, false, false);
+		//players[0] = new SimulatePlayer(true, false, false, false, false);
+		//players[1] = new SimulatePlayer(true, false, false, false, false);
 		
 		//players[0] = new RandomPlayer();
 		//players[1] = new RandomPlayer();
