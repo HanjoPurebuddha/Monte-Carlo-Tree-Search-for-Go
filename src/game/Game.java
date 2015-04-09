@@ -38,8 +38,8 @@ public abstract class Game implements Cloneable {
 			this.lastMove == that.lastMove;
 	}
 	
-	public SemiPrimitiveGame semiPrimitiveCopy() {
-		SemiPrimitiveGame copyGame = new SemiPrimitiveGame(this.getSideSize());
+	public SimulateGame semiPrimitiveCopy() {
+		SimulateGame copyGame = new SimulateGame(this.getSideSize());
 		copyGame.komi = this.komi;
 		copyGame.handicap = this.handicap;
 		copyGame.nextToPlay = this.nextToPlay;

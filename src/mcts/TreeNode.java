@@ -1,7 +1,6 @@
 package mcts;
 
 import ai.Configuration;
-import ai.Player;
 import ai.SimulatePlayer;
 
 import java.util.LinkedList;
@@ -12,8 +11,6 @@ import game.Board.PositionList;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
-
-import ai.RandomPlayer;
 
 public class TreeNode {
 	
@@ -226,7 +223,7 @@ public class TreeNode {
         	/* if disallowing playing in eyes, create a semiprimitive board with that rule and test playing on it */
         	boolean canPlay = true;
         	if(nodeRuleSet.dontExpandEyes) {
-	        	SemiPrimitiveGame duplicateBoard = currentGame.semiPrimitiveCopy();    
+	        	SimulateGame duplicateBoard = currentGame.semiPrimitiveCopy();    
 	        	canPlay = duplicateBoard.play(emptyPoints.get(i));
         	}
         	
@@ -458,7 +455,7 @@ public class TreeNode {
 				nodeRuleSet.simulateMercyRule);
 
     	/* create a duplicate of the game */
-		SemiPrimitiveGame duplicateGame = currentGame.semiPrimitiveCopy();
+		SimulateGame duplicateGame = currentGame.semiPrimitiveCopy();
 		
     	/* initialize the game using the duplicate */
     	randomPlayer.startGame(duplicateGame, null);

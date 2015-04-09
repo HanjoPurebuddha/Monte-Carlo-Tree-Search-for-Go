@@ -5,7 +5,6 @@ import java.io.OutputStreamWriter;
 import java.util.Random;
 
 import ai.Player;
-import ai.RandomPlayer;
 import ai.MCTSPlayer;
 import ai.SimulatePlayer;
 import mcts.ElapsedTimer;
@@ -58,8 +57,8 @@ public class MCTSEngine {
 				false, 
 				2, 1000, 
 				true, false, false, false, false);*/
-		players[0] = new SimulatePlayer(false, false, false, false, false);
-		players[1] = new SimulatePlayer(false, false, false, false, false);
+		players[0] = new SimulatePlayer(true, false, false, false, false);
+		players[1] = new SimulatePlayer(true, false, false, false, false);
 		
 		//players[0] = new RandomPlayer();
 		//players[1] = new RandomPlayer();

@@ -6,11 +6,11 @@ import gtp.*;
  * Doesn't allow playing in eyes or passing.  Game is over when there are no more legal moves.
  * @author Piotr Kaminski
  */
-public class SemiPrimitiveGame extends TrompTaylorGame {
+public class SimulateGame extends TrompTaylorGame {
 
 	protected int passes;
 	
-	public SemiPrimitiveGame(int sideSize) {
+	public SimulateGame(int sideSize) {
 		super(sideSize, true);
 	}
 	
@@ -24,9 +24,9 @@ public class SemiPrimitiveGame extends TrompTaylorGame {
 		return gameOver;
 	}
 	
-	public SemiPrimitiveGame duplicate() {
+	public SimulateGame duplicate() {
 		try {
-			return (SemiPrimitiveGame) clone();
+			return (SimulateGame) clone();
 		} catch (CloneNotSupportedException e) {
 			return null;
 		}

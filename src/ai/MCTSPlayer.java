@@ -6,7 +6,7 @@ import java.util.ArrayList;
 import mcts.ElapsedTimer;
 import game.Color;
 import game.Game;
-import game.SemiPrimitiveGame;
+import game.SimulateGame;
 import gtp.Vertex;
 import mcts.TreeNode;
 
