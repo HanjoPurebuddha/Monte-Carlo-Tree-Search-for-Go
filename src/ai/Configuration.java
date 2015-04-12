@@ -30,7 +30,7 @@ tions with a larger score.*/
 	
 	/* to implement....#
 	 * uct changes */
-	public boolean ucbTuned;
+	public boolean ucbTuned = false;
 	public double firstPlayUrgency;
 	
 	/* initialization changes */

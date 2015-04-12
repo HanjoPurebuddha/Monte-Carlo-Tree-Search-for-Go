@@ -33,7 +33,8 @@ public class TreeNode {
     List<TreeNode> dynamicTreeChildren = new ArrayList<TreeNode>();
     
     /* initialize the values used in uct, one for uct standard and one for rave */
-    double[] nVisits = new double[2], totValue = new double[2];
+    double[] nVisits = new double[2];
+    double[] totValue = new double[2];
     
     /* the actual uct value, used for quick navigation when searching the tree */
     //double uctValue;
@@ -154,8 +155,7 @@ public class TreeNode {
         /* at the bottom of the tree expand the children for the node, including a pass move
          * but only if it hasn't been expanded before */
         print("found leaf node, expanding from: " + cur);
-        if(cur.children.size() == 0)
-        	cur.expand();
+        cur.expand();
 
         /* get the best child from the expanded nodes, even if it's just passing */
 	    print("selecting from: " + cur);
@@ -380,8 +380,8 @@ public class TreeNode {
     		    /* get the uct value using standard rules */
     			
     		    uctValue = getUctValue(c); // NOTE // Investigate avoiding recalculation if the node stats have not been updated // NOTE //
-    		    if(c.nVisits[0] == 0) //if this node hasnt been visited
-    				uctValue = 1000; //make sure it is!
+    		   // if(c.nVisits[0] == 0) //if this node hasnt been visited
+    			//	uctValue = 1000; //make sure it is!
     		    /* and increment the counter */
     		    raveSkipCounter++;
     		    
@@ -444,14 +444,12 @@ public class TreeNode {
     
     /* perform the calculation required for uct */
     public double calculateUctValue(int type, TreeNode tn) {
-    	if(!nodeRuleSet.ucbTuned) {
+
 	    	/* ((total value) / (visits + e)) + (log(visits) / (visits + e) + random number) */
 	    	return tn.totValue[type] / (tn.nVisits[type] + epsilon) +
-	                Math.sqrt(Math.log(tn.nVisits[type]+1) / (tn.nVisits[type] + epsilon)) +
-	                r.nextDouble() * epsilon;
-    	} else {
-    		return 0;
-    	}
+                    Math.sqrt(Math.log(nVisits[type]+1) / (tn.nVisits[0] + epsilon)) +
+                    r.nextDouble() * epsilon;
+
     }
     
     /* perform the calculation needed to weight the node, in order to balance rave and uct */
@@ -575,7 +573,7 @@ public class TreeNode {
     	//System.out.println("score for " + playerColor + ": " + score);
     	/* if there wasn't any testing for that node, ie, its lategae */
 
-    		score = 0;
+    	//	score = 0;
     	
     	//System.out.println(" score: " + score + " ");
     	/* if using binary scoring */

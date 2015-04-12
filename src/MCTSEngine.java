@@ -48,11 +48,11 @@ public class MCTSEngine {
 		// most simulated, highest mean value, UCB
 		//black
 		players[0] = new MCTSPlayer(1000, 0, true, 
-				false, false, false, true, 1, 2200, -1, 
+				false, true, false, false, 1, 2200, -1, 
 				false, 
-				2, 1000,
+				0, 1000,
 				true, false, true, false, false,
-				true, false, false);
+				false, false, true);
 		//white
 		players[1] = new MCTSPlayer(1000, 0, true, 
 				false, true, false, false, 1, 2200, -1, 
