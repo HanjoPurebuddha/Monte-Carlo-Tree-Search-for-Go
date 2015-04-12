@@ -195,7 +195,7 @@ public class TreeNode {
 		    			newNode.parent.dynamicTreeChildren.add(newNode);
 
 		    		//System.out.println("Dynamic Children: " + node.parent.dynamicTreeChildren.size() + " ");
-		    		//node.addedToDynamicTree = true;
+		    			newNode.addedToDynamicTree = true;
 		    	}
 		    }
         }
