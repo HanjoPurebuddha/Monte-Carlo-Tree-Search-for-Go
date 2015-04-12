@@ -378,8 +378,10 @@ public class TreeNode {
         	 * or if it is not enabled */
     		if(raveSkipCounter < nodeRuleSet.raveSkip || nodeRuleSet.raveSkip == -1) {
     		    /* get the uct value using standard rules */
+    			
     		    uctValue = getUctValue(c); // NOTE // Investigate avoiding recalculation if the node stats have not been updated // NOTE //
-    		    
+    		    if(c.nVisits[0] == 0) //if this node hasnt been visited
+    				uctValue = 1000; //make sure it is!
     		    /* and increment the counter */
     		    raveSkipCounter++;
     		    
