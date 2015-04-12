@@ -57,7 +57,7 @@ public class TreeNode {
     boolean testing = false;
     
     /* a map of colours used to record if a move was in the players color for amaf */
-    Color[] amafMap;
+    Color[] amafMap = new Color[9*9];
     
     /* each node has the move taken to get to that move */
     public int move;
@@ -500,20 +500,20 @@ public class TreeNode {
     	for (TreeNode c : children) {
 
     		/* for every move on the amafmap */
-    		//for(int i =0; i<amafMap.length;i++) {
+    		for(int i =0; i<amafMap.length;i++) {
     			
 				/* if that part is filled in on the amafMap and matches the childs most recently taken move 
 				 * and is the right colour */
-    			//if(amafMap[i] != null && i == c.currentGame.getMove(0) 
-    					//&& c.currentGame.getNextToPlay() != amafMap[i]) {
+    			if(amafMap[i] != null && i == c.currentGame.getMove(0) 
+    					&& c.currentGame.getNextToPlay().inverse() == amafMap[i]) {
 
     				/* update the total value of that node with the simulation result */
 					c.updateStats(1, simulationResult);
 					
 					/* and quit out of the loop, no need to update multiple times for multiple matches */
-					//break;
-    			//}
-			//}
+					break;
+    			}
+			}
 		
     		/* if there is more subtree to explore */
     		if(c.children.size() > 0) {
@@ -553,19 +553,16 @@ public class TreeNode {
     		//System.out.println("simulated move: " + move + " ");
     		duplicateGame.recordMove(move);
     		/* if we are using any variation of rave */
-    		//if (nodeRuleSet.rave) {
+    		if (nodeRuleSet.rave || nodeRuleSet.weightedRave) {
     			
 	    		/* if the move isn't a pass */
-	    		//if(move != -1) {
+	    		if(move != -1) {
 	    			
-		    		/* set the current moves colour on the amaf map */
-		    		//if(randomPlayer.game.getNextToPlay() == playerColor) {
-		    			//tn.amafMap[move] = playerColor;
-		    		//} else {
-		    			//tn.amafMap[move] = playerColor.inverse();
-		    		//}
-	    		//}
-    		//}
+		    		/* set the last move takens colour on the amaf map */
+	    			tn.amafMap[move] = randomPlayer.game.getNextToPlay().inverse();
+	    			//tn.printAmafMap();
+	    		}
+    		}
     	}
     	
     	/* get the score for the players color, positive or negative depending on colour */
@@ -590,27 +587,7 @@ public class TreeNode {
     	}
     	
     }
-    
 
-   /* public double simulate(TreeNode tn) {
-    	Randy randomPlayer = new Randy();
-    	TreeNode simulateNode = tn;
-    	Game simulateGame = simulateNode.getGame();
-    	Game duplicateGame = simulateGame.duplicate();
-    	randomPlayer.startGame(duplicateGame, null);
-    	while(!duplicateGame.isOver()) {
-    		int move = randomPlayer.playMove();
-    		duplicateGame.recordMove(move);
-    		
-    	}
-    	float score = duplicateGame.score(playerColor);
-    	if(score > 0)
-    		return 1;
-    	return 0;
-    	
-    }*/
-    
-    
     /* methods to print things when explicitly allowed to */
     public void print(String line) {
     	if(testing)
@@ -625,7 +602,7 @@ public class TreeNode {
     public void updateStats(int type, double value) {
     	
     	/* for the uct value or rave value, dependent on the type input */
-  
+    	
     		nVisits[type]++;
     	
         totValue[type] += value;

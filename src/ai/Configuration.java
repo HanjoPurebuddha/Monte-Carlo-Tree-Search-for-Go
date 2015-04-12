@@ -8,14 +8,7 @@ a global capture moves are attempted next. */
 	public boolean simulatePatternsSecondLastMove;
 	public boolean globalCaptureMove;
 	
-	/*he policy for 2-liberty blocks is applied both to the
-last opponent move and to adjacent blocks of the player.
-It generates moves on good liberties, which are points that
-would gain liberties for that block and are not self-atari.
-However, moves within simple chains such as bamboo and
-diagonal connections are skipped.*/
-	public boolean twoLibertyBlock;
-	
+
 	/*By default, the player chooses the most-simulated move at
 the root. A few other rules such as highest mean value are
 also implemented. */
