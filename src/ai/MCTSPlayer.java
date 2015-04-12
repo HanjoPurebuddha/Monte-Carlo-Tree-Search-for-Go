@@ -26,7 +26,8 @@ public class MCTSPlayer extends Player {
 	public MCTSPlayer(int time, int iterations, boolean rememberTree,
 			boolean binaryScoring, boolean uct, boolean rave, boolean weightedRave, double initialWeight, double finalWeight, 
 			 int raveSkip, boolean dontExpandEyes, int dynamicTree, double firstPlayUrgency, 
-			 boolean simulateAvoidEyes, boolean simulateAtari, boolean simulatePatterns, boolean simulateTakePieces, boolean simulateMercyRule) {
+			 boolean simulateAvoidEyes, boolean simulateAtari, boolean simulatePatterns, boolean simulateTakePieces, boolean simulateMercyRule,
+			 boolean pickMostSimulated, boolean pickHighestMean, boolean pickUCB) {
 		super("TimedPlayer");
 		this.time = time;
 		this.iterations = iterations;
@@ -34,7 +35,8 @@ public class MCTSPlayer extends Player {
 		/* set the values for different features */
     	this.nodeRuleSet = new Configuration(binaryScoring, uct, rave, weightedRave, 
     			initialWeight, finalWeight, raveSkip, dontExpandEyes, dynamicTree, firstPlayUrgency,
-    			simulateAvoidEyes, simulateAtari, simulatePatterns, simulateTakePieces, simulateMercyRule);
+    			simulateAvoidEyes, simulateAtari, simulatePatterns, simulateTakePieces, simulateMercyRule,
+    			pickMostSimulated, pickHighestMean, pickUCB);
     	
 	}
 
@@ -76,7 +78,7 @@ public class MCTSPlayer extends Player {
 	    if(game.getMove(0) == -1 && getMoveValue(move) <= 0) {
 	    	
 	    	/* make the move a pass */
-	    //	move = -1;
+	    	move = -1;
 	    	
 	    }
 	    

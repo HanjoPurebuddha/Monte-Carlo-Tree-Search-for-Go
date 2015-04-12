@@ -45,20 +45,23 @@ public class MCTSEngine {
 		// expand eyes
 		// dynamic tree, first play urgency
 		// simulate avoid eyes, simulate atari, simulate patterns, simulate taking pieces
+		// most simulated, highest mean value, UCB
 		//black
 		players[0] = new MCTSPlayer(1000, 0, true, 
-				false, false, false, true, 1, 10000, 20, 
+				false, false, false, true, 1, 2200, -1, 
 				false, 
 				2, 1000,
-				true, false, false, false, false);
+				true, false, true, false, false,
+				true, false, false);
 		//white
 		players[1] = new MCTSPlayer(1000, 0, true, 
-				false, false, false, true, 1, 10000, 20, 
+				false, true, false, false, 1, 2200, -1, 
 				false, 
-				2, 1000, 
-				true, false, false, false, false);
-		//players[0] = new SimulatePlayer(true, false, false, false, false);
-		//players[1] = new SimulatePlayer(true, false, false, false, false);
+				0, 1000,
+				true, false, true, false, false,
+				true, false, false);
+	//	players[0] = new SimulatePlayer(true, false, true, false, false);
+	//	players[1] = new SimulatePlayer(true, false, true, false, false);
 		
 		//players[0] = new RandomPlayer();
 		//players[1] = new RandomPlayer();
@@ -273,7 +276,7 @@ public class MCTSEngine {
 	
 	private Game createGame(int size, boolean allowSuicides) {
 		//return new SimulateGame(size);
-		 return new TrompTaylorGame(size, false);
+		return new TrompTaylorGame(size, false);
 	}
 	
 	/**

@@ -93,34 +93,234 @@ public abstract class Game implements Cloneable {
     @endverbatim */
 	
 	public boolean matchPattern(int z) {
+		int[][] surroundingPositions = populateSurroundingPositions(z);
+	//	System.out.println(surroundingPositions);
+		for(int i=0;i<3;i++) {
+			for(int j=0;j<3;j++) {
+			//	System.out.print("Populating surrounding positions:");
+				int[][] patternMatchGrid = populateSurroundingPositions(surroundingPositions[i][j]);
+			//	System.out.println(patternMatchGrid);
+			//	System.out.print("Populating pattern types:");
+				int[][][] patternTypes = populatePatternTypes(patternMatchGrid);
+			//	System.out.println(patternTypes);
+				for(int k=0;k<patternTypes.length;k++) {
+				//	System.out.println("[[[[[[[[[[[[TYPE "+ k + "]]]]]]]]]]]]]]]]");
+					if(matchesPatterns(patternTypes[k])) {
+						return true;
+					}
+				}
+			}
+			
+		}
 		return false;
+	}
+	
+	public boolean matchesPatterns(int[][] grid) {
+		if(checkHane(grid) || checkCut1(grid) || checkCut2(grid) || checkEdge(grid)) {
+	//		System.out.println("matched");
+			boolean canPlay = play(grid[1][1]);
+			if(canPlay) {
+			//	System.out.println("Can play!");
+				recordMove(grid[1][1]);
+				return true;
+				
+			} else {
+			//	System.out.println("Couldn't play this match...");
+				return false;
+			}
+		}
+	//	System.out.println("no match");
+		return false;
+	}
+	
+	public int[][][] populatePatternTypes(int[][] grid) {
+		int[][][] patternTypes = new int[6][][];
+		patternTypes[0] = grid;
+		patternTypes[1] = rotate(grid);
+		patternTypes[2] = rotate(patternTypes[1]);
+		patternTypes[3] = rotate(patternTypes[2]);
+		patternTypes[4] = verticalFlip(grid);
+		patternTypes[5] = horizontalFlip(grid);
+	//	patternTypes[6] = swapcolors(grid);
+		return patternTypes;
+	}
+	
+	static int[][] rotate(int[][] grid) {
+	    int[][] out = new int[3][3];
+
+	    for (int i = 0; i < 3; ++i) {
+	        for (int j = 0; j < 3; ++j) {
+	        	out[i][j] = grid[3 - j - 1][i];
+	        }
+	    }
+
+	    return out;
+	}
+	
+	public static int[][] horizontalFlip(int[][] grid) {
+	    int[][] out = new int[3][3];
+	    for (int i = 0; i < 3; i++) {
+	        for (int j = 0; j < 3; j++) {
+	            out[i][3 - j - 1] = grid[i][j];
+	        }
+	    }
+	    return out;
+	}
+	
+	public static int[][] verticalFlip(int[][] grid) {
+	    int[][] out = new int[3][3];
+	    for (int i = 0; i < 3; i++) {
+	        for (int j = 0; j < 3; j++) {
+	            out[3 - j - 1][j] = grid[i][j];
+	        }
+	    }
+	    return out;
+	}
+	
+	public int[][] populateSurroundingPositions(int z) {
+		int[][] surroundingPositions = new int[3][3];
+		surroundingPositions[0][0] = getGrid().upleft(z);
+	//	System.out.println("1");
+		surroundingPositions[1][0] = getGrid().left(z);
+	//	System.out.println("2");
+		surroundingPositions[2][0] = getGrid().downleft(z);
+	//	System.out.println("3");
+		surroundingPositions[0][1] = getGrid().up(z);
+	//	System.out.println("4");
+		surroundingPositions[0][2] = getGrid().upright(z);
+	//	System.out.println("5");
+		surroundingPositions[1][1] = z;
+	//	System.out.println("6");
+		surroundingPositions[2][2] = getGrid().downright(z);
+	//	System.out.println("7");
+		surroundingPositions[2][1] = getGrid().down(z);
+	//	System.out.println("8");
+		surroundingPositions[1][2] = getGrid().right(z);
+	//	System.out.println("9");
+		return surroundingPositions;
 	}
 
     /* Patterns for Hane. <br>
     True is returned if any pattern is matched.
+    In the right one, true is returned if and only if the eight positions around are matched and it is black to play.
     @verbatim
     X O X   X O .   X O ?   X O O
     . . .   . . .   X . .   . . .
     ? ? ?   ? . ?   ? . ?   ? . ? B
     @endverbatim */
+	
+
     
-    public boolean checkHane(int z, Board oldBoard) {
-    	temp1.clear();
-		temp1.addNeighbors(z);
-		for (int i=0; i<temp1.size(); i++) 
-			if (getPoint(temp1.get(i)) != nextToPlay) 
-				break;
-		temp1.clear();
-		temp1.addDiagonalNeighbors(z);
-		Color other = nextToPlay.inverse();
-		int numOther = 0;
-		for (int i=0; i<temp1.size(); i++)
-			if (getPoint(temp1.get(i)) == other)
-				numOther++;
-		if (numOther == 0 || numOther == 1 && temp1.size() == 4)
-			return false;
-		return false;
+    Point[][] hane1 = new Point[][]{
+    	  { Color.BLACK, Color.BLACK, Color.EMPTY },
+    	  { Color.EMPTY, Color.EMPTY, Color.EMPTY }
+    	};
+    
+    Point[][] hane2 = new Point[][]{
+      	  { Color.BLACK, Color.WHITE, Color.EMPTY },
+      	  { Color.EMPTY, Color.EMPTY, Color.EMPTY },
+      	  { Color.EMPTY, Color.EMPTY, Color.EMPTY }
+      	};
+    
+    Point[][] hane3 = new Point[][]{
+      	  { Color.BLACK, Color.WHITE, Color.EMPTY },
+      	  { Color.BLACK, Color.EMPTY, Color.EMPTY },
+      	  { Color.EMPTY, Color.EMPTY, Color.EMPTY }
+      	};
+    
+    Point[][] hane4 = new Point[][]{
+      	  { Color.BLACK, Color.WHITE, Color.WHITE },
+      	  { Color.EMPTY, Color.EMPTY, Color.EMPTY },
+      	  { Color.EMPTY, Color.EMPTY, Color.EMPTY }
+      	};
+    
+    
+    public boolean checkHane(int[][] grid) {
+    //	printGrid(grid);
+    	if(checkHane1(grid) || checkHane2(grid) || checkHane3(grid) || checkHane4(grid)) {
+    		
+    		
+    		return true;  
+    	}
+    //	System.out.println("Didn't match hane.");
+    	return false;
 	}
+    
+    public boolean checkHane1(int[][] grid) {
+    	for(int i=0;i<2;i++) {
+			for(int j=0;j<3;j++) {
+				if( getPoint(grid[i][j]) != hane1[i][j] )
+					return false;
+			}
+    	}
+    //	System.out.println("Matched hane1!");
+    	return true;
+    }
+    
+    public void printGrid(int[][] grid) {
+    	for(int i=0;i<3;i++) {
+    		System.out.println(";");
+			for(int j=0;j<3;j++) {
+				System.out.print(getPoint(grid[i][j]) + ", ");
+			}
+    	}
+    	System.out.println();
+    }
+    
+    public void printPointGrid(Point[][] grid) {
+    	
+    }
+    
+    public boolean checkHane2(int[][] grid) {
+    	for(int i=0;i<3;i++) {
+			for(int j=0;j<3;j++) {
+				if(i==2 && j==0)
+					continue;
+				if(i==2 && j==2)
+					continue;
+				if( getPoint(grid[i][j]) != hane2[i][j] )
+					return false;
+			}
+    	}
+    //	System.out.println("Matched hane2!");
+    	return true;
+    }
+    
+    public boolean checkHane3(int[][] grid) {
+    	for(int i=0;i<3;i++) {
+			for(int j=0;j<3;j++) {
+				if(i==2 && j==0)
+					continue;
+				if(i==0 && j==2)
+					continue;
+				if(i==2 && j==2)
+					continue;
+				if( getPoint(grid[i][j]) != hane3[i][j])
+					return false;
+			}
+    	}
+    //	System.out.println("Matched hane3!");
+    	return true;
+    }
+    
+    public boolean checkHane4(int[][] grid) {
+    	if(nextToPlay == Color.BLACK) {
+	    	for(int i=0;i<3;i++) {
+				for(int j=0;j<3;j++) {
+					if(i==2 && j==0)
+						continue;
+					if(i==2 && j==2)
+						continue;
+					if( getPoint(grid[i][j]) != hane4[i][j])
+						return false;
+				}
+	    	}
+	 //   	System.out.println("Matched hane4!");
+	    	return true;
+    	} else {
+    		return false;
+    	}
+    }
 
     /* Patterns for Cut1. <br>
     True is returned if the first pattern is matched, but not the next two.
@@ -129,13 +329,107 @@ public abstract class Game implements Cloneable {
     O . ?   O . O   O . .
     ? ? ?   ? . ?   ? O ?
     @endverbatim  */
+    
+    Point[][] cutTrue = new Point[][]{
+      	  { Color.BLACK, Color.WHITE, },
+      	  { Color.WHITE, Color.EMPTY, }
+      	};
+      
+      Point[][] cutFalse1 = new Point[][]{
+        	  { Color.BLACK, Color.WHITE, Color.EMPTY },
+        	  { Color.WHITE, Color.EMPTY, Color.WHITE },
+        	  { Color.EMPTY, Color.EMPTY, Color.EMPTY }
+        	};
+      
+      Point[][] cutFalse2 = new Point[][]{
+        	  { Color.BLACK, Color.WHITE, Color.EMPTY },
+        	  { Color.WHITE, Color.EMPTY, Color.EMPTY },
+        	  { Color.EMPTY, Color.WHITE, Color.EMPTY }
+        	};
+    
+    public boolean checkCut1(int[][] grid) {
+    	if(checkCutTrue(grid) && !checkCutFalse1(grid) && !checkCutFalse2(grid)) {
+   // 		System.out.println("Matched cut1!");
+    		return true;
+    	}
+		return false;
+	}
+    
+    public boolean checkCutTrue(int[][] grid) {
+    	for(int i=0;i<2;i++) {
+			for(int j=0;j<2;j++) {
+				if( getPoint(grid[i][j]) != cutTrue[i][j] )
+					return false;
+			}
+    	}
+    	return true;
+    }
+    
+    public boolean checkCutFalse1(int[][] grid) {
+    	for(int i=0;i<3;i++) {
+			for(int j=0;j<3;j++) {
+				if(i==2 && j==0)
+					continue;
+				if(i==0 && j==2)
+					continue;
+				if(i==2 && j==2)
+					continue;
+				if( getPoint(grid[i][j]) != cutFalse1[i][j])
+					return true;
+			}
+    	}
+    	return false;
+    }
+    
+    public boolean checkCutFalse2(int[][] grid) {
+    	for(int i=0;i<3;i++) {
+			for(int j=0;j<3;j++) {
+				if(i==2 && j==0)
+					continue;
+				if(i==0 && j==2)
+					continue;
+				if(i==2 && j==2)
+					continue;
+				if( getPoint(grid[i][j]) != cutFalse2[i][j])
+					return true;
+			}
+    	}
+    	return false;
+    }
 
     /* Pattern for Cut2.
+     True is returned when the 6 upper positions are matched and
+	the 3 bottom positions are not white.
     @verbatim
     ? X ?
     O . O
     x x x
     @endverbatim  */
+    
+    Point[][] cut2 = new Point[][]{
+      	  { Color.EMPTY, Color.BLACK, Color.EMPTY },
+      	  { Color.WHITE, Color.EMPTY, Color.WHITE }
+      	};
+    
+    public boolean checkCut2(int[][] grid) {
+    	for(int i=0;i<2;i++) {
+			for(int j=0;j<3;j++) {
+				if(i==0 && j==0)
+					continue;
+				if(i==0 && j==2)
+					continue;
+				if( getPoint(grid[i][j]) != cut2[i][j] )
+					return false;
+			}
+    	}
+    	/* testing if the 3 bottom positions are white */
+    	for(int j=0;j<3;j++) {
+    		if( getPoint(grid[2][j]) == Color.WHITE )
+    			return false;
+    	}
+    //	System.out.println("Matched cut2!");
+    	return true;
+	}
 
     /* Pattern for Edge. <br>
     True is returned if any pattern is matched.
@@ -143,10 +437,124 @@ public abstract class Game implements Cloneable {
     X . ?   ? X ?   ? X O    ? X O    ? X O
     O . ?   o . O   ? . ? B  ? . o W  O . X W
     @endverbatim  */
+    
+    Point[][] edge1 = new Point[][]{
+        	  { Color.BLACK, Color.EMPTY},
+        	  { Color.WHITE, Color.EMPTY}
+        	};
 	
+    Point[][] edge2 = new Point[][]{
+      	  { Color.EMPTY, Color.BLACK, Color.EMPTY },
+      	  { Color.EMPTY, Color.EMPTY, Color.WHITE }
+      	};
+    
+    /* use this for edge4 too, with specific rules for other conditions */
+    Point[][] edge3 = new Point[][]{
+      	  { Color.EMPTY, Color.BLACK, Color.WHITE },
+      	  { Color.EMPTY, Color.EMPTY, Color.EMPTY }
+      	};
+    Point[][] edge5 = new Point[][]{
+        	  { Color.EMPTY, Color.BLACK, Color.WHITE },
+        	  { Color.WHITE, Color.EMPTY, Color.BLACK }
+        	};
+    
+    public boolean checkEdge(int[][] grid) {
+    	if(checkEdge1(grid) || checkEdge2(grid) || checkEdge3(grid) || checkEdge4(grid) || checkEdge5(grid))
+    		return true;
+		return false;
+	}
 	
-	
-	
+    public boolean checkEdge1(int[][] grid) {
+    	for(int i=0;i<2;i++) {
+			for(int j=0;j<2;j++) {
+				if( getPoint(grid[i][j]) != edge1[i][j] )
+					return false;
+			}
+    	}
+    //	System.out.println("Matched edge1!");
+    	return true;
+    }
+    
+    public boolean checkEdge2(int[][] grid) {
+    	if(getPoint(grid[1][0]) == Color.BLACK ) {
+    		return false;
+    	}
+    	for(int i=0;i<2;i++) {
+			for(int j=0;j<3;j++) {
+				if(i==0 && j==0)
+					continue;
+				if(i==1 && j==2)
+					continue;
+				if( getPoint(grid[i][j]) != edge2[i][j] )
+					return false;
+			}
+    	}
+    //	System.out.println("Matched edge2!");
+    	return true;
+    }
+    
+    public boolean checkEdge3(int[][] grid) {
+    	if(nextToPlay == Color.BLACK) {
+	    	for(int i=0;i<2;i++) {
+				for(int j=0;j<3;j++) {
+					if(i==0 && j==0)
+						continue;
+					if(i==1 && j==0)
+						continue;
+					if(i==1 && j==2)
+						continue;
+					if( getPoint(grid[i][j]) != edge3[i][j] )
+						return false;
+				}
+	    	}
+    	} else {
+    		return false;
+    	}
+    //	System.out.println("Matched edge3!");
+    	return true;
+    }
+    
+    public boolean checkEdge4(int[][] grid) {
+    	if(nextToPlay == Color.WHITE) {
+    		if(getPoint(grid[1][2]) == Color.BLACK ) {
+	    		return false;
+	    	}
+	    	for(int i=0;i<2;i++) {
+				for(int j=0;j<3;j++) {
+					if(i==0 && j==0)
+						continue;
+					if(i==1 && j==0)
+						continue;
+					if(i==1 && j==2)
+						continue;
+					if( getPoint(grid[i][j]) != edge3[i][j] )
+						return false;
+				}
+	    	}
+	    	
+    	} else {
+    		return false;
+    	}
+    //	System.out.println("Matched edge4!");
+    	return true;
+    }
+    
+    public boolean checkEdge5(int[][] grid) {
+    	if(nextToPlay == Color.WHITE) {
+	    	for(int i=0;i<2;i++) {
+				for(int j=0;j<3;j++) {
+					if(i==0 && j==0)
+						continue;
+					if( getPoint(grid[i][j]) != edge5[i][j] )
+						return false;
+				}
+	    	}
+    	} else {
+    		return false;
+    	}
+    //	System.out.println("Matched edge5!");
+    	return true;
+    }	
 	/**
 	 * Used by many methods to efficiently store lists of board positions.  Allocated only once,
 	 * to the number of points on the board.

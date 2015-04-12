@@ -62,7 +62,7 @@ public class SimulatePlayer extends Player {
 			/* if it returns true, that means a piece was taken, so return that move*/
 			return game.getMove(0);
 		}
-		
+		//System.out.println("We getting here?");
 		/* if none of these match just randomly pick a move that isn't in an eye */
 		int move = playRandomLegalMove(simulateAvoidEyes);
 		return move;

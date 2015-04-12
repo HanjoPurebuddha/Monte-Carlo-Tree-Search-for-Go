@@ -1,6 +1,4 @@
-/MCTSEngine.class
-/RandomGTPEngine.class
-/ai/
 /game/
-/gtp/
 /mcts/
+/ai/
+/gtp/
