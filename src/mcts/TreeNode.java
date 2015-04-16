@@ -56,8 +56,7 @@ public class TreeNode {
     /* setup the testing variable to allow prints or disallow them */
     boolean testing = false;
     
-    /* a map of colours used to record if a move was in the players color for amaf */
-    Color[] amafMap = new Color[9*9];
+    Color[] amafMap;
     
     /* each node has the move taken to get to that move */
     public int move;
@@ -75,6 +74,8 @@ public class TreeNode {
     	this.playerColor = playerColor;
     	this.raveSkipCounter = raveSkipCounter;
     	this.addedToDynamicTree = addedToDynamicTree;
+    	/* a map of colours used to record if a move was in the players color for amaf */
+        this.amafMap = new Color[currentGame.getSideSize()*currentGame.getSideSize()];
     //	this.uctValue = uctValue;
     	//this.isDynamicTreeChild = true;
     }
@@ -380,9 +381,12 @@ public class TreeNode {
     		    /* get the uct value using standard rules */
     			
     		    uctValue = getUctValue(c); // NOTE // Investigate avoiding recalculation if the node stats have not been updated // NOTE //
-    		   // if(c.nVisits[0] == 0) //if this node hasnt been visited
-    			//	uctValue = 1000; //make sure it is!
+    		    if(nodeRuleSet.firstPlayUrgency > 0) {
+	    		    if(c.nVisits[0] == 0) //if this node hasnt been visited
+	    				uctValue = 1000; //make sure it is!
+    		    }
     		    /* and increment the counter */
+    		    
     		    raveSkipCounter++;
     		    
     		} else if(raveSkipCounter == nodeRuleSet.raveSkip) {

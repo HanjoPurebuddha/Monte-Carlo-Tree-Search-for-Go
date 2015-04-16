@@ -153,4 +153,9 @@ public abstract class Player {
 		
 	}
 
+	public void setOpeningBook() {
+		// TODO Auto-generated method stub
+		
+	}
+
 }

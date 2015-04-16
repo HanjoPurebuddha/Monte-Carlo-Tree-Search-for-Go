@@ -46,20 +46,23 @@ public class MCTSEngine {
 		// dynamic tree, first play urgency
 		// simulate avoid eyes, simulate atari, simulate patterns, simulate taking pieces
 		// most simulated, highest mean value, UCB
+		// opening book
 		//black
 		players[0] = new MCTSPlayer(1000, 0, true, 
-				false, true, false, false, 1, 1000, 20, 
+				false, false, false, true, 1, 1000, 20, 
 				false, 
-				2, 1000,
+				6, 50,
 				true, false, true, false, false,
-				false, false, true);
+				false, false, true,
+				true);
 		//white
 		players[1] = new MCTSPlayer(1000, 0, true, 
 				false, false, false, true, 1, 300, 20, 
 				false, 
-				2, 1000,
+				8, 50,
 				true, false, true, false, false,
-				false, false, true);
+				false, false, true,
+				true);
 	//	players[0] = new SimulatePlayer(true, false, true, false, false);
 	//	players[1] = new SimulatePlayer(true, false, true, false, false);
 		
@@ -261,6 +264,7 @@ public class MCTSEngine {
 		}
 		//System.out.println(game);
 		player.setGame(game);
+		player.setOpeningBook();
 		//System.out.println(player.game);
 		//player.initializeTree();
 		int move;

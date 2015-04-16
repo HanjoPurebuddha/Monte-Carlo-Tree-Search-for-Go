@@ -59,7 +59,7 @@ tions with a larger score.*/
     public Configuration(boolean binaryScoring, boolean uct, boolean rave, boolean weightedRave, double initialWeight, 
     		double finalWeight, int raveSkip, boolean dontExpandEyes, int dynamicTree, double firstPlayUrgency,
     		boolean simulateAvoidEyes, boolean simulateAtari, boolean simulatePatterns, boolean simulateTakePieces, boolean simulateMercyRule,
-    		boolean pickMostSimulated, boolean pickHighestMean, boolean pickUCB) {
+    		boolean pickMostSimulated, boolean pickHighestMean, boolean pickUCB, boolean openingBook) {
     	this.binaryScoring = binaryScoring;
     	this.uct = uct;
     	this.dontExpandEyes = dontExpandEyes;
@@ -78,6 +78,7 @@ tions with a larger score.*/
     	this.pickMostSimulated = pickMostSimulated;
     	this.pickHighestMean = pickHighestMean;
     	this.pickUCB = pickUCB;
+    	this.openingBook = openingBook;
     }
     
     public double firstPlayUrgencyValue() {

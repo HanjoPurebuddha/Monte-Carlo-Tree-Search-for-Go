@@ -22,7 +22,7 @@ public abstract class Game implements Cloneable {
 	public Board board;
 	protected int numMoves;
 	
-	protected int lastMove;
+	protected int lastMove = -3;
 	
 	/* used to ignore eyes, or not */
 	public boolean avoidEyes;
@@ -145,12 +145,12 @@ public abstract class Game implements Cloneable {
 		return patternTypes;
 	}
 	
-	static int[][] rotate(int[][] grid) {
-	    int[][] out = new int[3][3];
+	public static int[][] rotate(int[][] grid) {
+	    int[][] out = new int[grid.length][grid.length];
 
-	    for (int i = 0; i < 3; ++i) {
-	        for (int j = 0; j < 3; ++j) {
-	        	out[i][j] = grid[3 - j - 1][i];
+	    for (int i = 0; i < grid.length; ++i) {
+	        for (int j = 0; j < grid.length; ++j) {
+	        	out[i][j] = grid[grid.length - j - 1][i];
 	        }
 	    }
 
@@ -158,20 +158,20 @@ public abstract class Game implements Cloneable {
 	}
 	
 	public static int[][] horizontalFlip(int[][] grid) {
-	    int[][] out = new int[3][3];
-	    for (int i = 0; i < 3; i++) {
-	        for (int j = 0; j < 3; j++) {
-	            out[i][3 - j - 1] = grid[i][j];
+	    int[][] out = new int[grid.length][grid.length];
+	    for (int i = 0; i < grid.length; i++) {
+	        for (int j = 0; j < grid.length; j++) {
+	            out[i][grid.length - j - 1] = grid[i][j];
 	        }
 	    }
 	    return out;
 	}
 	
 	public static int[][] verticalFlip(int[][] grid) {
-	    int[][] out = new int[3][3];
-	    for (int i = 0; i < 3; i++) {
-	        for (int j = 0; j < 3; j++) {
-	            out[3 - j - 1][j] = grid[i][j];
+	    int[][] out = new int[grid.length][grid.length];
+	    for (int i = 0; i < grid.length; i++) {
+	        for (int j = 0; j < grid.length; j++) {
+	            out[grid.length - j - 1][j] = grid[i][j];
 	        }
 	    }
 	    return out;
@@ -750,11 +750,12 @@ public abstract class Game implements Cloneable {
 	 * @throws IndexOutOfBoundsException if the offset specified is outside the list of moves played, or the history horizon of this game
 	 */
 	public int getMove(int offset) {
+		if(lastMove == -3) return -3;
 		if (offset == 0) return lastMove; //changed from throwing an exception to get this easily
 		if (offset < 0) offset = numMoves + offset + 1;
 		if (offset == numMoves) return lastMove;
 		else System.out.println("requested move is beyond history horizon");
-		return 0;
+		return -3;
 	}
 	
 	public void recordMove(int move) {
