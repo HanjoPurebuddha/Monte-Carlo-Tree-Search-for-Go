@@ -47,21 +47,30 @@ public class MCTSEngine {
 		// simulate avoid eyes, simulate atari, simulate patterns, simulate taking pieces
 		// most simulated, highest mean value, UCB
 		// opening book
+		// bonusPatterns
+		// clearMemory
+		// goTree
 		//black
-		players[0] = new MCTSPlayer(1000, 0, true, 
-				false, false, false, true, 1, 1000, 20, 
-				false, 
-				6, 50,
+		players[0] = new MCTSPlayer(0, 500, true, 
+				true, false, false, true, 1, 1000, 20, 
+				true, 
+				0, 10,
 				true, false, true, false, false,
 				false, false, true,
+				true,
+				1000,
+				false, 
 				true);
 		//white
-		players[1] = new MCTSPlayer(1000, 0, true, 
-				false, false, false, true, 1, 300, 20, 
-				false, 
-				8, 50,
+		players[1] = new MCTSPlayer(0, 500, true, 
+				true, false, false, true, 1, 1000, 20, 
+				true, 
+				2, 10,
 				true, false, true, false, false,
 				false, false, true,
+				true,
+				1000,
+				false,
 				true);
 	//	players[0] = new SimulatePlayer(true, false, true, false, false);
 	//	players[1] = new SimulatePlayer(true, false, true, false, false);

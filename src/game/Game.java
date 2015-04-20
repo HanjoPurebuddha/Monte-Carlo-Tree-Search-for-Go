@@ -94,17 +94,11 @@ public abstract class Game implements Cloneable {
 	
 	public boolean matchPattern(int z) {
 		int[][] surroundingPositions = populateSurroundingPositions(z);
-	//	System.out.println(surroundingPositions);
 		for(int i=0;i<3;i++) {
 			for(int j=0;j<3;j++) {
-			//	System.out.print("Populating surrounding positions:");
 				int[][] patternMatchGrid = populateSurroundingPositions(surroundingPositions[i][j]);
-			//	System.out.println(patternMatchGrid);
-			//	System.out.print("Populating pattern types:");
 				int[][][] patternTypes = populatePatternTypes(patternMatchGrid);
-			//	System.out.println(patternTypes);
 				for(int k=0;k<patternTypes.length;k++) {
-				//	System.out.println("[[[[[[[[[[[[TYPE "+ k + "]]]]]]]]]]]]]]]]");
 					if(matchesPatterns(patternTypes[k])) {
 						return true;
 					}
@@ -117,19 +111,22 @@ public abstract class Game implements Cloneable {
 	
 	public boolean matchesPatterns(int[][] grid) {
 		if(checkHane(grid) || checkCut1(grid) || checkCut2(grid) || checkEdge(grid)) {
-	//		System.out.println("matched");
 			boolean canPlay = play(grid[1][1]);
 			if(canPlay) {
-			//	System.out.println("Can play!");
 				recordMove(grid[1][1]);
 				return true;
 				
 			} else {
-			//	System.out.println("Couldn't play this match...");
 				return false;
 			}
 		}
-	//	System.out.println("no match");
+		return false;
+	}
+	
+	public boolean lastMoveMatchesPatterns() {
+		int[][] grid = populateSurroundingPositions(getMove(0));
+		if(checkHane(grid) || checkCut1(grid) || checkCut2(grid) || checkEdge(grid))
+			return true;
 		return false;
 	}
 	

@@ -37,11 +37,13 @@ tions with a larger score.*/
 	public boolean simulateTakePieces;
 	public boolean simulateMercyRule;
 	
+	public boolean clearMemory;
+	
 	/* bonus changes */
-	boolean bonusAtari;
-	boolean bonusPatterns;
-	boolean bonusTakePiece;
-	boolean bonusLocalNeighbourhood;
+	int bonusAtari;
+	public int bonusPatterns;
+	int bonusTakePiece;
+	int bonusLocalNeighbourhood;
 	
 	/* begin values for adjusting different features */
 	public boolean binaryScoring;
@@ -55,11 +57,13 @@ tions with a larger score.*/
     public int raveSkip;
     public boolean dontExpandEyes;
     public int dynamicTree;
+    public boolean goTree;
     
     public Configuration(boolean binaryScoring, boolean uct, boolean rave, boolean weightedRave, double initialWeight, 
     		double finalWeight, int raveSkip, boolean dontExpandEyes, int dynamicTree, double firstPlayUrgency,
     		boolean simulateAvoidEyes, boolean simulateAtari, boolean simulatePatterns, boolean simulateTakePieces, boolean simulateMercyRule,
-    		boolean pickMostSimulated, boolean pickHighestMean, boolean pickUCB, boolean openingBook) {
+    		boolean pickMostSimulated, boolean pickHighestMean, boolean pickUCB, boolean openingBook, int bonusPatterns, boolean clearMemory,
+    		boolean goTree) {
     	this.binaryScoring = binaryScoring;
     	this.uct = uct;
     	this.dontExpandEyes = dontExpandEyes;
@@ -79,6 +83,9 @@ tions with a larger score.*/
     	this.pickHighestMean = pickHighestMean;
     	this.pickUCB = pickUCB;
     	this.openingBook = openingBook;
+    	this.bonusPatterns = bonusPatterns;
+    	this.clearMemory = clearMemory;
+    	this.goTree = goTree;
     }
     
     public double firstPlayUrgencyValue() {
