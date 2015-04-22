@@ -24,7 +24,10 @@ tions with a larger score.*/
 	/* to implement....#
 	 * uct changes */
 	public boolean ucbTuned = false;
-	public double firstPlayUrgency;
+	public boolean simpleUcb = false;
+	public boolean randomUcb = false;
+	public boolean ucb = false;
+	public int firstPlayUrgency;
 	
 	/* initialization changes */
 	boolean openingBook;
@@ -42,6 +45,7 @@ tions with a larger score.*/
 	/* bonus changes */
 	int bonusAtari;
 	public int bonusPatterns;
+    public int bonusAvoidEyes;
 	int bonusTakePiece;
 	int bonusLocalNeighbourhood;
 	
@@ -55,24 +59,21 @@ tions with a larger score.*/
     public boolean heuristicRave;
     public int raveHeuristic;
     public int raveSkip;
-    public boolean dontExpandEyes;
-    public int dynamicTree;
-    public boolean goTree;
+    public int pruneNodes;
     
     public Configuration(boolean binaryScoring, boolean uct, boolean rave, boolean weightedRave, double initialWeight, 
-    		double finalWeight, int raveSkip, boolean dontExpandEyes, int dynamicTree, double firstPlayUrgency,
+    		double finalWeight, int raveSkip, int firstPlayUrgency, int bonusPatterns, int bonusAvoidEyes,
     		boolean simulateAvoidEyes, boolean simulateAtari, boolean simulatePatterns, boolean simulateTakePieces, boolean simulateMercyRule,
-    		boolean pickMostSimulated, boolean pickHighestMean, boolean pickUCB, boolean openingBook, int bonusPatterns, boolean clearMemory,
-    		boolean goTree) {
+    		boolean pickMostSimulated, boolean pickHighestMean, boolean pickUCB, boolean openingBook, boolean clearMemory,
+    		int pruneNodes, boolean ucb, boolean simpleUcb, boolean randomUcb, boolean ucbTuned) {
     	this.binaryScoring = binaryScoring;
     	this.uct = uct;
-    	this.dontExpandEyes = dontExpandEyes;
+    	this.bonusAvoidEyes = bonusAvoidEyes;
     	this.rave = rave;
     	this.weightedRave = weightedRave;
     	this.initialWeight = initialWeight;
     	this.finalWeight = finalWeight;
     	this.raveSkip = raveSkip;
-    	this.dynamicTree = dynamicTree;
     	this.simulateAvoidEyes = simulateAvoidEyes;
     	this.simulateAtari = simulateAtari;
     	this.simulatePatterns = simulatePatterns;
@@ -85,12 +86,16 @@ tions with a larger score.*/
     	this.openingBook = openingBook;
     	this.bonusPatterns = bonusPatterns;
     	this.clearMemory = clearMemory;
-    	this.goTree = goTree;
+    	this.pruneNodes = pruneNodes;
+    	this.simpleUcb = simpleUcb;
+    	this.randomUcb = randomUcb;
+    	this.ucb = ucb;
+    	this.ucbTuned = ucbTuned;
     }
     
-    public double firstPlayUrgencyValue() {
+    public int firstPlayUrgencyValue() {
     	if(firstPlayUrgency > 0)
     		return firstPlayUrgency;
-    	return -Double.MAX_VALUE;
+    	return 0;
     }
 }

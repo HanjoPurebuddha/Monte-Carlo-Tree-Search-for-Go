@@ -42,36 +42,31 @@ public class MCTSEngine {
 	{
 		// time, iterations, pers/non-pers
 		// binaryScoring,  uct,  rave,  weightedRave,  weight,  raveSkip
-		// expand eyes
-		// dynamic tree, first play urgency
+		// first play urgency, bonusPatterns, bonusAvoidEyes
 		// simulate avoid eyes, simulate atari, simulate patterns, simulate taking pieces
 		// most simulated, highest mean value, UCB
 		// opening book
-		// bonusPatterns
-		// clearMemory
-		// goTree
+		
+		// clearMemory, pruneNodes
+		// ucb, simpleUCB, randomUcb, UCB-Tuned
 		//black
-		players[0] = new MCTSPlayer(0, 500, true, 
-				true, false, false, true, 1, 1000, 20, 
-				true, 
-				0, 10,
+		players[0] = new MCTSPlayer(0, 600, true, 
+				false, false, false, true, 1, 600, 20, 
+				1000, 1000, -2000,
 				true, false, true, false, false,
-				false, false, true,
+				true, false, false,
 				true,
-				1000,
-				false, 
-				true);
+				true, 2,
+				false, false, true, false);
 		//white
-		players[1] = new MCTSPlayer(0, 500, true, 
-				true, false, false, true, 1, 1000, 20, 
-				true, 
-				2, 10,
+		players[1] = new MCTSPlayer(0, 600, true, 
+				false, false, false, true, 1, 600, 20,  
+				1000, 1000, -2000,
 				true, false, true, false, false,
-				false, false, true,
+				true, false, false,
 				true,
-				1000,
-				false,
-				true);
+				true, 2,
+				false, false, false, true);
 	//	players[0] = new SimulatePlayer(true, false, true, false, false);
 	//	players[1] = new SimulatePlayer(true, false, true, false, false);
 		

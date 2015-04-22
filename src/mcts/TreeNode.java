@@ -13,28 +13,20 @@ import java.util.List;
 import java.util.Random;
 
 public class TreeNode {
-	
-	/* initialize the random generation */
-    static Random r = new Random();
-    
-    /* initialize epsilon for use in uct */
-    static double epsilon = 1e-6;
-    
+
     /* each node has a game with the current move taken */
     Game currentGame;
 
     /* each node has children */
     List<TreeNode> children = new ArrayList<TreeNode>();
     
-    /* and a dynamic tree is maintained of only the children who have been visited more than once */
-    List<TreeNode> dynamicTreeChildren = new ArrayList<TreeNode>();
-    
     /* initialize the values used in uct, one for uct standard and one for rave */
     double[] nVisits = new double[2];
     double[] totValue = new double[2];
     
-    /*used to check if the node has been added to the dynamic tree or not */
-    boolean addedToDynamicTree = false;
+    /* record every value to be used for UCB1-Tuned */
+    List<Double> normalValues;
+    List<Double> raveValues;
     
     /* the counter for skipping rave */
     int raveSkipCounter;
@@ -53,14 +45,21 @@ public class TreeNode {
     /* each node has a ruleset defined by the user */
     Configuration nodeRuleSet;
     
+    public UCB ucbTracker;
+    
     /* set all the values that change for every node */
-    public TreeNode(Game currentGame, int move, int raveSkipCounter, double uctValue, //double weight, // NOTE // Might not need to m
-    		Color playerColor, Configuration nodeRuleSet) {
+    public TreeNode(Game currentGame, int move, int raveSkipCounter, //double weight, // NOTE // Might not need to m
+    		Color playerColor, Configuration nodeRuleSet, UCB ucbTracker) {
     	this.currentGame = currentGame;
     	this.move = move;
     	this.nodeRuleSet = nodeRuleSet;
     	this.playerColor = playerColor;
     	this.raveSkipCounter = raveSkipCounter;
+    	this.ucbTracker = ucbTracker;
+    	if(nodeRuleSet.ucbTuned) {
+    		this.normalValues = new ArrayList<Double>();
+    		this.raveValues = new ArrayList<Double>();
+    	}
     	/* a map of colours used to record if a move was in the players color for amaf */
         this.amafMap = new Color[currentGame.getSideSize()*currentGame.getSideSize()];
     }
@@ -70,37 +69,70 @@ public class TreeNode {
     	for(TreeNode c : children) {
     		if(c != avoidClear) {
     			if(c.children.size() > 0) {
-    				System.out.println("Found more children...");
+    				//System.out.println("Found more children...");
     				clearParentMemory(avoidClear, c.children);
     			}
     			c = null;
     			
+    		} else {
+    			//System.out.println("not removing this");
     		}
     	}
     }
     
+    /* for every child node that has been inactive, prune it and all its children from the tree
+     * to economize memory and time */
+    public void pruneNodes() {
+    	
+    	if(children.size() > 0) {
+	    //	System.out.println(children.size());
+	    	/* for every child of the starting node */
+	    	for(TreeNode c : children) {
+	    		/* if this node has been visited less than the allowed amount of times */
+	    		if(c.nVisits[0] < nodeRuleSet.pruneNodes) {
+	    			/* prune it and all of its children */
+	    			clearSubTree(c, c.getChildren());
+	    			//System.out.println("Failed:" + c.nVisits[0]);
+	    		} else {
+	    			
+	    		}
+	    //		System.out.println("visits:" + c.nVisits[0] + " ");
+	    	}
+	    	for(int c = 0; c<children.size();c++) {
+	    		if(children.get(c) == null) {
+		    		/* and remove it from the children */
+	    			children.remove(c);
+	    			System.out.println("removed");
+	    		}
+	    	}
+	    //	System.out.println(children.size());
+    	} else {
+    		System.out.println("Opponent chose a move that wasn't explored.");
+    	}
+    }
+    
+    public void clearSubTree(TreeNode node, List<TreeNode> children) {
+    	for(TreeNode c : children) {
+			if(c.children.size() > 0) {
+				clearSubTree(c, c.children);
+			}
+			c = null;
+    	}
+    	node = null;
+    }
+    
     /* get the child node that matches the game state given (last move played, from MCTSPlayer) */
     public TreeNode getChild(int lastMove) {
-    	if(dynamicTreeChildren.size() > 0) { 
-	    	/* for every child, check if the move matches the last move */
-	    	for(TreeNode c : dynamicTreeChildren) {
-	    		if(c.move == lastMove) {
-	    			return c;
-	    		}
-	    	}
-    	} else {
-    		/* for every child, check if the move matches the last move */
-	    	for(TreeNode c : children) {
-	    		if(c.move == lastMove) {
-	    			return c;
-	    		}
-	    	}
+		/* for every child, check if the move matches the last move */
+    	for(TreeNode c : children) {
+    		if(c.move == lastMove) {
+    			return c;
+    		}
     	}
-    	
     	/* if we couldn't find a matching expanded child, then create one with the move played out */
     	Game normalGame = currentGame.duplicate();
     	normalGame.play(lastMove);
-    	TreeNode newChild = new TreeNode(normalGame, lastMove, raveSkipCounter, nodeRuleSet.firstPlayUrgencyValue(), playerColor, nodeRuleSet);
+    	TreeNode newChild = new TreeNode(normalGame, lastMove, raveSkipCounter, playerColor, nodeRuleSet, ucbTracker);
     	
     	/* and return that one instead */
     	return newChild;
@@ -115,37 +147,18 @@ public class TreeNode {
         TreeNode cur = this;
         visited.add(this);
 
-        
-        
-        
-        /* until the bottom of the tree is reached
-         * in either dynamic or non-dynamic tree modes */
-        boolean atLeafNode = false;
-        if(nodeRuleSet.dynamicTree > 0)
-        	atLeafNode = cur.isDynamicTreeLeaf();
-        else 
-        	atLeafNode = cur.isLeaf();
-        while (!atLeafNode) {
+        while (!cur.isLeaf()) {
         	/* follow the highest uct value node, and add it to the visited list */
-        	if(nodeRuleSet.dynamicTree > 0) {
-        		cur = cur.dynamicTreeSelect();
-        	} else {
-        		cur = cur.select();
-        	}
+        	cur = cur.select();
             print("Adding: " + cur);
             visited.add(cur);
-            if(nodeRuleSet.dynamicTree > 0)
-            	atLeafNode = cur.isDynamicTreeLeaf();
-            else 
-            	atLeafNode = cur.isLeaf();
         }
         
         
         /* at the bottom of the tree expand the children for the node, including a pass move
          * but only if it hasn't been expanded before */
         print("found leaf node, expanding from: " + cur);
-        if(cur.children.size() == 0)
-        	cur.expand();
+        cur.expand();
 
         /* get the best child from the expanded nodes, even if it's just passing */
 	    print("selecting from: " + cur);
@@ -169,33 +182,14 @@ public class TreeNode {
 	    	/* based on the amaf map of the node that was just simulated */
 	    	updateStatsRave( cur.getChildren(), value);
 	    }
-	    
-	    /* if we are using the dynamic tree, update that */
-        if(cur != null) {
-		    if(nodeRuleSet.dynamicTree > 0) {
-		    	if(newNode.nVisits[1] > (nodeRuleSet.dynamicTree - 1) && newNode.addedToDynamicTree == false) {
-		    		cur.dynamicTreeChildren.add(newNode);
-		    		newNode.addedToDynamicTree = true;
-		    	}
-		    }
-        }
     }
     
-    /* get the bonus value for this node */
-    public int getBonus() {
-    	if(nodeRuleSet.bonusPatterns > 0) {
-    		if(currentGame.lastMoveMatchesPatterns()) {
-    			return nodeRuleSet.bonusPatterns;
-
-    		}
-    	}
-    	return 0;
-    }
+    
     
     public void printList(List<TreeNode> list) {
     	System.out.println("[");
     	for(TreeNode node : list) {
-    		System.out.println(node + ", ");
+    		System.out.println(node.nVisits[0] + ", ");
     	}
     	System.out.println("]");
     }
@@ -222,11 +216,6 @@ public class TreeNode {
     	/* initialize the values, with the bestvalue put at the smallest possible value */
     	TreeNode selected = null;
         double bestValue = -Double.MAX_VALUE;
-        List<TreeNode> children;
-        if(nodeRuleSet.dynamicTree > 0)
-        	children = this.dynamicTreeChildren;
-        else
-        	children = this.children;
         for (TreeNode c : children) {
         	double currentValue = 0;
         	
@@ -249,11 +238,6 @@ public class TreeNode {
     	/* initialize the values, with the bestvalue put at the smallest possible value */
     	TreeNode selected = null;
         double bestValue = -Double.MAX_VALUE;
-        List<TreeNode> children;
-        if(nodeRuleSet.dynamicTree > 0)
-        	children = this.dynamicTreeChildren;
-        else
-        	children = this.children;
         System.out.println(children.size() + " ");
         for (TreeNode c : children) {
         	double currentValue = 0;
@@ -281,23 +265,16 @@ public class TreeNode {
 
     	/* for every empty point on the board */
         for (int i=0; i<emptyPoints.size(); i++) {
-        	
-        	/* if disallowing playing in eyes, create a semiprimitive board with that rule and test playing on it */
-        	boolean canPlay = true;
-        	if(nodeRuleSet.dontExpandEyes) {
-	        	SimulateGame duplicateBoard = currentGame.semiPrimitiveCopy();    
-	        	canPlay = duplicateBoard.play(emptyPoints.get(i));
-        	}
-        	
-        	/* otherwise just try and play on it normally, ensuring the rules of the game are followed */
+
+        	/* just try and play on it normally, ensuring the rules of the game are followed */
         	Game normalGame = currentGame.duplicate();
         	boolean canPlayNormal = normalGame.play(emptyPoints.get(i));
         	
         	/* checking if it is possible to play that point, checking if we're playing into an eye */
-        	if(canPlay && canPlayNormal) {
+        	if(canPlayNormal) {
         		
         		/* create a new child for that point */
-        		TreeNode newChild = new TreeNode(normalGame, emptyPoints.get(i), raveSkipCounter, nodeRuleSet.firstPlayUrgencyValue(), playerColor, nodeRuleSet);
+        		TreeNode newChild = new TreeNode(normalGame, emptyPoints.get(i), raveSkipCounter, playerColor, nodeRuleSet, ucbTracker);
         		
         		/* and add it to the current nodes children */
         		children.add(newChild);
@@ -308,7 +285,7 @@ public class TreeNode {
         /* add a pass move as well as playing on every allowable empty point */
         Game passGame = currentGame.duplicate();
         passGame.play(-1);
-		TreeNode passChild = new TreeNode(passGame, -1, raveSkipCounter, nodeRuleSet.firstPlayUrgencyValue(), playerColor, nodeRuleSet);
+		TreeNode passChild = new TreeNode(passGame, -1, raveSkipCounter, playerColor, nodeRuleSet, ucbTracker);
 		
 		/* and add it to the current nodes children */
 		children.add(passChild);
@@ -324,27 +301,14 @@ public class TreeNode {
         
     }
     
-    private TreeNode dynamicTreeSelect() {
-    	/* get the best value child node from the dynamic tree children */
-	    TreeNode selected = findBestValueNode(dynamicTreeChildren);
-        /* and then it is returned, with a value always selected thanks to randomisation */
-        return selected;
-    }
-    
     public List<TreeNode> getChildren() {
-    	if(nodeRuleSet.dynamicTree > 0)
-    		return dynamicTreeChildren;
-    	return children;
-    }
-    
-    public List<TreeNode> getNonDynamicChildren() {
     	return children;
     }
     
     private TreeNode findBestValueNode(List<TreeNode> children) {
     	/* initialize the values, with the bestvalue put at the smallest possible value */
-    	TreeNode selected = null;
-        double bestValue = -Double.MAX_VALUE;
+    	TreeNode selected = children.get(0);
+        double bestValue = ucbTracker.getUctValue(this, children.get(0));
         //System.out.println("amount of children: " + children.size());
         for (TreeNode c : children) {
         	double uctValue = 0;
@@ -353,11 +317,8 @@ public class TreeNode {
     		if(raveSkipCounter < nodeRuleSet.raveSkip || nodeRuleSet.raveSkip == -1) {
     		    /* get the uct value using standard rules */
     			
-    		    uctValue = getUctValue(c); // NOTE // Investigate avoiding recalculation if the node stats have not been updated // NOTE //
-    		    if(nodeRuleSet.firstPlayUrgency > 0) {
-	    		    if(c.nVisits[0] == 0) //if this node hasnt been visited
-	    				uctValue = nodeRuleSet.firstPlayUrgencyValue(); //make sure it is!
-    		    }
+    		    uctValue = ucbTracker.getUctValue(this, c); // NOTE // Investigate avoiding recalculation if the node stats have not been updated // NOTE //
+    		    
     		    /* and increment the counter */
     		    
     		    raveSkipCounter++;
@@ -367,17 +328,17 @@ public class TreeNode {
     			/* otherwise disable rave */
     			if(nodeRuleSet.rave == true) {
     				nodeRuleSet.rave = false;
-        			uctValue = getUctValue(c);
+        			uctValue = ucbTracker.getUctValue(this, c);
         			nodeRuleSet.rave = true;
     			}
     			if(nodeRuleSet.weightedRave == true) {
     				nodeRuleSet.weightedRave = false;
-        			uctValue = getUctValue(c);
+        			uctValue = ucbTracker.getUctValue(this, c);
         			nodeRuleSet.weightedRave = true;
     			}
     			if(nodeRuleSet.heuristicRave == true) {
     				nodeRuleSet.heuristicRave = false;
-        			uctValue = getUctValue(c);
+        			uctValue = ucbTracker.getUctValue(this, c);
         			nodeRuleSet.heuristicRave = true;
     			}
     			
@@ -387,7 +348,7 @@ public class TreeNode {
 
             /* if the uctvalue is larger than the best value */
             if (uctValue > bestValue) {
-            	
+
             	/*the selected node is that child */
                 selected = c;
                 
@@ -407,61 +368,8 @@ public class TreeNode {
     		return true;
     	return false;
     }
-    private boolean isDynamicTreeLeaf() {
-    	if(dynamicTreeChildren.size() == 0)
-    		return true;
-    	return false;
-    }
     
-    /* perform the calculation required for uct */
-    private double calculateUctValue(int type, TreeNode tn) {
-
-	    	/* ((total value) / (visits + e)) + (log(visits) / (visits + e) + random number) */
-	    	return tn.totValue[type] + getBonus() / (tn.nVisits[type] + epsilon) +
-                    Math.sqrt(Math.log(nVisits[type]+1) / (tn.nVisits[0] + epsilon)) +
-                    r.nextDouble() * epsilon;
-
-    }
     
-    /* perform the calculation needed to weight the node, in order to balance rave and uct */
-    private double calculateWeight(TreeNode tn) {
-    	
-    	/* when only a few simulations have been seen, the weight is closer to 1, weighting the RAVE value more highly
-    	 * when many simulations have been seen, the weight is closer to 0, weighting the MC value more highly
-    	 */
-    	double weight = 1 - (nodeRuleSet.initialWeight * (tn.nVisits[0] / nodeRuleSet.finalWeight));
-    	if(tn.nVisits[0] == 0) {
-    		return 1;
-    	}
-    	if(weight < 0) {
-    		return 0;
-    	}
-    	return weight;
-    }
-    
-    /* get the uct value for a node with a small random number to break ties randomly in unexpanded nodes  */
-    private double getUctValue(TreeNode tn) {
-
-    	/* if we are using UCT no rave */
-        if (nodeRuleSet.uct) {
-        	
-        	/* get the uct value only */
-        	return calculateUctValue(0, tn);
-    		
-        } else if (nodeRuleSet.rave) {
-        	
-        	/* get the rave value only */
-        	return calculateUctValue(1, tn);
-    		
-        } else if (nodeRuleSet.weightedRave) {
-        	
-        	/* calculate it using the weight */
-        	double weight = calculateWeight(tn);
-    		return ((1 - weight) * calculateUctValue(0, tn)) + (weight * calculateUctValue(1, tn));
-	        
-    	}
-        return 0;
-    }
 
     /* share the updated values across the subtree of the move too */
     private void updateStatsRave(List<TreeNode> children, double simulationResult) {
@@ -556,11 +464,17 @@ public class TreeNode {
     private void updateStats(int type, double value) {
     	
     	/* for the uct value or rave value, dependent on the type input */
-    	
+    	if(nodeRuleSet.ucbTuned) {
+	    	if(type == 0) {
+	    		normalValues.add(value);
+	    	} else {
+	    		raveValues.add(value);
+	    	}
+    	}
     		nVisits[type]++;
-    	
+    	ucbTracker.totalActions++;
         totValue[type] += value;
-        print("updated stats, visits: " + nVisits[type] + " total value: " + totValue[type]);
+        //System.out.println("updated stats, visits: " + nVisits[type] + " total value: " + totValue[type]);
     }
     
 }

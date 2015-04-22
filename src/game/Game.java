@@ -123,6 +123,21 @@ public abstract class Game implements Cloneable {
 		return false;
 	}
 	
+	public boolean checkEye(int z) {
+		CHECK_EYE: {
+			temp1.clear();
+			temp1.addNeighbors(z);
+			for (int i=0; i<temp1.size(); i++) if (getPoint(temp1.get(i)) != nextToPlay) break CHECK_EYE;
+			temp1.clear();
+			temp1.addDiagonalNeighbors(z);
+			Color other = nextToPlay.inverse();
+			int numOther = 0;
+			for (int i=0; i<temp1.size(); i++) if (getPoint(temp1.get(i)) == other) numOther++;
+			if (numOther == 0 || numOther == 1 && temp1.size() == 4) return false;
+		}
+		return true;
+	}
+	
 	public boolean lastMoveMatchesPatterns() {
 		int[][] grid = populateSurroundingPositions(getMove(0));
 		if(checkHane(grid) || checkCut1(grid) || checkCut2(grid) || checkEdge(grid))

@@ -48,20 +48,13 @@ public class SimulateGame extends TrompTaylorGame {
 		// check if z is playing into what looks like an eye
 		// (eye:  neighbours same color, no more than 1 diagonal other color, except at edges)
 		if(avoidEyes) {
-			CHECK_EYE: {
-				temp1.clear();
-				temp1.addNeighbors(z);
-				for (int i=0; i<temp1.size(); i++) if (getPoint(temp1.get(i)) != nextToPlay) break CHECK_EYE;
-				temp1.clear();
-				temp1.addDiagonalNeighbors(z);
-				Color other = nextToPlay.inverse();
-				int numOther = 0;
-				for (int i=0; i<temp1.size(); i++) if (getPoint(temp1.get(i)) == other) numOther++;
-				if (numOther == 0 || numOther == 1 && temp1.size() == 4) return false;
-			}
+			if(checkEye(z) == false)
+				return false;
 		}
 		return super.validateBoard(z, oldBoard);
 	}
+	
+	
 	
 	public String getName() {
 		return "Semi-Primitive";
