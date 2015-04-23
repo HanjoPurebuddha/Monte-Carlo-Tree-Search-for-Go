@@ -19,28 +19,28 @@ public class UCB {
 	
 	/* perform the calculation required for uct */
     private double calculateUctValue(int type, TreeNode parent, TreeNode tn) {
-    	double mean = (tn.totValue[type] + getBonus(tn) / (tn.nVisits[type]));
+    	double mean = tn.totValue[type] / (tn.nVisits[type] + epsilon);
     	if(nodeRuleSet.ucbTuned) {
     		/* ((this nodes total value) / (visits + e)) + sqrt(log(visits) / (visits + e) + random number) */
-    		return mean + epsilon +
-    				Math.sqrt((Math.log(parent.nVisits[0]+1)) / (tn.nVisits[0] )) *
-                    getVariance(type, mean, parent, tn);
+    		return mean +
+    				getBonus(tn) * (Math.sqrt((Math.log(parent.nVisits[0]+1)) / (tn.nVisits[0] + epsilon )) *
+                    getVariance(type, mean, parent, tn)) + r.nextDouble() * epsilon;
     	}
     	if(nodeRuleSet.randomUcb) {
     		/* ((this nodes mean value) / (visits + e)) + sqrt(log(visits) / (visits + e) + random number) */
-	    	return  mean + epsilon +
-                    Math.sqrt((2 * Math.log(parent.nVisits[0]+1)) / (tn.nVisits[0] + epsilon)) +
-                    r.nextDouble() * epsilon;
+	    	return mean +
+	    			getBonus(tn) * (Math.sqrt(Math.log(parent.nVisits[0]+1) / (tn.nVisits[0] + epsilon)) +
+                    r.nextDouble() * epsilon);
     	}
     	if(nodeRuleSet.ucb) {
     		/* (average value + sqrt(2 log parentN / childN)) */
     		return mean +
-    				Math.sqrt((2 * Math.log(parent.nVisits[0]+1)) / (tn.nVisits[0]));
+    				getBonus(tn) * (Math.sqrt((2 * Math.log(parent.nVisits[0]+1)) / (tn.nVisits[0])));
     	}
     	if(nodeRuleSet.simpleUcb) {
     		/* (value/visits + random number) */
-	    	return mean + epsilon +
-                    r.nextDouble() * epsilon;
+	    	return getBonus(tn) * (mean + epsilon +
+                    r.nextDouble() * epsilon);
     	}
     	return 0;
     }
@@ -48,10 +48,11 @@ public class UCB {
     public double getVariance(int type, double mean, TreeNode parent, TreeNode tn) {
     	double value = 0.25;
     	/* estimate of the variance + sqrt(2 log(n) / n) 
-    	 * variance computed by maintaing the sum of squares of the reward, as well as the mean */
+    	 * variance computed by subtracting the mean from each value of the reward, and then getting the mean
+    	 * of those subtracted values squared*/
     	double variance = 0;
     	for(double result : tn.normalValues) {
-    		variance = variance + (result - mean);
+    		variance = variance + Math.sqrt((result - mean));
     	}
     	variance = variance / (tn.nVisits[type]);
     	variance = variance + Math.sqrt(2*Math.log(parent.nVisits[0]+1) / tn.nVisits[0]);
@@ -101,21 +102,22 @@ public class UCB {
         return 0;
     }
     /* get the bonus value for this node */
-    public int getBonus(TreeNode tn) {
-    	int bonusValue = 0;
+    public double getBonus(TreeNode tn) {
+    	double bonusValue = 1;
     	if(nodeRuleSet.firstPlayUrgency > 0) {
-		    if(tn.nVisits[0] == 0) //if this node hasnt been visited
-		    	bonusValue += nodeRuleSet.firstPlayUrgencyValue(); //make sure it is!
-	    }
+		    if(tn.nVisits[0] == 0) { //if this node hasnt been visited
+		    	bonusValue = bonusValue + nodeRuleSet.firstPlayUrgency; //make sure it is!
+		    }
+    	}
     	if(nodeRuleSet.bonusPatterns > 0) {
     		if(tn.currentGame.lastMoveMatchesPatterns()) {
-    			bonusValue += nodeRuleSet.bonusPatterns;
+    			bonusValue = bonusValue + nodeRuleSet.bonusPatterns;
 
     		}
     	}
     	if(nodeRuleSet.bonusAvoidEyes != 0) {
     		if(tn.currentGame.checkEye(tn.currentGame.getMove(0)) == false) {
-    			bonusValue -= nodeRuleSet.bonusAvoidEyes;
+    			bonusValue = nodeRuleSet.bonusAvoidEyes;
     		}
     	}
     	return bonusValue;

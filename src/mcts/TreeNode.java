@@ -85,27 +85,22 @@ public class TreeNode {
     public void pruneNodes() {
     	
     	if(children.size() > 0) {
-	    //	System.out.println(children.size());
 	    	/* for every child of the starting node */
 	    	for(TreeNode c : children) {
 	    		/* if this node has been visited less than the allowed amount of times */
 	    		if(c.nVisits[0] < nodeRuleSet.pruneNodes) {
 	    			/* prune it and all of its children */
 	    			clearSubTree(c, c.getChildren());
-	    			//System.out.println("Failed:" + c.nVisits[0]);
 	    		} else {
 	    			
 	    		}
-	    //		System.out.println("visits:" + c.nVisits[0] + " ");
 	    	}
 	    	for(int c = 0; c<children.size();c++) {
 	    		if(children.get(c) == null) {
 		    		/* and remove it from the children */
 	    			children.remove(c);
-	    			System.out.println("removed");
 	    		}
 	    	}
-	    //	System.out.println(children.size());
     	} else {
     		System.out.println("Opponent chose a move that wasn't explored.");
     	}
@@ -150,25 +145,26 @@ public class TreeNode {
         while (!cur.isLeaf()) {
         	/* follow the highest uct value node, and add it to the visited list */
         	cur = cur.select();
-            print("Adding: " + cur);
+   //     	System.out.print("selecting1");
             visited.add(cur);
         }
         
         
         /* at the bottom of the tree expand the children for the node, including a pass move
          * but only if it hasn't been expanded before */
-        print("found leaf node, expanding from: " + cur);
+   //     System.out.println("expanding");
+        
         cur.expand();
 
         /* get the best child from the expanded nodes, even if it's just passing */
-	    print("selecting from: " + cur);
+   //     System.out.println("selecting2" );
 	    TreeNode newNode = cur.select();
 	    visited.add(newNode);
 	    
 	    /* simulate from the node, and get the value from it */
-	    print("simulating" + newNode);
+	//    System.out.println("simulating");
 	    double value = simulate(newNode);
-	    print("got result" + value);
+	//    System.out.println("got result, updating" + value);
 	    
 	    /* backpropogate the values of all visited nodes */
 	    for (TreeNode node : visited) {
@@ -177,6 +173,7 @@ public class TreeNode {
 	        node.updateStats(0, value);
 	        
 	    }
+	//    System.out.println("Updating rave");
 	    /* and if using rave update the subtree of the parent of the simulated node */
 	    if(nodeRuleSet.rave || nodeRuleSet.weightedRave) {
 	    	/* based on the amaf map of the node that was just simulated */
@@ -262,9 +259,10 @@ public class TreeNode {
     	
     	/* get all of the empty points on the board */
     	PositionList emptyPoints = currentGame.board.getEmptyPoints();
-
+    	int emptyPointsSize = emptyPoints.size();
+    	int childrenCounter = 0;
     	/* for every empty point on the board */
-        for (int i=0; i<emptyPoints.size(); i++) {
+        for (int i=0; i<emptyPointsSize; i++) {
 
         	/* just try and play on it normally, ensuring the rules of the game are followed */
         	Game normalGame = currentGame.duplicate();
@@ -278,17 +276,26 @@ public class TreeNode {
         		
         		/* and add it to the current nodes children */
         		children.add(newChild);
+        		childrenCounter++;
         	} 
         	
         }
         
-        /* add a pass move as well as playing on every allowable empty point */
-        Game passGame = currentGame.duplicate();
-        passGame.play(-1);
-		TreeNode passChild = new TreeNode(passGame, -1, raveSkipCounter, playerColor, nodeRuleSet, ucbTracker);
-		
-		/* and add it to the current nodes children */
-		children.add(passChild);
+        /* passing isn't something that should be done unless requesting an end to the game
+         * meaning that there is a clear winner, one way or another. with this in mind, passes
+         * are only added to the tree when there are few spaces on the board left
+         */
+       // System.out.println("out");
+        if(emptyPointsSize < 7 || childrenCounter == 0) {
+        	System.out.println("in");
+        	/* add a pass move as well as playing on every allowable empty point */
+	        Game passGame = currentGame.duplicate();
+	        passGame.play(-1);
+			TreeNode passChild = new TreeNode(passGame, -1, raveSkipCounter, playerColor, nodeRuleSet, ucbTracker);
+			/* and add it to the current nodes children */
+			children.add(passChild);
+        }
+	//	System.out.println("done");
         
     }
     
@@ -407,7 +414,8 @@ public class TreeNode {
     	/* create a random player that acts according to the ruleset */
 		SimulatePlayer randomPlayer = new SimulatePlayer(
 				nodeRuleSet.simulateAvoidEyes, nodeRuleSet.simulateAtari, nodeRuleSet.simulatePatterns, nodeRuleSet.simulateTakePieces, 
-				nodeRuleSet.simulateMercyRule);
+				nodeRuleSet.simulateMercyRule, nodeRuleSet.varySimEyes, nodeRuleSet.varySimAtari, nodeRuleSet.varySimPatterns, 
+				nodeRuleSet.varySimPieces);
 
     	/* create a duplicate of the game */
 		TreeNode simulateNode = tn;
@@ -436,12 +444,20 @@ public class TreeNode {
     		}
     	}
     	
-    	/* get the score for the players color, positive or negative depending on colour */
-    	float score = duplicateGame.score(playerColor);
-
+    	/* get the score for the players color, from the perspective of black */
+    	float score = duplicateGame.score(nodeRuleSet.captureScoring, nodeRuleSet.livingScoring, nodeRuleSet.averageScoring);
+    	/* if we want the score from the perspective of white */
+    	if(playerColor == Color.WHITE) {
+    		score = -score;
+    	}
+    	//System.out.println(score + " ");
     	/* if using binary scoring */
     	if(nodeRuleSet.binaryScoring) {
-    		
+    		/* if we are using even scoring, and the scores end similarly */
+    		if(score < nodeRuleSet.evenScoring && score > -nodeRuleSet.evenScoring) {
+    			//System.out.println("Even score!");
+    			return 0.5;
+    		}
     		/* return 0 for loss, 1 for win */
 	    	if(score > 0)
 	    		return 1;
@@ -474,7 +490,7 @@ public class TreeNode {
     		nVisits[type]++;
     	ucbTracker.totalActions++;
         totValue[type] += value;
-        //System.out.println("updated stats, visits: " + nVisits[type] + " total value: " + totValue[type]);
+        //System.out.println("updated stats, visits: " + nVisits[type] + " total value: " + totValue[type] + " ");
     }
     
 }

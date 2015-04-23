@@ -25,7 +25,7 @@ public abstract class Game implements Cloneable {
 	protected int lastMove = -3;
 	
 	/* used to ignore eyes, or not */
-	public boolean avoidEyes;
+	public boolean avoidEyes = true;
 	
 	public boolean equals(Object o) {
 		Game that = (Game) o;
@@ -703,10 +703,19 @@ public abstract class Game implements Cloneable {
 		if (reaches(z, Point.EMPTY)) return true;
 		// string is dead!
 		for (int i=0; i < temp2.size(); i++) {
+			if(getPoint(temp2.get(i)) == Color.BLACK) {
+				captures[1]++;
+				//System.out.println("White captures " + captures[1]);
+			} else {
+				captures[0]++;
+				//System.out.println("Black captures " + captures[0]);
+			}
 			board.setPoint(temp2.get(i), Point.EMPTY);
 		}
 		return false;
 	}
+	
+	public int[] captures = new int[2];
 	
 	/**
 	 * Play at the given position.  The move is automatically assigned to the player

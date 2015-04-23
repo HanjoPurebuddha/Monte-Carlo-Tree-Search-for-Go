@@ -24,41 +24,49 @@ public class MCTSPlayer extends Player {
 	Configuration nodeRuleSet;
 	TreeNode playNode;
 	OpeningBook openingBook = null;
-	public MCTSPlayer(int time, int iterations, boolean rememberTree,
+	boolean useOpeningBook;
+	public MCTSPlayer(int time, int iterations, boolean rememberTree, boolean useOpeningBook, 
 			boolean binaryScoring, boolean uct, boolean rave, boolean weightedRave, double initialWeight, double finalWeight, 
-			 int raveSkip, int firstPlayUrgency, int bonusPatterns, int bonusAvoidEyes, 
+			 int raveSkip, double firstPlayUrgency, double bonusPatterns, double bonusAvoidEyes, 
 			 boolean simulateAvoidEyes, boolean simulateAtari, boolean simulatePatterns, boolean simulateTakePieces, boolean simulateMercyRule,
-			 boolean pickMostSimulated, boolean pickHighestMean, boolean pickUCB, boolean useOpeningBook,  boolean clearMemory,
-			 int pruneNodes, boolean ucb, boolean simpleUcb, boolean randomUcb, boolean ucbTuned) {
+			 double varySimEyes, double varySimAtari, double varySimPatterns, double varySimPieces,
+			 boolean pickMostSimulated, boolean pickHighestMean, boolean pickUCB,  boolean clearMemory,
+			 int pruneNodes, int developPruning,
+			 boolean ucb, boolean simpleUcb, boolean randomUcb, boolean ucbTuned,
+	    		boolean captureScoring, boolean livingScoring, boolean averageScoring, int evenScoring) {
 		super("TimedPlayer");
 		this.time = time;
 		this.iterations = iterations;
 		this.rememberTree = rememberTree;
+		this.useOpeningBook = useOpeningBook;
 		/* set the values for different features */
     	this.nodeRuleSet = new Configuration(binaryScoring, uct, rave, weightedRave, 
     			initialWeight, finalWeight, raveSkip, firstPlayUrgency, bonusPatterns, bonusAvoidEyes,
     			simulateAvoidEyes, simulateAtari, simulatePatterns, simulateTakePieces, simulateMercyRule,
-    			pickMostSimulated, pickHighestMean, pickUCB, useOpeningBook, clearMemory, pruneNodes,
-    			ucb, simpleUcb, randomUcb, ucbTuned);
+    			varySimEyes, varySimAtari, varySimPatterns, varySimPieces,
+    			pickMostSimulated, pickHighestMean, pickUCB,clearMemory, pruneNodes, developPruning,
+    			ucb, simpleUcb, randomUcb, ucbTuned, captureScoring, livingScoring, averageScoring, evenScoring);//
     	
-    	
+    	 
 	}
-	
-	public void setOpeningBook() {
-		if(this.openingBook == null) {
+	public void setGame(Game game) {
+		this.game = game;
+		if(openingBook == null && useOpeningBook) {
 			this.openingBook = new OpeningBook(game.getSideSize(), game);//
-			this.firstMoves = new int[15];
+			this.firstMoves = new int[40];
 		}
 	}
+	
+	
 	int[] firstMoves;
 	public int playMove() {
 		int move = 0;
-		if(game.getMove(0) != -3 && openingBook.movesTaken < 15) {
+		if(useOpeningBook && game.getMove(0) != -3 && openingBook.movesTaken < 15) {
 			
 			firstMoves[openingBook.movesTaken] = game.getMove(0);
 			openingBook.movesTaken++;
 		}
-		if(openingBook.movesTaken < 15 && nodeRuleSet.openingBook && openingBook.playOpeningBookMove(firstMoves)) {
+		if(useOpeningBook && openingBook.movesTaken < 15 && openingBook.playOpeningBookMove(firstMoves)) {
 			move = openingBook.move;
 			/* play the move on the board for this player */
 		    game.play(move);
@@ -70,31 +78,29 @@ public class MCTSPlayer extends Player {
 			if(!noTree || !rememberTree) {
 			/* initialize the node that represents the players current position */
 				noTree = true;
-				//System.out.println(game.getMove(0));
 				UCB ucbTracker = new UCB(nodeRuleSet);
 				playNode = new TreeNode(game, game.getMove(0), 0, side, nodeRuleSet, ucbTracker);
 			} else if(rememberTree) {
 				TreeNode oldPlayNode = playNode;
 				/* set the current node to the child of the previous last move played that matches the move last played */
 		    	playNode = playNode.getChild(game.getMove(0));
-		 //   	System.out.println("opponent move selected children values:");
-		 //   	playNode.printList(playNode.getChildren());
 		    	if(nodeRuleSet.clearMemory) {
 		    		oldPlayNode.clearParentMemory(playNode, oldPlayNode.getChildren());
 		    	}
 		    	if(nodeRuleSet.pruneNodes > 0) {
 		    		playNode.pruneNodes();
 		    	}
-		 //   	System.out.println("pruned children values:");
-		 //   	playNode.printList(playNode.getChildren());
 		    }
-			
+			System.out.println("Before developing");
 			/* if the player is on time or iterations */
 			if(time > 0) {
 				ElapsedTimer t = new ElapsedTimer();
 				while(t.elapsed() < time) {
 			        /* develop the tree in the node with the players current position recorded */
 					playNode.developTree();
+					if(nodeRuleSet.checkPruning()) {
+						playNode.pruneNodes();
+					}
 			       
 			    }
 			}
@@ -102,38 +108,31 @@ public class MCTSPlayer extends Player {
 				for(int i=0;i<iterations;i++) {
 			        /* develop the tree in the node with the players current position recorded */
 					playNode.developTree();
+					if(nodeRuleSet.checkPruning()) {
+						playNode.pruneNodes();
+					}
 			    }
 			}
-	//		System.out.println("Getting highest value move");
+			System.out.println("After developing");
 		    /* select the move from within the node with the developed tree, making use of the recorded position */
 		    move = playNode.getHighestValueMove();
-		    
-	//	    System.out.println("Got it!");
-		    /* if the opposing players move was a pass and the players current move is useless */
-		    if(game.getMove(0) == -1 && getMoveValue(move) <= 0) {
-		    	
-		    	/* make the move a pass */
-		    	move = -1;
-		    	
-		    }
-		
+		    System.out.println("After move chosen");
+	
 		    
 		    /* play the move on the board for this player */
 		    game.play(move);
-		    if(openingBook.movesTaken < 15) {
+		    System.out.println("After move played");
+		    if(useOpeningBook && openingBook.movesTaken < 15) {
 			    firstMoves[openingBook.movesTaken] = move;
 			    openingBook.movesTaken++;
 		    }
+		    System.out.println("After move played");
 		    /* if remembering the tree */
 		    if(rememberTree) {
-	//	    	System.out.println("current children values:");
-	//	    	playNode.printList(playNode.getChildren());
 		    	TreeNode oldPlayNode = playNode;
 				/* set the current node to the child of the previous last move played that matches the move last played */
 		    	playNode = playNode.getChild(game.getMove(0));
 		    	System.out.println("Weight of chosen node: " + playNode.ucbTracker.calculateWeight(playNode) + " "); //
-	//	    	System.out.println("move selected children values:");
-	//	    	playNode.printList(playNode.getChildren());
 		    	if(nodeRuleSet.clearMemory) {
 		    		oldPlayNode.clearParentMemory(playNode, oldPlayNode.getChildren());
 		    	}

@@ -38,37 +38,44 @@ public class MCTSEngine {
 	public String name() {return "MCTS";}
 	public String version() {return "0.1";}	
 	
+	
+	int iterations = 300;
 	private Player[] players = new Player[2];
 	{
-		// time, iterations, pers/non-pers
+		// time, iterations, pers/non-pers, opening book
 		// binaryScoring,  uct,  rave,  weightedRave,  weight,  raveSkip
 		// first play urgency, bonusPatterns, bonusAvoidEyes
 		// simulate avoid eyes, simulate atari, simulate patterns, simulate taking pieces
+		// varySimEyes, varySimAtari, varySimPatterns, varySimPieces
 		// most simulated, highest mean value, UCB
-		// opening book
+		// 
 		
-		// clearMemory, pruneNodes
+		// clearMemory, pruneNodes, developPruning
 		// ucb, simpleUCB, randomUcb, UCB-Tuned
+		// captureScoring, livingScoring, averageScoring, evenScoring
+		
 		//black
-		players[0] = new MCTSPlayer(0, 600, true, 
-				false, false, false, true, 1, 600, 20, 
-				1000, 1000, -2000,
+		players[0] = new MCTSPlayer(0, iterations, true, false,
+				true, false, false, true, 1, iterations * 0.74, 20, 
+				0.1, 0.1, 0.3,
 				true, false, true, false, false,
+				0.1, 0.1, 0.1, 0.1,
 				true, false, false,
-				true,
-				true, 2,
-				false, false, true, false);
+				true, 2, 20,
+				false, false, false, true,
+				true, false, false, 5);
 		//white
-		players[1] = new MCTSPlayer(0, 600, true, 
-				false, false, false, true, 1, 600, 20,  
-				1000, 1000, -2000,
-				true, false, true, false, false,
+		players[1] = new MCTSPlayer(0, iterations, true, false,
+				true, false, false, true, 1, iterations * 0.74, 20,  
+				0.1, 0.1, 0.3,
+				false, false, true, false, false,
+				0, 0.1, 0.1, 0.1,
 				true, false, false,
-				true,
-				true, 2,
-				false, false, false, true);
-	//	players[0] = new SimulatePlayer(true, false, true, false, false);
-	//	players[1] = new SimulatePlayer(true, false, true, false, false);
+				true, 2, 20,
+				false, false, false, true,
+				true, false, false, 10);
+		/*players[0] = new SimulatePlayer(true, false, true, false, false, 0.1, 0.1, 0.1, 0.1);
+		players[1] = new SimulatePlayer(true, false, true, false, false, 0.1, 0.1, 0.1, 0.1);*/
 		
 		//players[0] = new RandomPlayer();
 		//players[1] = new RandomPlayer();
@@ -268,7 +275,6 @@ public class MCTSEngine {
 		}
 		//System.out.println(game);
 		player.setGame(game);
-		player.setOpeningBook();
 		//System.out.println(player.game);
 		//player.initializeTree();
 		int move;

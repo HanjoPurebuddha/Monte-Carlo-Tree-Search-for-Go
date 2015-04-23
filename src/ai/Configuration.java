@@ -27,10 +27,9 @@ tions with a larger score.*/
 	public boolean simpleUcb = false;
 	public boolean randomUcb = false;
 	public boolean ucb = false;
-	public int firstPlayUrgency;
+	public double firstPlayUrgency;
 	
 	/* initialization changes */
-	boolean openingBook;
 	boolean heuristicInitialization;
 	
 	/* simulation changes */
@@ -44,8 +43,8 @@ tions with a larger score.*/
 	
 	/* bonus changes */
 	int bonusAtari;
-	public int bonusPatterns;
-    public int bonusAvoidEyes;
+	public double bonusPatterns;
+    public double bonusAvoidEyes;
 	int bonusTakePiece;
 	int bonusLocalNeighbourhood;
 	
@@ -60,12 +59,28 @@ tions with a larger score.*/
     public int raveHeuristic;
     public int raveSkip;
     public int pruneNodes;
+    public int developPruning;
+    
+    /* varying */
+    public double varySimEyes;
+    public double varySimAtari;
+    public double varySimPatterns;
+    public double varySimPieces;
+    
+    /* scoring */
+    public boolean averageScoring;
+    public boolean livingScoring;
+    public boolean captureScoring;
+    public int evenScoring;
     
     public Configuration(boolean binaryScoring, boolean uct, boolean rave, boolean weightedRave, double initialWeight, 
-    		double finalWeight, int raveSkip, int firstPlayUrgency, int bonusPatterns, int bonusAvoidEyes,
+    		double finalWeight, int raveSkip, double firstPlayUrgency, double bonusPatterns, double bonusAvoidEyes,
     		boolean simulateAvoidEyes, boolean simulateAtari, boolean simulatePatterns, boolean simulateTakePieces, boolean simulateMercyRule,
-    		boolean pickMostSimulated, boolean pickHighestMean, boolean pickUCB, boolean openingBook, boolean clearMemory,
-    		int pruneNodes, boolean ucb, boolean simpleUcb, boolean randomUcb, boolean ucbTuned) {
+    		double varySimEyes, double varySimAtari, double varySimPatterns, double varySimPieces,
+    		boolean pickMostSimulated, boolean pickHighestMean, boolean pickUCB, boolean clearMemory,
+    		int pruneNodes, int developPruning,
+    		boolean ucb, boolean simpleUcb, boolean randomUcb, boolean ucbTuned,
+    		boolean captureScoring, boolean livingScoring, boolean averageScoring, int evenScoring) {
     	this.binaryScoring = binaryScoring;
     	this.uct = uct;
     	this.bonusAvoidEyes = bonusAvoidEyes;
@@ -83,17 +98,33 @@ tions with a larger score.*/
     	this.pickMostSimulated = pickMostSimulated;
     	this.pickHighestMean = pickHighestMean;
     	this.pickUCB = pickUCB;
-    	this.openingBook = openingBook;
     	this.bonusPatterns = bonusPatterns;
     	this.clearMemory = clearMemory;
     	this.pruneNodes = pruneNodes;
     	this.simpleUcb = simpleUcb;
     	this.randomUcb = randomUcb;
+    	this.developPruning = developPruning;
     	this.ucb = ucb;
     	this.ucbTuned = ucbTuned;
+    	this.varySimEyes = varySimEyes;
+    	this.varySimAtari = varySimAtari;
+    	this.varySimPatterns = varySimPatterns;
+    	this.varySimPieces = varySimPieces;
+    	this.captureScoring = captureScoring;
+    	this.livingScoring = livingScoring;
+    	this.averageScoring = averageScoring;
+    	this.evenScoring = evenScoring;
     }
     
-    public int firstPlayUrgencyValue() {
+    private int localPruneCheck;
+    public boolean checkPruning() {
+    	localPruneCheck++;
+    	if(localPruneCheck == developPruning)
+    		return true;
+    	return false;
+    }
+    
+    public double firstPlayUrgencyValue() {
     	if(firstPlayUrgency > 0)
     		return firstPlayUrgency;
     	return 0;
