@@ -66,7 +66,20 @@ public class TreeNode {
     }
     
     public void addBonusValue() {
-    	
+    	double bonusValue = 0;
+    	if(nodeRuleSet.bonusPatterns > 0) {
+    		if(currentGame.lastMoveMatchesPatterns()) {
+    			bonusValue = bonusValue + nodeRuleSet.bonusPatterns;
+
+    		}
+    	}
+    	if(nodeRuleSet.bonusAvoidEyes != 0) {
+    		if(currentGame.checkEye(currentGame.getMove(0)) == false) {
+    			bonusValue = nodeRuleSet.bonusAvoidEyes;
+    		}
+    	}
+    	totValue[0] = bonusValue;
+    	totValue[1] = bonusValue;
     }
     
     /* prune the tree of every node that will never be used again */

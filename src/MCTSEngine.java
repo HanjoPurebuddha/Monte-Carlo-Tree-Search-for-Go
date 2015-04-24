@@ -39,13 +39,13 @@ public class MCTSEngine {
 	public String version() {return "0.1";}	
 	
 	
-	int iterations = 3000;
+	int iterations = 3000; // 3000 = 10 seconds max capacity
 	private Player[] players = new Player[2];
 	{
-		// time, iterations, pers/non-pers, opening book
+		// time, iterations, pers/non-pers, surrender, opening book
 		// binaryScoring,  uct,  rave,  weightedRave,  weight,  raveSkip
 		// first play urgency, bonusPatterns, bonusAvoidEyes, explorationWeight
-		// simulate avoid eyes, simulate atari, simulate patterns, simulate taking pieces
+		// simulate avoid eyes, simulate atari, simulate patterns, simulate taking pieces, sim mercy
 		// varySimEyes, varySimAtari, varySimPatterns, varySimPieces
 		// most simulated, highest mean value, UCB
 		// clearMemory, pruneNodes, developPruning
@@ -53,9 +53,9 @@ public class MCTSEngine {
 		// captureScoring, livingScoring, averageScoring, evenScoring
 		
 		//black
-		players[0] = new MCTSPlayer(0, iterations, true, true,
+		players[0] = new MCTSPlayer(0, iterations, true, true, true,
 				true, false, false, true, 1, iterations * 0.74, 20, 
-				0.1, 50, 50, iterations * 2,
+				0.1, 5000, -5000, iterations * 2,
 				true, false, true, false, false,
 				0.1, 0.1, 0.1, 0.1,
 				true, false, false,
@@ -63,9 +63,9 @@ public class MCTSEngine {
 				false, false, false, true,
 				false, true, false, 15);
 		//white
-		players[1] = new MCTSPlayer(0, iterations, true, true,
-				false, false, false, true, 1, iterations * 0.2, 20,  
-				0.1, 50, 50, iterations * 2,
+		players[1] = new MCTSPlayer(0, iterations, true, true, true,
+				true, false, false, true, 1, iterations * 0.2, 20,  
+				0.1, 50, -50, iterations * 2,
 				false, false, true, false, true,
 				0, 0.1, 0.1, 0.1,
 				true, false, false,

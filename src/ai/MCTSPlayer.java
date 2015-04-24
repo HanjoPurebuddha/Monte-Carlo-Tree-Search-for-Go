@@ -25,7 +25,8 @@ public class MCTSPlayer extends Player {
 	TreeNode playNode;
 	OpeningBook openingBook = null;
 	boolean useOpeningBook;
-	public MCTSPlayer(int time, int iterations, boolean rememberTree, boolean useOpeningBook, 
+	boolean surrender = false;
+	public MCTSPlayer(int time, int iterations, boolean surrender, boolean rememberTree,  boolean useOpeningBook, 
 			boolean binaryScoring, boolean uct, boolean rave, boolean weightedRave, double initialWeight, double finalWeight, 
 			 int raveSkip, double firstPlayUrgency, double bonusPatterns, double bonusAvoidEyes, int explorationWeight,
 			 boolean simulateAvoidEyes, boolean simulateAtari, boolean simulatePatterns, boolean simulateTakePieces, boolean simulateMercyRule,
@@ -39,6 +40,7 @@ public class MCTSPlayer extends Player {
 		this.iterations = iterations;
 		this.rememberTree = rememberTree;
 		this.useOpeningBook = useOpeningBook;
+		this.surrender = surrender;
 		/* set the values for different features */
     	this.nodeRuleSet = new Configuration(binaryScoring, uct, rave, weightedRave, 
     			initialWeight, finalWeight, raveSkip, firstPlayUrgency, bonusPatterns, bonusAvoidEyes, explorationWeight,
@@ -59,8 +61,14 @@ public class MCTSPlayer extends Player {
 	
 	
 	int[] firstMoves;
+	private int movesTaken = 0;
 	public int playMove() {
 		int move = 0;
+		movesTaken +=2;
+		if(surrender && movesTaken >= ((game.getSideSize() * game.getSideSize()) -1) && game.mercy()) {
+			/* just end the game */
+			return -2;
+		}
 		if(useOpeningBook && game.getMove(0) != -3 && openingBook.movesTaken < 15) {
 			
 			firstMoves[openingBook.movesTaken] = game.getMove(0);
