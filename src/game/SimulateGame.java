@@ -43,44 +43,7 @@ public class SimulateGame extends TrompTaylorGame {
 			board = backupBoard;
 		}
 	}
-	
-	public float getLivingScore(float score) {
-		if (Float.isNaN(score)) {
-			score = -komi;
-			for (int i=0; i<getNumPoints(); i++) {
-				Point p = getPoint(i);
-				if (p == Color.BLACK) score += 1;
-				else if (p == Color.WHITE) score -= 1;
-				else {
-					assert p == Point.EMPTY;
-					boolean reachesWhite = reaches(i, Color.WHITE);
-					boolean reachesBlack = reaches(i, Color.BLACK);
-					if (reachesWhite && !reachesBlack) score -= 1;
-					else if (reachesBlack && !reachesWhite) score +=1;
-				}
-			}
-		}
-		return score;
-	}
-	
-	public float getCaptureScore(float score) {
-		score = (captures[0] - captures[1]) - komi;
-		return score;
-	}
-	
-	public float score(boolean captureScoring, boolean livingScoring, boolean averageScoring) {
-		if(captureScoring) {
-			score = getCaptureScore(score);
-		}
-		if(livingScoring) {
-			score = getLivingScore(score);
-		}
-		if(averageScoring) {
-			score = (getCaptureScore(score) + getLivingScore(score)) / 2;
-		}
-		return score;
-	}
-	
+
 	public boolean validateBoard(int z, Board oldBoard) {
 		// check if z is playing into what looks like an eye
 		// (eye:  neighbours same color, no more than 1 diagonal other color, except at edges)

@@ -60,8 +60,13 @@ public class TreeNode {
     		this.normalValues = new ArrayList<Double>();
     		this.raveValues = new ArrayList<Double>();
     	}
+    	addBonusValue();
     	/* a map of colours used to record if a move was in the players color for amaf */
         this.amafMap = new Color[currentGame.getSideSize()*currentGame.getSideSize()];
+    }
+    
+    public void addBonusValue() {
+    	
     }
     
     /* prune the tree of every node that will never be used again */
@@ -286,8 +291,7 @@ public class TreeNode {
          * are only added to the tree when there are few spaces on the board left
          */
        // System.out.println("out");
-        if(emptyPointsSize < 7 || childrenCounter == 0) {
-        	System.out.println("in");
+        if(emptyPointsSize < 20 || childrenCounter == 0) {
         	/* add a pass move as well as playing on every allowable empty point */
 	        Game passGame = currentGame.duplicate();
 	        passGame.play(-1);
@@ -436,7 +440,7 @@ public class TreeNode {
     		if (nodeRuleSet.rave || nodeRuleSet.weightedRave) {
     			
 	    		/* if the move isn't a pass */
-	    		if(move != -1) {
+	    		if(move > -1) {
 	    			
 		    		/* set the last move takens colour on the amaf map */
 	    			tn.amafMap[move] = randomPlayer.game.getNextToPlay().inverse();
@@ -445,11 +449,9 @@ public class TreeNode {
     	}
     	
     	/* get the score for the players color, from the perspective of black */
-    	float score = duplicateGame.score(nodeRuleSet.captureScoring, nodeRuleSet.livingScoring, nodeRuleSet.averageScoring);
+    	float score = duplicateGame.score(playerColor);
     	/* if we want the score from the perspective of white */
-    	if(playerColor == Color.WHITE) {
-    		score = -score;
-    	}
+
     	//System.out.println(score + " ");
     	/* if using binary scoring */
     	if(nodeRuleSet.binaryScoring) {

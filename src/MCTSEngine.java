@@ -39,43 +39,41 @@ public class MCTSEngine {
 	public String version() {return "0.1";}	
 	
 	
-	int iterations = 300;
+	int iterations = 3000;
 	private Player[] players = new Player[2];
 	{
 		// time, iterations, pers/non-pers, opening book
 		// binaryScoring,  uct,  rave,  weightedRave,  weight,  raveSkip
-		// first play urgency, bonusPatterns, bonusAvoidEyes
+		// first play urgency, bonusPatterns, bonusAvoidEyes, explorationWeight
 		// simulate avoid eyes, simulate atari, simulate patterns, simulate taking pieces
 		// varySimEyes, varySimAtari, varySimPatterns, varySimPieces
 		// most simulated, highest mean value, UCB
-		// 
-		
 		// clearMemory, pruneNodes, developPruning
 		// ucb, simpleUCB, randomUcb, UCB-Tuned
 		// captureScoring, livingScoring, averageScoring, evenScoring
 		
 		//black
-		players[0] = new MCTSPlayer(0, iterations, true, false,
+		players[0] = new MCTSPlayer(0, iterations, true, true,
 				true, false, false, true, 1, iterations * 0.74, 20, 
-				0.1, 0.1, 0.3,
+				0.1, 50, 50, iterations * 2,
 				true, false, true, false, false,
 				0.1, 0.1, 0.1, 0.1,
 				true, false, false,
 				true, 2, 20,
 				false, false, false, true,
-				true, false, false, 5);
+				false, true, false, 15);
 		//white
-		players[1] = new MCTSPlayer(0, iterations, true, false,
-				true, false, false, true, 1, iterations * 0.74, 20,  
-				0.1, 0.1, 0.3,
-				false, false, true, false, false,
+		players[1] = new MCTSPlayer(0, iterations, true, true,
+				false, false, false, true, 1, iterations * 0.2, 20,  
+				0.1, 50, 50, iterations * 2,
+				false, false, true, false, true,
 				0, 0.1, 0.1, 0.1,
 				true, false, false,
 				true, 2, 20,
 				false, false, false, true,
-				true, false, false, 10);
-		/*players[0] = new SimulatePlayer(true, false, true, false, false, 0.1, 0.1, 0.1, 0.1);
-		players[1] = new SimulatePlayer(true, false, true, false, false, 0.1, 0.1, 0.1, 0.1);*/
+				false, true, false, 15);
+		//players[0] = new SimulatePlayer(true, false, true, false, true, 0.1, 0.1, 0.1, 0.1);
+		//players[1] = new SimulatePlayer(true, false, true, false, true, 0.1, 0.1, 0.1, 0.1);
 		
 		//players[0] = new RandomPlayer();
 		//players[1] = new RandomPlayer();

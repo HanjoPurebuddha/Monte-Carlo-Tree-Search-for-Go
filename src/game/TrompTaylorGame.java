@@ -111,7 +111,8 @@ public class TrompTaylorGame extends Game {
 	}
 	
 	public float score() {
-		if (Float.isNaN(score)) {
+		float score= 0;
+		if (Float.isNaN(this.score)) {
 			score = -komi;
 			for (int i=0; i<getNumPoints(); i++) {
 				Point p = getPoint(i);

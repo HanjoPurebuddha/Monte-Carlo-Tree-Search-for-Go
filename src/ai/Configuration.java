@@ -72,9 +72,10 @@ tions with a larger score.*/
     public boolean livingScoring;
     public boolean captureScoring;
     public int evenScoring;
+    public int explorationWeight;
     
     public Configuration(boolean binaryScoring, boolean uct, boolean rave, boolean weightedRave, double initialWeight, 
-    		double finalWeight, int raveSkip, double firstPlayUrgency, double bonusPatterns, double bonusAvoidEyes,
+    		double finalWeight, int raveSkip, double firstPlayUrgency, double bonusPatterns, double bonusAvoidEyes, int explorationWeight,
     		boolean simulateAvoidEyes, boolean simulateAtari, boolean simulatePatterns, boolean simulateTakePieces, boolean simulateMercyRule,
     		double varySimEyes, double varySimAtari, double varySimPatterns, double varySimPieces,
     		boolean pickMostSimulated, boolean pickHighestMean, boolean pickUCB, boolean clearMemory,
@@ -114,6 +115,7 @@ tions with a larger score.*/
     	this.livingScoring = livingScoring;
     	this.averageScoring = averageScoring;
     	this.evenScoring = evenScoring;
+    	this.explorationWeight = explorationWeight;
     }
     
     private int localPruneCheck;

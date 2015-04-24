@@ -35,13 +35,15 @@ public class SimulatePlayer extends Player {
     	this.varySimPatterns = varySimPatterns;
     	this.varySimPieces = varySimPieces;
 	}
-	
+	private int movesTaken = 0;
 	public int playMove() {
+		
+		movesTaken +=2;
+		
 		/* get the last move of the game */
 		int lastMove = game.getMove(0);
 		/* if the opposing side has more than 30% of the board in captured pieces */
-		if(simulateMercyRule && game.mercy()) {
-			
+		if(simulateMercyRule && movesTaken >= ((game.getSideSize() * game.getSideSize()) -1) && game.mercy()) {
 			/* just end the game */
 			return -2;
 		}

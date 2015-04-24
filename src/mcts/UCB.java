@@ -68,12 +68,31 @@ public class UCB {
     	/* when only a few simulations have been seen, the weight is closer to 1, weighting the RAVE value more highly
     	 * when many simulations have been seen, the weight is closer to 0, weighting the MC value more highly
     	 */
-    	double weight = 1 - (nodeRuleSet.initialWeight * (tn.nVisits[0] / nodeRuleSet.finalWeight));
     	if(tn.nVisits[0] == 0) {
     		return 1;
     	}
+    	double weight = 1 - (nodeRuleSet.initialWeight * (tn.nVisits[0] / nodeRuleSet.finalWeight));
     	if(weight < 0) {
     		return 0;
+    	}
+    	return weight;
+    }
+    
+    /* perform the calculation needed to balance exploration and exploitation */
+    public double getBonus(TreeNode tn) {
+    	
+    	/* reduce the value of nodes the deeper we go, allowing more exploration of alternate subtrees, etc
+    	 */
+    	if(nodeRuleSet.explorationWeight == 0) {
+    		return 1;
+    	}
+    	if(tn.nVisits[0] == 0) {
+    		/* first play urgency! */
+    		return 1 + nodeRuleSet.firstPlayUrgency;
+    	}
+    	double weight = 1 - (nodeRuleSet.initialWeight * (tn.nVisits[0] / nodeRuleSet.explorationWeight));
+    	if(weight < 0) {
+    		return 0.1;
     	}
     	return weight;
     }
@@ -100,26 +119,5 @@ public class UCB {
 	        
     	}
         return 0;
-    }
-    /* get the bonus value for this node */
-    public double getBonus(TreeNode tn) {
-    	double bonusValue = 1;
-    	if(nodeRuleSet.firstPlayUrgency > 0) {
-		    if(tn.nVisits[0] == 0) { //if this node hasnt been visited
-		    	bonusValue = bonusValue + nodeRuleSet.firstPlayUrgency; //make sure it is!
-		    }
-    	}
-    	if(nodeRuleSet.bonusPatterns > 0) {
-    		if(tn.currentGame.lastMoveMatchesPatterns()) {
-    			bonusValue = bonusValue + nodeRuleSet.bonusPatterns;
-
-    		}
-    	}
-    	if(nodeRuleSet.bonusAvoidEyes != 0) {
-    		if(tn.currentGame.checkEye(tn.currentGame.getMove(0)) == false) {
-    			bonusValue = nodeRuleSet.bonusAvoidEyes;
-    		}
-    	}
-    	return bonusValue;
     }
 }
