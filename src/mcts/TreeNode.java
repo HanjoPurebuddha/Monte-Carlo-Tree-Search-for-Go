@@ -176,7 +176,11 @@ public class TreeNode {
 
         /* get the best child from the expanded nodes, even if it's just passing */
    //     System.out.println("selecting2" );
-	    TreeNode newNode = cur.select();
+        TreeNode newNode = null;
+        if(nodeRuleSet.selectRandom)
+        	newNode = cur.selectRandom();
+        else
+        	newNode = cur.select();
 	    visited.add(newNode);
 	    
 	    /* simulate from the node, and get the value from it */
@@ -222,6 +226,7 @@ public class TreeNode {
     		System.out.println("size:" + getChildren().size());
     		System.out.println("children size:" + children.size());
     		highestValueNode = findBestValueNode(getChildren());
+    		
     	}
     	print("NODE SELECTED:" +highestValueNode);
     	return highestValueNode.move;
@@ -233,8 +238,8 @@ public class TreeNode {
         double bestValue = -Double.MAX_VALUE;
         for (TreeNode c : children) {
         	double currentValue = 0;
-        	
-        	currentValue = c.totValue[0]; // NOTE // Investigate avoiding recalculation if the node stats have not been updated // NOTE //
+        	System.out.println(c.totValue[0] / c.nVisits[0] + " ");
+        	currentValue = c.totValue[0] / c.nVisits[0]; // NOTE // Investigate avoiding recalculation if the node stats have not been updated // NOTE //
             if (currentValue > bestValue) {
             	
             	/*the selected node is that child */
@@ -253,7 +258,7 @@ public class TreeNode {
     	/* initialize the values, with the bestvalue put at the smallest possible value */
     	TreeNode selected = null;
         double bestValue = -Double.MAX_VALUE;
-        System.out.println(children.size() + " ");
+        //System.out.println(children.size() + " ");
         for (TreeNode c : children) {
         	double currentValue = 0;
         	System.out.println(c.nVisits[0] + " ");
@@ -304,7 +309,7 @@ public class TreeNode {
          * are only added to the tree when there are few spaces on the board left
          */
        // System.out.println("out");
-        if(emptyPointsSize < 20 || childrenCounter == 0) {
+        if(emptyPointsSize <currentGame.getSideSize()*2 || childrenCounter == 0) {
         	/* add a pass move as well as playing on every allowable empty point */
 	        Game passGame = currentGame.duplicate();
 	        passGame.play(-1);
@@ -320,6 +325,16 @@ public class TreeNode {
     private TreeNode select() {
         /* get the best value child node from the tree */
 	    TreeNode selected = findBestValueNode(children);
+        /* and then it is returned, with a value always selected thanks to randomisation */
+        return selected;
+        
+    }
+    
+    /* get a random node out of the recently expanded children */
+    private TreeNode selectRandom() {
+        /* get the best value child node from the tree */
+    	
+	    TreeNode selected = children.get(ucbTracker.randInt(0, children.size()-1));
         /* and then it is returned, with a value always selected thanks to randomisation */
         return selected;
         
@@ -490,7 +505,7 @@ public class TreeNode {
     	if(testing)
     		System.out.println(line);
     }
-
+    public int actions = 0;
     /* update the stats for this node */
     private void updateStats(int type, double value) {
     	
@@ -503,7 +518,6 @@ public class TreeNode {
 	    	}
     	}
     		nVisits[type]++;
-    	ucbTracker.totalActions++;
         totValue[type] += value;
         //System.out.println("updated stats, visits: " + nVisits[type] + " total value: " + totValue[type] + " ");
     }

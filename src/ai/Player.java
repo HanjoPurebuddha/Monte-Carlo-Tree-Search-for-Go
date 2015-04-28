@@ -18,7 +18,9 @@ public abstract class Player {
 	final Random random = new Random();
 	public boolean noTree;
 	public int raveSkipCounter;
-	
+	private int movesTaken;
+	OpeningBook openingBook = null;
+	public void resetMovesTaken() {}
 	
 	private static final int MAX_RANDOM_MOVE_PICKS = 10;
 	
@@ -154,6 +156,11 @@ public abstract class Player {
 	}
 
 	public void setOpeningBook() {
+		// TODO Auto-generated method stub
+		
+	}
+
+	public void reset() {
 		// TODO Auto-generated method stub
 		
 	}

@@ -56,10 +56,23 @@ public class UCB {
     	}
     	variance = variance / (tn.nVisits[type]);
     	variance = variance + Math.sqrt(2*Math.log(parent.nVisits[0]+1) / tn.nVisits[0]);
-    	if(variance > value)
+    	if(variance < value)
     		value = variance;
     	/* if overall V is less than 0.25, return 0.25 */
     	return value;
+    }
+    Random rand = new Random();
+    public int randInt(int min, int max) {
+
+        // NOTE: Usually this should be a field rather than a method
+        // variable so that it is not re-seeded every call.
+        
+
+        // nextInt is normally exclusive of the top value,
+        // so add 1 to make it inclusive
+        int randomNum = rand.nextInt((max - min) + 1) + min;
+
+        return randomNum;
     }
     
     /* perform the calculation needed to weight the node, in order to balance rave and uct */

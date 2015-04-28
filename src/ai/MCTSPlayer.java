@@ -26,7 +26,7 @@ public class MCTSPlayer extends Player {
 	OpeningBook openingBook = null;
 	boolean useOpeningBook;
 	boolean surrender = false;
-	public MCTSPlayer(int time, int iterations, boolean surrender, boolean rememberTree,  boolean useOpeningBook, 
+	public MCTSPlayer(int time, int iterations, boolean surrender, boolean rememberTree,  boolean useOpeningBook, boolean selectRandom,
 			boolean binaryScoring, boolean uct, boolean rave, boolean weightedRave, double initialWeight, double finalWeight, 
 			 int raveSkip, double firstPlayUrgency, double bonusPatterns, double bonusAvoidEyes, int explorationWeight,
 			 boolean simulateAvoidEyes, boolean simulateAtari, boolean simulatePatterns, boolean simulateTakePieces, boolean simulateMercyRule,
@@ -47,7 +47,8 @@ public class MCTSPlayer extends Player {
     			simulateAvoidEyes, simulateAtari, simulatePatterns, simulateTakePieces, simulateMercyRule,
     			varySimEyes, varySimAtari, varySimPatterns, varySimPieces,
     			pickMostSimulated, pickHighestMean, pickUCB,clearMemory, pruneNodes, developPruning,
-    			ucb, simpleUcb, randomUcb, ucbTuned, captureScoring, livingScoring, averageScoring, evenScoring);//
+    			ucb, simpleUcb, randomUcb, ucbTuned, captureScoring, livingScoring, averageScoring, evenScoring,
+    			selectRandom);//
     	
     	 
 	}
@@ -59,12 +60,21 @@ public class MCTSPlayer extends Player {
 		}
 	}
 	
-	
+	public void endGame() {
+		//System.out.println("Moves taken reset");
+		movesTaken = 0;
+		openingBook = null;
+		noTree = false;
+		playNode = null;
+		firstMoves = new int[40];
+		super.endGame();
+	}
 	int[] firstMoves;
 	private int movesTaken = 0;
 	public int playMove() {
 		int move = 0;
 		movesTaken +=2;
+		//System.out.println(movesTaken);
 		if(surrender && movesTaken >= ((game.getSideSize() * game.getSideSize()) -1) && game.mercy()) {
 			/* just end the game */
 			return -2;
@@ -99,7 +109,7 @@ public class MCTSPlayer extends Player {
 		    		playNode.pruneNodes();
 		    	}
 		    }
-			System.out.println("Before developing");
+		//	System.out.println("Before developing");
 			/* if the player is on time or iterations */
 			if(time > 0) {
 				ElapsedTimer t = new ElapsedTimer();
@@ -121,33 +131,32 @@ public class MCTSPlayer extends Player {
 					}
 			    }
 			}
-			System.out.println("After developing");
+		//	System.out.println("After developing");
 		    /* select the move from within the node with the developed tree, making use of the recorded position */
 		    move = playNode.getHighestValueMove();
-		    System.out.println("After move chosen");
+		//    System.out.println("After move chosen");
 	
 		    
 		    /* play the move on the board for this player */
 		    game.play(move);
-		    System.out.println("After move played");
+		//    System.out.println("After move played");
 		    if(useOpeningBook && openingBook.movesTaken < 15) {
 			    firstMoves[openingBook.movesTaken] = move;
 			    openingBook.movesTaken++;
 		    }
-		    System.out.println("After move played");
+		//    System.out.println("After move played");
 		    /* if remembering the tree */
 		    if(rememberTree) {
 		    	TreeNode oldPlayNode = playNode;
 				/* set the current node to the child of the previous last move played that matches the move last played */
 		    	playNode = playNode.getChild(game.getMove(0));
-		    	System.out.println("Weight of chosen node: " + playNode.ucbTracker.calculateWeight(playNode) + " "); //
+		    	//System.out.println("Weight of chosen node: " + playNode.ucbTracker.calculateWeight(playNode) + " "); //
 		    	if(nodeRuleSet.clearMemory) {
 		    		oldPlayNode.clearParentMemory(playNode, oldPlayNode.getChildren());
 		    	}
 		    }
 		}
-
-    	System.gc();
+		System.gc();
 	    /* return the move */
 	    return move;
 		

@@ -39,10 +39,11 @@ public class MCTSEngine {
 	public String version() {return "0.1";}	
 	
 	
-	int iterations = 3000; // 3000 = 10 seconds max capacity
+	int iterations = 1600; // 3000 = 10 seconds max capacity
+	int time = iterations*3;
 	private Player[] players = new Player[2];
 	{
-		// time, iterations, pers/non-pers, surrender, opening book
+		// time, iterations, pers/non-pers, surrender, opening book, selectRandom
 		// binaryScoring,  uct,  rave,  weightedRave,  weight,  raveSkip
 		// first play urgency, bonusPatterns, bonusAvoidEyes, explorationWeight
 		// simulate avoid eyes, simulate atari, simulate patterns, simulate taking pieces, sim mercy
@@ -53,25 +54,45 @@ public class MCTSEngine {
 		// captureScoring, livingScoring, averageScoring, evenScoring
 		
 		//black
-		players[0] = new MCTSPlayer(0, iterations, true, true, true,
-				true, false, false, true, 1, iterations * 0.74, 20, 
-				0.1, 5000, -5000, iterations * 2,
-				true, false, true, false, false,
-				0.1, 0.1, 0.1, 0.1,
+		players[0] = new MCTSPlayer(0, iterations, true, true, false, true,
+				true, true, false, false, 1, iterations * 2, 20, 
+				1, 500, -500, iterations * 2,
+				true, false, true, false, true,
+				0.01, 0.1, 0.1, 0.1,
 				true, false, false,
 				true, 2, 20,
 				false, false, false, true,
 				false, true, false, 15);
 		//white
-		players[1] = new MCTSPlayer(0, iterations, true, true, true,
-				true, false, false, true, 1, iterations * 0.2, 20,  
-				0.1, 50, -50, iterations * 2,
-				false, false, true, false, true,
-				0, 0.1, 0.1, 0.1,
+		players[1] = new MCTSPlayer(0, iterations, true, true, false, false,
+				true, false, true, false, 1, iterations * 2, 20, 
+				1, 500, -500, iterations * 2,
+				true, false, true, false, true,
+				0.01, 0.1, 0.1, 0.1,
+				true, false, false,
+				true, 2, 20,
+				false, false, true, false,
+				false, true, false, 15);
+		//white
+		/*players[0] = new MCTSPlayer(0, iterations, false, false, false,
+				false, true, false, false, 1, iterations * 1, 20, 
+				0, 0, 0, iterations * 2,
+				true, false, true, false, true,
+				0.01, 0.1, 0, 0.1,
 				true, false, false,
 				true, 2, 20,
 				false, false, false, true,
 				false, true, false, 15);
+		//white
+		players[1] = new MCTSPlayer(0, iterations, false, false, false,
+				false, true, false, false, 1, iterations * 1, 20, 
+				0, 0, 0, iterations * 2,
+				true, false, true, false, true,
+				0.01, 0.1, 0, 0.1,
+				true, false, false,
+				true, 2, 20,
+				false, false, false, true,
+				false, true, false, 15);*/
 		//players[0] = new SimulatePlayer(true, false, true, false, true, 0.1, 0.1, 0.1, 0.1);
 		//players[1] = new SimulatePlayer(true, false, true, false, true, 0.1, 0.1, 0.1, 0.1);
 		
@@ -116,7 +137,7 @@ public class MCTSEngine {
 	private void endGame() {
 		for (int i = 0; i < players.length; i++) {
 			if (players[i].getPlayingColor() != null) players[i].endGame();
-			players[i].noTree = false;
+			//players[i].endGame();
 		}
 		
 	}
