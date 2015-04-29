@@ -31,7 +31,6 @@ import gtp.*;
 public class MCTSEngine {
 	
 	private int boardSize;
-	private final Random rnd = new Random();
 	private boolean allowSuicides = false;
 	private Game game = null;  // some default game, to avoid null checks
 	
@@ -39,12 +38,12 @@ public class MCTSEngine {
 	public String version() {return "0.1";}	
 	
 	
-	int iterations = 1600; // 3000 = 10 seconds max capacity
+	int iterations = 2300; // 3000 = 10 seconds max capacity
 	int time = iterations*3;
 	private Player[] players = new Player[2];
 	{
-		// time, iterations, pers/non-pers, surrender, opening book, selectRandom
-		// binaryScoring,  uct,  rave,  weightedRave,  weight,  raveSkip
+		// time, iterations, pers/non-pers, surrender, ADD RESIGNING?, opening book, selectRandom
+		// binaryScoring,  uct,  amaf,  rave,  weight,  amafSkip, bonusFpu,
 		// first play urgency, bonusPatterns, bonusAvoidEyes, explorationWeight
 		// simulate avoid eyes, simulate atari, simulate patterns, simulate taking pieces, sim mercy
 		// varySimEyes, varySimAtari, varySimPatterns, varySimPieces
@@ -53,25 +52,35 @@ public class MCTSEngine {
 		// ucb, simpleUCB, randomUcb, UCB-Tuned
 		// captureScoring, livingScoring, averageScoring, evenScoring
 		
+		// time, iterations, pers/non-pers, surrender, opening book, selectRandom
+		// binaryScoring,  uct,  amaf,  rave,  weight,  amafSkip, bonusFpu,
+		// first play urgency, bonusPatterns, bonusAvoidEyes, explorationWeight
+		// simulate avoid eyes, x, simulate patterns, x, sim mercy
+		// varySimEyes, x, varySimPatterns, x
+		// most simulated, highest mean value, UCB
+		// clearMemory, pruneNodes, developPruning
+		// ucb, simpleUCB, randomUcb, UCB-Tuned
+		// x, livingScoring, x, x
+		
 		//black
-		players[0] = new MCTSPlayer(0, iterations, true, true, false, true,
-				true, true, false, false, 1, iterations * 2, 20, 
-				1, 500, -500, iterations * 2,
+        players[0] = new MCTSPlayer(0, iterations, true, true, false, true,
+				true, true, false, false, 1, iterations * 0.25, 0, 20, 0,
+				200, 500, -500, iterations * 2, 
 				true, false, true, false, true,
-				0.01, 0.1, 0.1, 0.1,
+				0.01, 0, 0.1, 0,
 				true, false, false,
 				true, 2, 20,
 				false, false, false, true,
 				false, true, false, 15);
 		//white
-		players[1] = new MCTSPlayer(0, iterations, true, true, false, false,
-				true, false, true, false, 1, iterations * 2, 20, 
-				1, 500, -500, iterations * 2,
+		players[1] = new MCTSPlayer(0, iterations, true, true, false, true,
+				true, false, false, true, 1, 0, iterations * 0.43, 20, 0,
+				200, 500, -500, iterations * 2, 
 				true, false, true, false, true,
-				0.01, 0.1, 0.1, 0.1,
+				0.01, 0, 0.1, 0,
 				true, false, false,
 				true, 2, 20,
-				false, false, true, false,
+				false, false, false, true,
 				false, true, false, 15);
 		//white
 		/*players[0] = new MCTSPlayer(0, iterations, false, false, false,

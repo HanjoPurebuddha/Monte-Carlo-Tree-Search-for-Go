@@ -27,8 +27,8 @@ public class MCTSPlayer extends Player {
 	boolean useOpeningBook;
 	boolean surrender = false;
 	public MCTSPlayer(int time, int iterations, boolean surrender, boolean rememberTree,  boolean useOpeningBook, boolean selectRandom,
-			boolean binaryScoring, boolean uct, boolean rave, boolean weightedRave, double initialWeight, double finalWeight, 
-			 int raveSkip, double firstPlayUrgency, double bonusPatterns, double bonusAvoidEyes, int explorationWeight,
+			boolean binaryScoring, boolean uct, boolean amaf, boolean rave, double initialWeight, double aAmafWeight, double raveWeight,
+			 int amafSkip, double bonusFpu, double firstPlayUrgency, double bonusPatterns, double bonusAvoidEyes, int explorationWeight,
 			 boolean simulateAvoidEyes, boolean simulateAtari, boolean simulatePatterns, boolean simulateTakePieces, boolean simulateMercyRule,
 			 double varySimEyes, double varySimAtari, double varySimPatterns, double varySimPieces,
 			 boolean pickMostSimulated, boolean pickHighestMean, boolean pickUCB,  boolean clearMemory,
@@ -42,8 +42,8 @@ public class MCTSPlayer extends Player {
 		this.useOpeningBook = useOpeningBook;
 		this.surrender = surrender;
 		/* set the values for different features */
-    	this.nodeRuleSet = new Configuration(binaryScoring, uct, rave, weightedRave, 
-    			initialWeight, finalWeight, raveSkip, firstPlayUrgency, bonusPatterns, bonusAvoidEyes, explorationWeight,
+    	this.nodeRuleSet = new Configuration(binaryScoring, uct, amaf, rave, 
+    			initialWeight, aAmafWeight, raveWeight, amafSkip, bonusFpu, firstPlayUrgency, bonusPatterns, bonusAvoidEyes, explorationWeight,
     			simulateAvoidEyes, simulateAtari, simulatePatterns, simulateTakePieces, simulateMercyRule,
     			varySimEyes, varySimAtari, varySimPatterns, varySimPieces,
     			pickMostSimulated, pickHighestMean, pickUCB,clearMemory, pruneNodes, developPruning,

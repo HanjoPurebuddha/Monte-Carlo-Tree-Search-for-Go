@@ -51,13 +51,13 @@ tions with a larger score.*/
 	/* begin values for adjusting different features */
 	public boolean binaryScoring;
     public boolean uct;
+    public boolean amaf;
     public boolean rave;
-    public boolean weightedRave;
     public double initialWeight;
-    public double finalWeight;
-    public boolean heuristicRave;
-    public int raveHeuristic;
-    public int raveSkip;
+    public double raveWeight;
+    public boolean heuristicamaf;
+    public int amafHeuristic;
+    public int amafSkip;
     public int pruneNodes;
     public int developPruning;
     
@@ -74,8 +74,10 @@ tions with a larger score.*/
     public int evenScoring;
     public int explorationWeight;
     public boolean selectRandom;
-    public Configuration(boolean binaryScoring, boolean uct, boolean rave, boolean weightedRave, double initialWeight, 
-    		double finalWeight, int raveSkip, double firstPlayUrgency, double bonusPatterns, double bonusAvoidEyes, int explorationWeight,
+    public double bonusFpu;
+    public double aAmafWeight;
+    public Configuration(boolean binaryScoring, boolean uct, boolean amaf, boolean rave, double initialWeight, double aAmafWeight, 
+    		double raveWeight, int amafSkip, double bonusFpu, double firstPlayUrgency, double bonusPatterns, double bonusAvoidEyes, int explorationWeight,
     		boolean simulateAvoidEyes, boolean simulateAtari, boolean simulatePatterns, boolean simulateTakePieces, boolean simulateMercyRule,
     		double varySimEyes, double varySimAtari, double varySimPatterns, double varySimPieces,
     		boolean pickMostSimulated, boolean pickHighestMean, boolean pickUCB, boolean clearMemory,
@@ -85,11 +87,12 @@ tions with a larger score.*/
     	this.binaryScoring = binaryScoring;
     	this.uct = uct;
     	this.bonusAvoidEyes = bonusAvoidEyes;
+    	this.amaf = amaf;
     	this.rave = rave;
-    	this.weightedRave = weightedRave;
+    	this.aAmafWeight = aAmafWeight;
     	this.initialWeight = initialWeight;
-    	this.finalWeight = finalWeight;
-    	this.raveSkip = raveSkip;
+    	this.raveWeight = raveWeight;
+    	this.amafSkip = amafSkip;
     	this.simulateAvoidEyes = simulateAvoidEyes;
     	this.simulateAtari = simulateAtari;
     	this.simulatePatterns = simulatePatterns;
@@ -117,6 +120,7 @@ tions with a larger score.*/
     	this.evenScoring = evenScoring;
     	this.explorationWeight = explorationWeight;
     	this.selectRandom = selectRandom;
+    	this.bonusFpu = bonusFpu;
     }
     
     private int localPruneCheck;

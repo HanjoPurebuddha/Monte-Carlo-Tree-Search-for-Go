@@ -20,16 +20,16 @@ public class TreeNode {
     /* each node has children */
     List<TreeNode> children = new ArrayList<TreeNode>();
     
-    /* initialize the values used in uct, one for uct standard and one for rave */
+    /* initialize the values used in uct, one for uct standard and one for amaf */
     double[] nVisits = new double[2];
     double[] totValue = new double[2];
     
     /* record every value to be used for UCB1-Tuned */
     List<Double> normalValues;
-    List<Double> raveValues;
+    List<Double> amafValues;
     
-    /* the counter for skipping rave */
-    int raveSkipCounter;
+    /* the counter for skipping amaf */
+    int amafSkipCounter;
     
     /* the playerColor for use in enforcing positive values for the player in the amaf map */
     Color playerColor;
@@ -48,17 +48,17 @@ public class TreeNode {
     public UCB ucbTracker;
     
     /* set all the values that change for every node */
-    public TreeNode(Game currentGame, int move, int raveSkipCounter, //double weight, // NOTE // Might not need to m
+    public TreeNode(Game currentGame, int move, int amafSkipCounter, //double weight, // NOTE // Might not need to m
     		Color playerColor, Configuration nodeRuleSet, UCB ucbTracker) {
     	this.currentGame = currentGame;
     	this.move = move;
     	this.nodeRuleSet = nodeRuleSet;
     	this.playerColor = playerColor;
-    	this.raveSkipCounter = raveSkipCounter;
+    	this.amafSkipCounter = amafSkipCounter;
     	this.ucbTracker = ucbTracker;
     	if(nodeRuleSet.ucbTuned) {
     		this.normalValues = new ArrayList<Double>();
-    		this.raveValues = new ArrayList<Double>();
+    		this.amafValues = new ArrayList<Double>();
     	}
     	addBonusValue();
     	/* a map of colours used to record if a move was in the players color for amaf */
@@ -145,7 +145,7 @@ public class TreeNode {
     	/* if we couldn't find a matching expanded child, then create one with the move played out */
     	Game normalGame = currentGame.duplicate();
     	normalGame.play(lastMove);
-    	TreeNode newChild = new TreeNode(normalGame, lastMove, raveSkipCounter, playerColor, nodeRuleSet, ucbTracker);
+    	TreeNode newChild = new TreeNode(normalGame, lastMove, amafSkipCounter, playerColor, nodeRuleSet, ucbTracker);
     	
     	/* and return that one instead */
     	return newChild;
@@ -195,11 +195,11 @@ public class TreeNode {
 	        node.updateStats(0, value);
 	        
 	    }
-	//    System.out.println("Updating rave");
-	    /* and if using rave update the subtree of the parent of the simulated node */
-	    if(nodeRuleSet.rave || nodeRuleSet.weightedRave) {
+	    //System.out.println("Updating amaf");
+	    /* and if using amaf update the subtree of the parent of the simulated node */
+	    if(nodeRuleSet.amaf || nodeRuleSet.amaf) {
 	    	/* based on the amaf map of the node that was just simulated */
-	    	updateStatsRave( cur.getChildren(), value);
+	    	updateStatsamaf(newNode.amafMap, cur.getChildren(), value);
 	    }
     }
     
@@ -295,7 +295,7 @@ public class TreeNode {
         	if(canPlayNormal) {
         		
         		/* create a new child for that point */
-        		TreeNode newChild = new TreeNode(normalGame, emptyPoints.get(i), raveSkipCounter, playerColor, nodeRuleSet, ucbTracker);
+        		TreeNode newChild = new TreeNode(normalGame, emptyPoints.get(i), amafSkipCounter, playerColor, nodeRuleSet, ucbTracker);
         		
         		/* and add it to the current nodes children */
         		children.add(newChild);
@@ -313,7 +313,7 @@ public class TreeNode {
         	/* add a pass move as well as playing on every allowable empty point */
 	        Game passGame = currentGame.duplicate();
 	        passGame.play(-1);
-			TreeNode passChild = new TreeNode(passGame, -1, raveSkipCounter, playerColor, nodeRuleSet, ucbTracker);
+			TreeNode passChild = new TreeNode(passGame, -1, amafSkipCounter, playerColor, nodeRuleSet, ucbTracker);
 			/* and add it to the current nodes children */
 			children.add(passChild);
         }
@@ -346,43 +346,43 @@ public class TreeNode {
     
     private TreeNode findBestValueNode(List<TreeNode> children) {
     	/* initialize the values, with the bestvalue put at the smallest possible value */
-    	TreeNode selected = children.get(0);
-        double bestValue = ucbTracker.getUctValue(this, children.get(0));
+    	TreeNode selected = null;
+    	double bestValue = -Double.MAX_VALUE;
         //System.out.println("amount of children: " + children.size());
         for (TreeNode c : children) {
         	double uctValue = 0;
-        	/* if the rave skip counter has reached the amount of times to wait until skipping rave,
+        	/* if the amaf skip counter has reached the amount of times to wait until skipping amaf,
         	 * or if it is not enabled */
-    		if(raveSkipCounter < nodeRuleSet.raveSkip || nodeRuleSet.raveSkip == -1) {
+        	
+    		if(amafSkipCounter < nodeRuleSet.amafSkip || nodeRuleSet.amafSkip == -1) {
     		    /* get the uct value using standard rules */
-    			
-    		    uctValue = ucbTracker.getUctValue(this, c); // NOTE // Investigate avoiding recalculation if the node stats have not been updated // NOTE //
-    		    
+    			uctValue = ucbTracker.getUctValue(this, c); // NOTE // Investigate avoiding recalculation if the node stats have not been updated // NOTE //
+    	    
     		    /* and increment the counter */
     		    
-    		    raveSkipCounter++;
+    		    amafSkipCounter++;
     		    
-    		} else if(raveSkipCounter == nodeRuleSet.raveSkip) {
+    		} else if(amafSkipCounter == nodeRuleSet.amafSkip) {
 
-    			/* otherwise disable rave */
-    			if(nodeRuleSet.rave == true) {
-    				nodeRuleSet.rave = false;
+    			/* otherwise disable amaf */
+    			if(nodeRuleSet.amaf == true) {
+    				nodeRuleSet.amaf = false;
         			uctValue = ucbTracker.getUctValue(this, c);
-        			nodeRuleSet.rave = true;
+        			nodeRuleSet.amaf = true;
     			}
-    			if(nodeRuleSet.weightedRave == true) {
-    				nodeRuleSet.weightedRave = false;
+    			if(nodeRuleSet.amaf == true) {
+    				nodeRuleSet.amaf = false;
         			uctValue = ucbTracker.getUctValue(this, c);
-        			nodeRuleSet.weightedRave = true;
+        			nodeRuleSet.amaf = true;
     			}
-    			if(nodeRuleSet.heuristicRave == true) {
-    				nodeRuleSet.heuristicRave = false;
+    			if(nodeRuleSet.heuristicamaf == true) {
+    				nodeRuleSet.heuristicamaf = false;
         			uctValue = ucbTracker.getUctValue(this, c);
-        			nodeRuleSet.heuristicRave = true;
+        			nodeRuleSet.heuristicamaf = true;
     			}
     			
     		    /* and set the counter to 0 */
-    		    raveSkipCounter = 0;
+    		    amafSkipCounter = 0;
     		}
 
             /* if the uctvalue is larger than the best value */
@@ -411,35 +411,37 @@ public class TreeNode {
     
 
     /* share the updated values across the subtree of the move too */
-    private void updateStatsRave(List<TreeNode> children, double simulationResult) {
+    private void updateStatsamaf(Color[] amafMap, List<TreeNode> children, double simulationResult) {
     	
     	/* for every child of this node */
     	for (TreeNode c : children) {
-
-    		/* for every move on the amafmap */
-    		for(int i =0; i<amafMap.length;i++) {
-    			
-				/* if that part is filled in on the amafMap and matches the childs most recently taken move 
-				 * and is the right colour */
-    			if(amafMap[i] != null && i == c.currentGame.getMove(0) 
-    					&& c.currentGame.getNextToPlay().inverse() == amafMap[i]) {
-
+    			Color inverseColor = c.currentGame.getNextToPlay().inverse();
+    			c.currentGame.getNextToPlay().inverse();
+    			/* if the move being played for this node matches the move being played in the simulation */
+    			if(inverseColor == amafMap[c.currentGame.getMove(0)]) {
+    				//System.out.println("Move " + c.currentGame.getMove(0) + " matches with colour " + inverseColor+ " ");
+    				//printAmafMap(amafMap);
     				/* update the total value of that node with the simulation result */
 					c.updateStats(1, simulationResult);
-					
-					/* and quit out of the loop, no need to update multiple times for multiple matches */
-					break;
     			}
-			}
 		
     		/* if there is more subtree to explore */
     		if(c.children.size() > 0) {
     			
 	    		/* recursively iterate through the whole subtree */
-    			updateStatsRave(c.getChildren(), simulationResult);
+    			updateStatsamaf(amafMap, c.getChildren(), simulationResult);
     		}
     	}
     }
+    
+    public void printAmafMap(Color[] amafMap) {
+    	for(int i=0; i<amafMap.length;i++) {
+    		System.out.print(amafMap[i] + ", ");
+    			
+    	}
+    	System.out.println("|");
+    }
+    
 
     /* simulate a random game from a treenode */
     private double simulate(TreeNode tn) {	
@@ -464,8 +466,8 @@ public class TreeNode {
     		int move = randomPlayer.playMove();
     		duplicateGame.recordMove(move);
     		
-    		/* if we are using any variation of rave */
-    		if (nodeRuleSet.rave || nodeRuleSet.weightedRave) {
+    		/* if we are using any variation of amaf */
+    		if (nodeRuleSet.amaf || nodeRuleSet.amaf) {
     			
 	    		/* if the move isn't a pass */
 	    		if(move > -1) {
@@ -509,15 +511,18 @@ public class TreeNode {
     /* update the stats for this node */
     private void updateStats(int type, double value) {
     	
-    	/* for the uct value or rave value, dependent on the type input */
+    	/* for the uct value or amaf value, dependent on the type input */
     	if(nodeRuleSet.ucbTuned) {
 	    	if(type == 0) {
 	    		normalValues.add(value);
 	    	} else {
-	    		raveValues.add(value);
+	    		amafValues.add(value);
 	    	}
     	}
-    		nVisits[type]++;
+    	if(type == 0) {
+    		nVisits[1]++;
+    	}
+    	nVisits[type]++;
         totValue[type] += value;
         //System.out.println("updated stats, visits: " + nVisits[type] + " total value: " + totValue[type] + " ");
     }

@@ -675,7 +675,7 @@ public abstract class Game implements Cloneable {
 	/**
 	 * Check if a point reaches another color.  The method uses both <code>temp1</code> and
 	 * <code>temp2</code> to do its work.  If the point does not reach the color, then <code>temp2</code>
-	 * will hold all the points traversed in an attempt to reach the other color.  All those points
+	 * will hold all the points tamafrsed in an attempt to reach the other color.  All those points
 	 * will be of the same color as the original point.
 	 * @return whether the given point reaches another color
 	 * @throws IllegalArgumentException if <code>p</code> is the same as the color, or <code>z</code> out of bounds

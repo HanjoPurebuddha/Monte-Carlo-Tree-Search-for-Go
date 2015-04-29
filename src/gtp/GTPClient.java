@@ -71,11 +71,11 @@ public class GTPClient implements Runnable {
 	public String startupCommands(int iteration) {
 		switch(iteration) {
 			case 0:
-				return "boardsize 19";
+				return "boardsize 3";
 			case 1:
 				return "clear_board";
 			case 2: 
-				return "play B E5";
+				return "play B B2";
 			case 3:
 				return "genmove w";
 			default:
