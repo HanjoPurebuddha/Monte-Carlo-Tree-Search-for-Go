@@ -84,7 +84,6 @@ public class TrompTaylorGame extends Game {
 		Color other = nextToPlay.inverse();
 		if (z == MOVE_PASS || getPoint(z) != Point.EMPTY) {
 			passes++;
-			//System.out.println("pass");
 			nextToPlay = other;
 			return true;
 		}

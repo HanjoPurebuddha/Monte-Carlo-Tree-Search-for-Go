@@ -17,7 +17,7 @@ public abstract class Player {
 	String name;
 	final Random random = new Random();
 	public boolean noTree;
-	public int amafSkipCounter;
+	public int raveSkipCounter;
 	private int movesTaken;
 	OpeningBook openingBook = null;
 	public void resetMovesTaken() {}

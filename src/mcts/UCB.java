@@ -20,28 +20,33 @@ public class UCB {
 	/* perform the calculation required for uct */
     private double calculateUctValue(int type, TreeNode parent, TreeNode tn) {
     	if(nodeRuleSet.firstPlayUrgency > 0 && tn.nVisits[0] == 0) {
+    		/* random values added to the end to break random ties */
     		return nodeRuleSet.firstPlayUrgency + r.nextDouble() * epsilon;
     	}
     	double mean = tn.totValue[type] / (tn.nVisits[type] + epsilon);
     	if(nodeRuleSet.ucbTuned) {
-    		/* ((this nodes total value) / (visits + e)) + sqrt(log(visits) / (visits + e) + random number) */
     		
+    		/* ((this nodes total value) / (visits + e)) + sqrt(log(visits) / (visits + e) + random number) */
     		return mean +
     				getBonus(tn) * (Math.sqrt((Math.log(parent.nVisits[type]+1)) / (tn.nVisits[type] + epsilon )) *
                     getVariance(type, mean, parent, tn)) + r.nextDouble() * epsilon;
     	}
-    	if(nodeRuleSet.randomUcb) {
+    	if(nodeRuleSet.singleLogUcb) {
+    		
     		/* ((this nodes mean value) / (visits + e)) + sqrt(log(visits) / (visits + e) + random number) */
 	    	return mean +
 	    			getBonus(tn) * (Math.sqrt(Math.log(parent.nVisits[type]+1) / (tn.nVisits[type] + epsilon)) +
                     r.nextDouble() * epsilon);
     	}
     	if(nodeRuleSet.ucb) {
+    		
     		/* (average value + sqrt(2 log parentN / childN)) */
     		return mean +
-    				getBonus(tn) * (Math.sqrt((2 * Math.log(parent.nVisits[type]+1)) / (tn.nVisits[type])));
+    				getBonus(tn) * (Math.sqrt((2 * Math.log(parent.nVisits[type]+1)) / (tn.nVisits[type] + epsilon))+
+    	                    r.nextDouble() * epsilon);
     	}
     	if(nodeRuleSet.simpleUcb) {
+    		
     		/* (value/visits + random number) */
 	    	return getBonus(tn) * (mean + epsilon +
                     r.nextDouble() * epsilon);
@@ -153,7 +158,7 @@ public class UCB {
     }
     
     /* get the uct value for a node with a small random number to break ties randomly in unexpanded nodes  */
-    public double getUctValue(TreeNode parent, TreeNode tn) {
+    public double ucbValue(TreeNode parent, TreeNode tn) {
 
     	/* if using UCT no amaf */
         if (nodeRuleSet.uct) {

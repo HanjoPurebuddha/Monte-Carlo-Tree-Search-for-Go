@@ -124,7 +124,6 @@ public class Board implements Cloneable {
 		try {
 			return (Board) clone();
 		} catch (CloneNotSupportedException e) {
-		//	throw new UnexpectedException(e);
 			return null;
 		}
 	}

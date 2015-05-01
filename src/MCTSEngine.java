@@ -42,71 +42,49 @@ public class MCTSEngine {
 	int time = iterations*2;
 	private Player[] players = new Player[2];
 	{
-		// time, iterations, pers/non-pers, surrender, ADD RESIGNING?, opening book, selectRandom
-		// binaryScoring,  uct,  amaf,  rave,  weight,  amafSkip, bonusFpu,
+		// time, iterations, pers/non-pers, surrender, opening book, selectRandom
+		// binaryScoring,  uct,  amaf,  rave,  weight,  raveSkip, bonusFpu,
 		// first play urgency, bonusPatterns, bonusAvoidEyes, explorationWeight
 		// simulate avoid eyes, simulate atari, simulate patterns, simulate taking pieces, sim mercy
 		// varySimEyes, varySimAtari, varySimPatterns, varySimPieces
-		// most simulated, highest mean value, UCB
+		// most simulated, highest mean value, UCB, MaxRobust
 		// clearMemory, pruneNodes, developPruning
-		// ucb, simpleUCB, randomUcb, UCB-Tuned
+		// ucb, simpleUCB, singleLogUcb, UCB-Tuned
 		// captureScoring, livingScoring, averageScoring, evenScoring
 		
 		// time, iterations, pers/non-pers, surrender, opening book, selectRandom
-		// binaryScoring,  uct,  amaf,  rave,  weight,  amafSkip, bonusFpu,
+		// binaryScoring,  uct,  amaf,  rave,  weight,  raveSkip, bonusFpu,
 		// first play urgency, bonusPatterns, bonusAvoidEyes, explorationWeight
 		// simulate avoid eyes, x, simulate patterns, x, sim mercy
 		// varySimEyes, x, varySimPatterns, x
-		// most simulated, highest mean value, UCB
+		// most simulated, highest mean value, UCB, MaxRobust
 		// clearMemory, pruneNodes, developPruning
-		// ucb, simpleUCB, randomUcb, UCB-Tuned
+		// ucb, simpleUCB, singleLogUcb, UCB-Tuned
 		// x, livingScoring, x, evenScoring
 		
 		//black
-        players[0] = new MCTSPlayer(0, iterations, true, true, false, true, //how good is opening book, pers
-				true, false, false, true, 1, 0, 1000, 20, 0, //is aAmaf effective? Y/N, is UCT effective? Y/N
-				200, 500, -5000, 0, //how good is bonusPatterns, bonusAvoid eyes, || is exploration weight effective? Y/N
+        players[0] = new MCTSPlayer(0, iterations, true, true, false, false, //how good is opening book, pers
+				true, false, false, true, 1, 0, 1000, 20, 0, /**is aAmaf effective? Y/N, is UCT effective? Y/N*/ //is rave skip effective
+				0.9, 500, -5000, 0, /*how good is calculatedUCB vs fatUcb bonusPatterns 50 vs 500, */ /** bonusAvoid eyes, *//** is exploration weight effective? Y/N*/
 				true, false, true, false, true, // how good is simulating avoid eyes, simulating avoid patterns, mercy
-				0.01, 0, 0.3, 0, /*how good is varying sim eyes, */ /**varying sim patterns 0.3 */ //0.5 //0.75
+				0.01, 0, 0.3, 0, /**how good is varying sim eyes, */ /**varying sim patterns 0.3 */ //0.5 //0.75
 				true, false, false, false, /**how good is most sim, as to most mean and most UCB  */
-				true, 2, 0, /**how good is dev pruning vs no dev pruning timed,*/ // if dev pruning is good how good is 2 dev pruning to 4 dev pruning */
+				true, 2, 0, /**how good is dev pruning vs no dev pruning timed,*/ /** if dev pruning is good how good is 2 dev pruning to 4 dev pruning */
 				false, false, false, true, /**how good is ucbTuned vs normal UCB, normal UCB vs simple UCB*/
-				false, true, false, 0); //how good is higher even scoring vs lower even scoring
+				true, true, false, 10); /**how good is higher even scoring vs lower even scoring*/ //10
 		//white
-		players[1] = new MCTSPlayer(0, iterations, true, true, true, true,
+		players[1] = new MCTSPlayer(0, iterations, true, true, false, false,
 				true, false, false, true, 1, 0, 1000, 20, 0,
 				200, 500, -5000, 0, 
 				true, false, true, false, true,
 				0.01, 0, 0.3, 0,
 				true, false, false, false,
-				true, 4, 0, 
+				true, 2, 0, 
 				false, false, false, true,
-				false, true, false, 15);
-		//white
-		/*players[0] = new MCTSPlayer(0, iterations, false, false, false,
-				false, true, false, false, 1, iterations * 1, 20, 
-				0, 0, 0, iterations * 2,
-				true, false, true, false, true,
-				0.01, 0.1, 0, 0.1,
-				true, false, false,
-				true, 2, 20,
-				false, false, false, true,
-				false, true, false, 15);
-		//white
-		players[1] = new MCTSPlayer(0, iterations, false, false, false,
-				false, true, false, false, 1, iterations * 1, 20, 
-				0, 0, 0, iterations * 2,
-				true, false, true, false, true,
-				0.01, 0.1, 0, 0.1,
-				true, false, false,
-				true, 2, 20,
-				false, false, false, true,
-				false, true, false, 15);*/
-		//players[0] = new SimulatePlayer(true, false, true, false, true, 0.1, 0.1, 0.1, 0.1);
-		//players[1] = new SimulatePlayer(true, false, true, false, true, 0.1, 0.1, 0.1, 0.1);
-		
-		//players[0] = new RandomPlayer();
-		//players[1] = new RandomPlayer();
+				true, true, false, 10);
+        //players[0] = new SimulatePlayer(true, false, true, false, true, 0.1, 0.1, 0.1, 0.1);
+        //players[1] = new SimulatePlayer(true, false, true, false, true, 0.1, 0.1, 0.1, 0.1);
+
 	}
 
 	public void boardsize(int size) {
@@ -146,30 +124,9 @@ public class MCTSEngine {
 	private void endGame() {
 		for (int i = 0; i < players.length; i++) {
 			if (players[i].getPlayingColor() != null) players[i].endGame();
-			//players[i].endGame();
 		}
 		
 	}
-	
-	/**
-	 * Set the AI that will take care of playing moves for the given color.
-	 * @param color the side the AI will take
-	 * @param className the name of the Player subclass to use; "ai" package by default
-	 */
-	/*public void set_ai(Color color, String className) throws ClassNotFoundException, InstantiationException, IllegalAccessException {
-		Class aiClass;
-		try {
-			aiClass = Class.forName(className);
-		} catch (ClassNotFoundException e) {
-			aiClass = Class.forName("ai." + className);
-		}
-		Player p = (Player) aiClass.newInstance();
-		int i = color.getIndex();
-		if (players[i].getPlayingColor() != null) players[i].endGame();
-		players[i] = p;
-	}*/
-	
-
 	
 	public String final_score() {
 		float score = game.score();
@@ -177,36 +134,6 @@ public class MCTSEngine {
 		else if (score > 0) return "B+" + score;
 		else return "W+" + (-score);
 	}
-	
-	/*public String play_values(Color pointOfView) {
-		StringBuffer buf = new StringBuffer("\n");
-		Player p = players[pointOfView.getIndex()];
-		for (int i=game.getSideSize(); i>=1; i--) {
-			for (int j=1; j<=game.getSideSize(); j++) {
-				float val = p.getMoveValue(game.getGrid().at(j,i));
-				if (val == Float.NaN) buf.append('?');
-				else buf.append(floatFormat.format(val));
-				buf.append(' ');
-			}
-			buf.append('\n');
-		}
-		return buf.toString();
-	}
-	
-	public String play_confidences(Color pointOfView) {
-		StringBuffer buf = new StringBuffer("\n");
-		Player p = players[pointOfView.getIndex()];
-		for (int i=game.getSideSize(); i>=1; i--) {
-			for (int j=1; j<=game.getSideSize(); j++) {
-				float val = p.getMoveConfidence(game.getGrid().at(j,i));
-				if (val == Float.NaN) buf.append('?');
-				else buf.append(floatFormat.format(val));
-				buf.append(' ');
-			}
-			buf.append('\n');
-		}
-		return buf.toString();
-	}*/
 	
 	public String showboard() {
 		StringBuffer buf = new StringBuffer("\n");
@@ -225,61 +152,10 @@ public class MCTSEngine {
 		return buf.toString();
 	}
 	
-	/*public void start_cycle(Color color, int numIters) {
-		Player player = players[color.getIndex()];
-		if (player.getPlayingColor() != color) {
-			// bring player into the game
-			player.startGame(game, color);
-		}
-		((SimulatedAnnealingPlayer) player).startCycle(numIters);
-	}
-	
-	public void sim_cycle(Color color, int numIters) {
-		((SimulatedAnnealingPlayer) players[color.getIndex()]).simulateCycle(numIters);
-	}
-	
-	public String candidates(Color color) {
-		WeightedMoveList wmoves = ((SimulatedAnnealingPlayer) players[color.getIndex()]).getCurrentCycleCandidates();
-		StringBuffer buf = new StringBuffer("\n");
-		for (int i=game.getSideSize(); i>=1; i--) {
-			for (int j=1; j<=game.getSideSize(); j++) {
-				float val = wmoves.getWeight(game.getGrid().at(j,i));
-				if (val == Float.NaN) buf.append('?');
-				else buf.append(floatFormat.format(val));
-				buf.append(' ');
-			}
-			buf.append('\n');
-		}
-		return buf.toString();
-	}*/
-	
-	/*public void play(Move move) {
-		if (game.isOver()) throw new IllegalStateException("game is over, no more moves allowed");
-		if (move.color != game.getNextToPlay()) {
-			// play out of order, simulate a pass
-			boolean r = game.play(Game.MOVE_PASS);
-			assert r;
-		}
-		assert move.color == game.getNextToPlay();
-		boolean r = game.play(move.vertex.toPosition(game.getGrid()));
-		if (!r) throw new IllegalArgumentException("illegal move");
-	}
-	
-	public Vertex genmove(Color color) {
-		if (game.isOver()) throw new IllegalStateException("game is over, no more moves allowed");
-		Player player = players[color.getIndex()];
-		if (player.getPlayingColor() != color) {
-			// bring player into the game
-			player.startGame(game, color);
-		}
-		int move = player.playMove();
-		return Vertex.get(move, game.getGrid());
-	}*/
-	
 	public void play(Move move) {
 		
 		/* if the game is over or it isn't our move */
-		if (game.isOver() || move.color != game.getNextToPlay()) { //throw new IllegalStateException("game is over, no more moves allowed");
+		if (game.isOver() || move.color != game.getNextToPlay()) { 
 			// play out of order, simulate a pass
 			boolean r = game.play(Game.MOVE_PASS);
 			assert r;
@@ -287,7 +163,6 @@ public class MCTSEngine {
 		assert move.color == game.getNextToPlay();
 		boolean r = game.play(move.vertex.toPosition(game.getGrid()));
 		game.recordMove(move.vertex.toPosition(game.getGrid()));
-		//if (!r) throw new IllegalArgumentException("illegal move");
 	}
 	
 	boolean noTree = false;
@@ -301,13 +176,10 @@ public class MCTSEngine {
 			// bring player into the game
 			player.startGame(game, color);
 		}
-		//System.out.println(game);
 		player.setGame(game);
-		//System.out.println(player.game);
-		//player.initializeTree();
 		int move;
 		
-		if (game.isOver()) { //throw new IllegalStateException("game is over, no more moves allowed");
+		if (game.isOver()) { 
 			move = -1;
 		} else {
 			move = player.playMove();

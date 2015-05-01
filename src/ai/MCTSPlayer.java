@@ -28,12 +28,12 @@ public class MCTSPlayer extends Player {
 	boolean surrender = false;
 	public MCTSPlayer(int time, int iterations, boolean surrender, boolean rememberTree,  boolean useOpeningBook, boolean selectRandom,
 			boolean binaryScoring, boolean uct, boolean amaf, boolean rave, double initialWeight, double aAmafWeight, double raveWeight,
-			 int amafSkip, double bonusFpu, double firstPlayUrgency, double bonusPatterns, double bonusAvoidEyes, double explorationWeight,
+			 int raveSkip, double bonusFpu, double firstPlayUrgency, double bonusPatterns, double bonusAvoidEyes, double explorationWeight,
 			 boolean simulateAvoidEyes, boolean simulateAtari, boolean simulatePatterns, boolean simulateTakePieces, boolean simulateMercyRule,
 			 double varySimEyes, double varySimAtari, double varySimPatterns, double varySimPieces,
 			 boolean pickRobust, boolean pickMax, boolean pickSecure, boolean pickMaxRobust,  
 			 boolean clearMemory, int pruneNodes, int developPruning,
-			 boolean ucb, boolean simpleUcb, boolean randomUcb, boolean ucbTuned,
+			 boolean ucb, boolean simpleUcb, boolean singleLogUcb, boolean ucbTuned,
 	    		boolean captureScoring, boolean livingScoring, boolean averageScoring, int evenScoring) {
 		super("TimedPlayer");
 		this.time = time;
@@ -43,12 +43,12 @@ public class MCTSPlayer extends Player {
 		this.surrender = surrender;
 		/* set the values for different features */
     	this.nodeRuleSet = new Configuration(binaryScoring, uct, amaf, rave, 
-    			initialWeight, aAmafWeight, raveWeight, amafSkip, bonusFpu, firstPlayUrgency, bonusPatterns, bonusAvoidEyes, explorationWeight,
+    			initialWeight, aAmafWeight, raveWeight, raveSkip, bonusFpu, firstPlayUrgency, bonusPatterns, bonusAvoidEyes, explorationWeight,
     			simulateAvoidEyes, simulateAtari, simulatePatterns, simulateTakePieces, simulateMercyRule,
     			varySimEyes, varySimAtari, varySimPatterns, varySimPieces,
     			pickRobust, pickMax, pickSecure, pickMaxRobust,
     			clearMemory, pruneNodes, developPruning,
-    			ucb, simpleUcb, randomUcb, ucbTuned, captureScoring, livingScoring, averageScoring, evenScoring,
+    			ucb, simpleUcb, singleLogUcb, ucbTuned, captureScoring, livingScoring, averageScoring, evenScoring,
     			selectRandom);//
     	
     	 

@@ -1,6 +1,6 @@
 package ai;
 
-import java.util.Random;
+
 
 /**
  * A player that makes moves according to pattern matching, atari matching and taking pieces
@@ -62,6 +62,7 @@ public class SimulatePlayer extends Player {
 		
 		if(simulatePatterns && Math.random() > varySimPatterns) {
 			/* if the opponents move matches any mogo patterns */
+			
 			if (game.matchPattern(lastMove)) {
 				
 				/* if it returns true, that means a random mogo pattern was picked and played, so return that move*/

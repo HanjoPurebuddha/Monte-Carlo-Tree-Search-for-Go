@@ -25,7 +25,7 @@ tions with a larger score.*/
 	 * uct changes */
 	public boolean ucbTuned = false;
 	public boolean simpleUcb = false;
-	public boolean randomUcb = false;
+	public boolean singleLogUcb = false;
 	public boolean ucb = false;
 	public double firstPlayUrgency;
 	
@@ -57,7 +57,7 @@ tions with a larger score.*/
     public double raveWeight;
     public boolean heuristicamaf;
     public int amafHeuristic;
-    public int amafSkip;
+    public int raveSkip;
     public int pruneNodes;
     public int developPruning;
     
@@ -79,12 +79,12 @@ tions with a larger score.*/
     public boolean pickMaxRobust;
     
     public Configuration(boolean binaryScoring, boolean uct, boolean amaf, boolean rave, double initialWeight, double aAmafWeight, 
-    		double raveWeight, int amafSkip, double bonusFpu, double firstPlayUrgency, double bonusPatterns, double bonusAvoidEyes, double explorationWeight,
+    		double raveWeight, int raveSkip, double bonusFpu, double firstPlayUrgency, double bonusPatterns, double bonusAvoidEyes, double explorationWeight,
     		boolean simulateAvoidEyes, boolean simulateAtari, boolean simulatePatterns, boolean simulateTakePieces, boolean simulateMercyRule,
     		double varySimEyes, double varySimAtari, double varySimPatterns, double varySimPieces,
     		boolean pickRobust, boolean pickMax, boolean pickSecure, boolean pickMaxRobust, boolean clearMemory,
     		int pruneNodes, int developPruning,
-    		boolean ucb, boolean simpleUcb, boolean randomUcb, boolean ucbTuned,
+    		boolean ucb, boolean simpleUcb, boolean singleLogUcb, boolean ucbTuned,
     		boolean captureScoring, boolean livingScoring, boolean averageScoring, int evenScoring, boolean selectRandom) {
     	this.binaryScoring = binaryScoring;
     	this.uct = uct;
@@ -94,7 +94,7 @@ tions with a larger score.*/
     	this.aAmafWeight = aAmafWeight;
     	this.initialWeight = initialWeight;
     	this.raveWeight = raveWeight;
-    	this.amafSkip = amafSkip;
+    	this.raveSkip = raveSkip;
     	this.simulateAvoidEyes = simulateAvoidEyes;
     	this.simulateAtari = simulateAtari;
     	this.simulatePatterns = simulatePatterns;
@@ -108,7 +108,7 @@ tions with a larger score.*/
     	this.clearMemory = clearMemory;
     	this.pruneNodes = pruneNodes;
     	this.simpleUcb = simpleUcb;
-    	this.randomUcb = randomUcb;
+    	this.singleLogUcb = singleLogUcb;
     	this.developPruning = developPruning;
     	this.ucb = ucb;
     	this.ucbTuned = ucbTuned;
