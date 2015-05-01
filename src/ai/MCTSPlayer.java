@@ -28,11 +28,11 @@ public class MCTSPlayer extends Player {
 	boolean surrender = false;
 	public MCTSPlayer(int time, int iterations, boolean surrender, boolean rememberTree,  boolean useOpeningBook, boolean selectRandom,
 			boolean binaryScoring, boolean uct, boolean amaf, boolean rave, double initialWeight, double aAmafWeight, double raveWeight,
-			 int amafSkip, double bonusFpu, double firstPlayUrgency, double bonusPatterns, double bonusAvoidEyes, int explorationWeight,
+			 int amafSkip, double bonusFpu, double firstPlayUrgency, double bonusPatterns, double bonusAvoidEyes, double explorationWeight,
 			 boolean simulateAvoidEyes, boolean simulateAtari, boolean simulatePatterns, boolean simulateTakePieces, boolean simulateMercyRule,
 			 double varySimEyes, double varySimAtari, double varySimPatterns, double varySimPieces,
-			 boolean pickMostSimulated, boolean pickHighestMean, boolean pickUCB,  boolean clearMemory,
-			 int pruneNodes, int developPruning,
+			 boolean pickRobust, boolean pickMax, boolean pickSecure, boolean pickMaxRobust,  
+			 boolean clearMemory, int pruneNodes, int developPruning,
 			 boolean ucb, boolean simpleUcb, boolean randomUcb, boolean ucbTuned,
 	    		boolean captureScoring, boolean livingScoring, boolean averageScoring, int evenScoring) {
 		super("TimedPlayer");
@@ -46,7 +46,8 @@ public class MCTSPlayer extends Player {
     			initialWeight, aAmafWeight, raveWeight, amafSkip, bonusFpu, firstPlayUrgency, bonusPatterns, bonusAvoidEyes, explorationWeight,
     			simulateAvoidEyes, simulateAtari, simulatePatterns, simulateTakePieces, simulateMercyRule,
     			varySimEyes, varySimAtari, varySimPatterns, varySimPieces,
-    			pickMostSimulated, pickHighestMean, pickUCB,clearMemory, pruneNodes, developPruning,
+    			pickRobust, pickMax, pickSecure, pickMaxRobust,
+    			clearMemory, pruneNodes, developPruning,
     			ucb, simpleUcb, randomUcb, ucbTuned, captureScoring, livingScoring, averageScoring, evenScoring,
     			selectRandom);//
     	
@@ -105,20 +106,13 @@ public class MCTSPlayer extends Player {
 		    	if(nodeRuleSet.clearMemory) {
 		    		oldPlayNode.clearParentMemory(playNode, oldPlayNode.getChildren());
 		    	}
-		    	if(nodeRuleSet.pruneNodes > 0) {
-		    		playNode.pruneNodes();
-		    	}
 		    }
-		//	System.out.println("Before developing");
 			/* if the player is on time or iterations */
 			if(time > 0) {
 				ElapsedTimer t = new ElapsedTimer();
 				while(t.elapsed() < time) {
 			        /* develop the tree in the node with the players current position recorded */
 					playNode.developTree();
-					if(nodeRuleSet.checkPruning()) {
-						playNode.pruneNodes();
-					}
 			       
 			    }
 			}
@@ -126,9 +120,6 @@ public class MCTSPlayer extends Player {
 				for(int i=0;i<iterations;i++) {
 			        /* develop the tree in the node with the players current position recorded */
 					playNode.developTree();
-					if(nodeRuleSet.checkPruning()) {
-						playNode.pruneNodes();
-					}
 			    }
 			}
 		//	System.out.println("After developing");

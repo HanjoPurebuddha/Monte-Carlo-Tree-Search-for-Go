@@ -12,9 +12,9 @@ a global capture moves are attempted next. */
 	/*By default, the player chooses the most-simulated move at
 the root. A few other rules such as highest mean value are
 also implemented. */
-	public boolean pickMostSimulated;
-	public boolean pickHighestMean;
-	public boolean pickUCB;
+	public boolean pickRobust;
+	public boolean pickMax;
+	public boolean pickSecure;
 	
 	/*The win/loss evaluation is modified by
 small bonuses that favor shorter playouts and terminal posi-
@@ -72,15 +72,17 @@ tions with a larger score.*/
     public boolean livingScoring;
     public boolean captureScoring;
     public int evenScoring;
-    public int explorationWeight;
+    public double explorationWeight;
     public boolean selectRandom;
     public double bonusFpu;
     public double aAmafWeight;
+    public boolean pickMaxRobust;
+    
     public Configuration(boolean binaryScoring, boolean uct, boolean amaf, boolean rave, double initialWeight, double aAmafWeight, 
-    		double raveWeight, int amafSkip, double bonusFpu, double firstPlayUrgency, double bonusPatterns, double bonusAvoidEyes, int explorationWeight,
+    		double raveWeight, int amafSkip, double bonusFpu, double firstPlayUrgency, double bonusPatterns, double bonusAvoidEyes, double explorationWeight,
     		boolean simulateAvoidEyes, boolean simulateAtari, boolean simulatePatterns, boolean simulateTakePieces, boolean simulateMercyRule,
     		double varySimEyes, double varySimAtari, double varySimPatterns, double varySimPieces,
-    		boolean pickMostSimulated, boolean pickHighestMean, boolean pickUCB, boolean clearMemory,
+    		boolean pickRobust, boolean pickMax, boolean pickSecure, boolean pickMaxRobust, boolean clearMemory,
     		int pruneNodes, int developPruning,
     		boolean ucb, boolean simpleUcb, boolean randomUcb, boolean ucbTuned,
     		boolean captureScoring, boolean livingScoring, boolean averageScoring, int evenScoring, boolean selectRandom) {
@@ -99,9 +101,9 @@ tions with a larger score.*/
     	this.simulateTakePieces = simulateTakePieces;
     	this.firstPlayUrgency = firstPlayUrgency;
     	this.simulateMercyRule = simulateMercyRule;
-    	this.pickMostSimulated = pickMostSimulated;
-    	this.pickHighestMean = pickHighestMean;
-    	this.pickUCB = pickUCB;
+    	this.pickRobust = pickRobust;
+    	this.pickMax = pickMax;
+    	this.pickSecure = pickSecure;
     	this.bonusPatterns = bonusPatterns;
     	this.clearMemory = clearMemory;
     	this.pruneNodes = pruneNodes;
@@ -121,19 +123,7 @@ tions with a larger score.*/
     	this.explorationWeight = explorationWeight;
     	this.selectRandom = selectRandom;
     	this.bonusFpu = bonusFpu;
+    	this.pickMaxRobust = pickMaxRobust;
     }
     
-    private int localPruneCheck;
-    public boolean checkPruning() {
-    	localPruneCheck++;
-    	if(localPruneCheck == developPruning)
-    		return true;
-    	return false;
-    }
-    
-    public double firstPlayUrgencyValue() {
-    	if(firstPlayUrgency > 0)
-    		return firstPlayUrgency;
-    	return 0;
-    }
 }

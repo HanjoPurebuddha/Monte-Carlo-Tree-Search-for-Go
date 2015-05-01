@@ -177,12 +177,15 @@ public class TreeNode {
         /* get the best child from the expanded nodes, even if it's just passing */
    //     System.out.println("selecting2" );
         TreeNode newNode = null;
-        if(nodeRuleSet.selectRandom)
-        	newNode = cur.selectRandom();
-        else
-        	newNode = cur.select();
-	    visited.add(newNode);
-	    
+        if(cur.children.size() > 0) {
+	        if(nodeRuleSet.selectRandom)
+	        	newNode = cur.selectRandom();
+	        else
+	        	newNode = cur.select();
+		    visited.add(newNode);
+        } else {
+        	newNode = cur;
+        }
 	    /* simulate from the node, and get the value from it */
 	//    System.out.println("simulating");
 	    double value = simulate(newNode);
@@ -199,7 +202,7 @@ public class TreeNode {
 	    /* and if using amaf update the subtree of the parent of the simulated node */
 	    if(nodeRuleSet.amaf || nodeRuleSet.amaf) {
 	    	/* based on the amaf map of the node that was just simulated */
-	    	updateStatsamaf(newNode.amafMap, cur.getChildren(), value);
+	    	updateStatsAmaf(newNode.amafMap, cur.getChildren(), value);
 	    }
     }
     
@@ -216,30 +219,37 @@ public class TreeNode {
     /* get the highest uct value child node of the node given */
     public int getHighestValueMove() {
     	TreeNode highestValueNode = null;
-    	if(nodeRuleSet.pickHighestMean) {
-    		highestValueNode = getHighestMean();
+    	if(nodeRuleSet.pickMax) {
+    		highestValueNode = getMaxOrRobust(0);
     	}
-    	if(nodeRuleSet.pickMostSimulated) {
-    		highestValueNode = getMostSimulated();
+    	if(nodeRuleSet.pickRobust) {
+    		highestValueNode = getMaxOrRobust(1);
     	}
-    	if(nodeRuleSet.pickUCB) {
+    	if(nodeRuleSet.pickSecure) {
     		System.out.println("size:" + getChildren().size());
     		System.out.println("children size:" + children.size());
-    		highestValueNode = findBestValueNode(getChildren());
+    		highestValueNode = getHighestExpectationNode(getChildren());
+    		
+    	}
+    	if(nodeRuleSet.pickMaxRobust) {
+    		highestValueNode = getMaxRobust();
     		
     	}
     	print("NODE SELECTED:" +highestValueNode);
     	return highestValueNode.move;
     }
     
-    public TreeNode getHighestMean() {
+    public TreeNode getMaxOrRobust(int type) {
     	/* initialize the values, with the bestvalue put at the smallest possible value */
     	TreeNode selected = null;
         double bestValue = -Double.MAX_VALUE;
         for (TreeNode c : children) {
         	double currentValue = 0;
-        	System.out.println(c.totValue[0] / c.nVisits[0] + " ");
-        	currentValue = c.totValue[0] / c.nVisits[0]; // NOTE // Investigate avoiding recalculation if the node stats have not been updated // NOTE //
+        	if(type == 0)
+        		currentValue = c.totValue[0]; // NOTE // Investigate avoiding recalculation if the node stats have not been updated // NOTE //
+        	else 
+        		currentValue = c.nVisits[0]; // NOTE // Investigate avoiding recalculation if the node stats have not been updated // NOTE //
+        	System.out.println("["+currentValue +"] ");
             if (currentValue > bestValue) {
             	
             	/*the selected node is that child */
@@ -254,77 +264,86 @@ public class TreeNode {
         return selected;
     }
     
-    public TreeNode getMostSimulated() {
+    public TreeNode getMaxRobust() {
     	/* initialize the values, with the bestvalue put at the smallest possible value */
     	TreeNode selected = null;
-        double bestValue = -Double.MAX_VALUE;
-        //System.out.println(children.size() + " ");
+        double bestMean = -Double.MAX_VALUE;
+        double bestVisited = -Double.MAX_VALUE;
         for (TreeNode c : children) {
-        	double currentValue = 0;
-        	System.out.println(c.nVisits[0] + " ");
-        	currentValue = c.nVisits[0]; // NOTE // Investigate avoiding recalculation if the node stats have not been updated // NOTE //
-    		
-            if (currentValue > bestValue) {
+        	double currentMean = 0;
+        	double currentVisited = 0;
+        	System.out.println("["+c.totValue[0] / c.nVisits[0] + " " + c.nVisits[0] +"] ");
+        	currentMean = c.totValue[0]; // NOTE // Investigate avoiding recalculation if the node stats have not been updated // NOTE //
+        	currentVisited = c.nVisits[0];
+            if (currentMean > bestMean && currentVisited > bestVisited) {
             	
             	/*the selected node is that child */
                 selected = c;
                 
                 /* and the best value is the current value */
-                bestValue = currentValue;
+                bestMean = currentMean;
+                bestVisited = currentVisited;
+                print("found new bestValue: " + bestMean);
                 
             }
         }
-        return selected;
+        if(selected != null) {
+        	return selected;
+        	
+        } else {
+        	return getMaxOrRobust(1);
+        }
+        
     }
     
     /* expand the children of the node */
     public void expand() {
-    	
-    	/* get all of the empty points on the board */
-    	PositionList emptyPoints = currentGame.board.getEmptyPoints();
-    	int emptyPointsSize = emptyPoints.size();
-    	int childrenCounter = 0;
-    	/* for every empty point on the board */
-        for (int i=0; i<emptyPointsSize; i++) {
-
-        	/* just try and play on it normally, ensuring the rules of the game are followed */
-        	Game normalGame = currentGame.duplicate();
-        	boolean canPlayNormal = normalGame.play(emptyPoints.get(i));
-        	
-        	/* checking if it is possible to play that point, checking if we're playing into an eye */
-        	if(canPlayNormal) {
-        		
-        		/* create a new child for that point */
-        		TreeNode newChild = new TreeNode(normalGame, emptyPoints.get(i), amafSkipCounter, playerColor, nodeRuleSet, ucbTracker);
-        		
-        		/* and add it to the current nodes children */
-        		children.add(newChild);
-        		childrenCounter++;
-        	} 
-        	
-        }
-        
-        /* passing isn't something that should be done unless requesting an end to the game
-         * meaning that there is a clear winner, one way or another. with this in mind, passes
-         * are only added to the tree when there are few spaces on the board left
-         */
-       // System.out.println("out");
-        if(emptyPointsSize <currentGame.getSideSize()*2 || childrenCounter == 0) {
-        	/* add a pass move as well as playing on every allowable empty point */
-	        Game passGame = currentGame.duplicate();
-	        passGame.play(-1);
-			TreeNode passChild = new TreeNode(passGame, -1, amafSkipCounter, playerColor, nodeRuleSet, ucbTracker);
-			/* and add it to the current nodes children */
-			children.add(passChild);
-        }
-	//	System.out.println("done");
-        
+    	if(nVisits[0] >= nodeRuleSet.pruneNodes) {
+	    	/* get all of the empty points on the board */
+	    	PositionList emptyPoints = currentGame.board.getEmptyPoints();
+	    	int emptyPointsSize = emptyPoints.size();
+	    	int childrenCounter = 0;
+	    	/* for every empty point on the board */
+	        for (int i=0; i<emptyPointsSize; i++) {
+	
+	        	/* just try and play on it normally, ensuring the rules of the game are followed */
+	        	Game normalGame = currentGame.duplicate();
+	        	boolean canPlayNormal = normalGame.play(emptyPoints.get(i));
+	        	
+	        	/* checking if it is possible to play that point, checking if we're playing into an eye */
+	        	if(canPlayNormal) {
+	        		
+	        		/* create a new child for that point */
+	        		TreeNode newChild = new TreeNode(normalGame, emptyPoints.get(i), amafSkipCounter, playerColor, nodeRuleSet, ucbTracker);
+	        		
+	        		/* and add it to the current nodes children */
+	        		children.add(newChild);
+	        		childrenCounter++;
+	        	} 
+	        	
+	        }
+	        
+	        /* passing isn't something that should be done unless requesting an end to the game
+	         * meaning that there is a clear winner, one way or another. with this in mind, passes
+	         * are only added to the tree when there are few spaces on the board left
+	         */
+	       // System.out.println("out");
+	        if(emptyPointsSize <currentGame.getSideSize()*2 || childrenCounter == 0) {
+	        	/* add a pass move as well as playing on every allowable empty point */
+		        Game passGame = currentGame.duplicate();
+		        passGame.play(-1);
+				TreeNode passChild = new TreeNode(passGame, -1, amafSkipCounter, playerColor, nodeRuleSet, ucbTracker);
+				/* and add it to the current nodes children */
+				children.add(passChild);
+	        }
+		//	System.out.println("done");
+    	}
     }
     
     /* get the highest value node according to the rules selected */
     private TreeNode select() {
         /* get the best value child node from the tree */
-	    TreeNode selected = findBestValueNode(children);
+	    TreeNode selected = getHighestExpectationNode(children);
         /* and then it is returned, with a value always selected thanks to randomisation */
         return selected;
         
@@ -344,7 +363,7 @@ public class TreeNode {
     	return children;
     }
     
-    private TreeNode findBestValueNode(List<TreeNode> children) {
+    private TreeNode getHighestExpectationNode(List<TreeNode> children) {
     	/* initialize the values, with the bestvalue put at the smallest possible value */
     	TreeNode selected = null;
     	double bestValue = -Double.MAX_VALUE;
@@ -411,7 +430,7 @@ public class TreeNode {
     
 
     /* share the updated values across the subtree of the move too */
-    private void updateStatsamaf(Color[] amafMap, List<TreeNode> children, double simulationResult) {
+    private void updateStatsAmaf(Color[] amafMap, List<TreeNode> children, double simulationResult) {
     	
     	/* for every child of this node */
     	for (TreeNode c : children) {
@@ -429,17 +448,9 @@ public class TreeNode {
     		if(c.children.size() > 0) {
     			
 	    		/* recursively iterate through the whole subtree */
-    			updateStatsamaf(amafMap, c.getChildren(), simulationResult);
+    			updateStatsAmaf(amafMap, c.getChildren(), simulationResult);
     		}
     	}
-    }
-    
-    public void printAmafMap(Color[] amafMap) {
-    	for(int i=0; i<amafMap.length;i++) {
-    		System.out.print(amafMap[i] + ", ");
-    			
-    	}
-    	System.out.println("|");
     }
     
 
