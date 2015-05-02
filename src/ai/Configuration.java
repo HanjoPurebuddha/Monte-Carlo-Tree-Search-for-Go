@@ -123,7 +123,13 @@ tions with a larger score.*/
     	this.explorationWeight = explorationWeight;
     	this.selectRandom = selectRandom;
     	this.bonusFpu = bonusFpu;
-    	this.pickMaxRobust = pickMaxRobust;
     }
     
+    private int localPruneCheck;
+    public boolean checkPruning() {
+    	localPruneCheck++;
+    	if(localPruneCheck == developPruning)
+    		return true;
+    	return false;
+    }
 }

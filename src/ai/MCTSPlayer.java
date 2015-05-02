@@ -99,7 +99,7 @@ public class MCTSPlayer extends Player {
 				noTree = true;
 				UCB ucbTracker = new UCB(nodeRuleSet);
 				playNode = new TreeNode(game, game.getMove(0), 0, side, nodeRuleSet, ucbTracker);
-			} else if(rememberTree) {
+			} else if(rememberTree) {//
 				TreeNode oldPlayNode = playNode;
 				/* set the current node to the child of the previous last move played that matches the move last played */
 		    	playNode = playNode.getChild(game.getMove(0));
@@ -107,12 +107,16 @@ public class MCTSPlayer extends Player {
 		    		oldPlayNode.clearParentMemory(playNode, oldPlayNode.getChildren());
 		    	}
 		    }
+		//	System.out.println("Before developing");
 			/* if the player is on time or iterations */
 			if(time > 0) {
 				ElapsedTimer t = new ElapsedTimer();
 				while(t.elapsed() < time) {
 			        /* develop the tree in the node with the players current position recorded */
 					playNode.developTree();
+					if(nodeRuleSet.checkPruning()) {
+						playNode.pruneNodes();
+					}
 			       
 			    }
 			}
@@ -120,6 +124,9 @@ public class MCTSPlayer extends Player {
 				for(int i=0;i<iterations;i++) {
 			        /* develop the tree in the node with the players current position recorded */
 					playNode.developTree();
+					if(nodeRuleSet.checkPruning()) {
+						playNode.pruneNodes();
+					}
 			    }
 			}
 		//	System.out.println("After developing");

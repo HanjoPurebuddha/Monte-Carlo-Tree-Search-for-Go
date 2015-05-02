@@ -38,7 +38,7 @@ public class MCTSEngine {
 	public String version() {return "0.1";}	
 	
 	
-	int iterations = 1000; // 3000 = 10 seconds max capacity
+	int iterations = 3000; // 3000 = 10 seconds max capacity
 	int time = iterations*2;
 	private Player[] players = new Player[2];
 	{
@@ -63,25 +63,25 @@ public class MCTSEngine {
 		// x, livingScoring, x, evenScoring
 		
 		//black
-        players[0] = new MCTSPlayer(0, iterations, true, true, false, false, //how good is opening book, pers
-				true, false, false, true, 1, 0, 1000, 20, 0, /**is aAmaf effective? Y/N, is UCT effective? Y/N*/ //is rave skip effective
-				0.9, 500, -5000, 0, /*how good is calculatedUCB vs fatUcb bonusPatterns 50 vs 500, */ /** bonusAvoid eyes, *//** is exploration weight effective? Y/N*/
+        players[0] = new MCTSPlayer(0, iterations, true, true, false, false, // pers
+				true, false, false, true, 1, -1, 1000, -1, 20,  //is rave skip effective
+				0.9, 50, -5000, -1, 
 				true, false, true, false, true, // how good is simulating avoid eyes, simulating avoid patterns, mercy
-				0.01, 0, 0.3, 0, /**how good is varying sim eyes, */ /**varying sim patterns 0.3 */ //0.5 //0.75
-				true, false, false, false, /**how good is most sim, as to most mean and most UCB  */
-				true, 2, 0, /**how good is dev pruning vs no dev pruning timed,*/ /** if dev pruning is good how good is 2 dev pruning to 4 dev pruning */
-				false, false, false, true, /**how good is ucbTuned vs normal UCB, normal UCB vs simple UCB*/
-				true, true, false, 10); /**how good is higher even scoring vs lower even scoring*/ //10
+				0.05, -1, 0.3, -1, 
+				true, false, false, false, 
+				true, 2, -1, 
+				false, false, false, true, 
+				false, true, false, 10);
 		//white
 		players[1] = new MCTSPlayer(0, iterations, true, true, false, false,
-				true, false, false, true, 1, 0, 1000, 20, 0,
-				200, 500, -5000, 0, 
+				true, false, false, true, -1, -1, 1000, -1, 20,
+				0.9, 50, -5000, 0, 
 				true, false, true, false, true,
-				0.01, 0, 0.3, 0,
+				0.05, 0, 0.3, 0,
 				true, false, false, false,
-				true, 2, 0, 
+				true, 2, -1, 
 				false, false, false, true,
-				true, true, false, 10);
+				false, true, false, 10);
         //players[0] = new SimulatePlayer(true, false, true, false, true, 0.1, 0.1, 0.1, 0.1);
         //players[1] = new SimulatePlayer(true, false, true, false, true, 0.1, 0.1, 0.1, 0.1);
 

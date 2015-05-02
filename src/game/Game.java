@@ -424,10 +424,8 @@ public abstract class Game implements Cloneable {
 	
 	public boolean matchesPatterns(int[][] grid) {
 		int move = grid[1][1];
-		if(checkHane(grid) || checkCut1(grid) || 
-				checkCut2(grid)  || checkEdge(grid)) {
+		if(checkHane(grid) || checkCut1(grid) || checkCut2(grid)  || checkEdge(grid)) {
 			if(play(move)) {
-				recordMove(move);
 				return true;
 			} else {
 				return false;
@@ -438,8 +436,15 @@ public abstract class Game implements Cloneable {
 	
 	public boolean lastMoveMatchesPatterns() {
 		int[][] grid = populateSurroundingPositions(getMove(0));
-		if(checkHane(grid) || checkCut1(grid) || checkCut2(grid) || checkEdge(grid))
-			return true;
+		int[][][] patternTypes = populatePatternTypes(grid);
+		
+		for(int k=0;k<patternTypes.length;k++) {
+			if(checkHane(patternTypes[k]) || checkCut1(patternTypes[k]) || 
+					checkCut2(patternTypes[k]) || checkEdge(patternTypes[k])) {
+				return true;
+			} 
+			
+		}
 		return false;
 	}
 	

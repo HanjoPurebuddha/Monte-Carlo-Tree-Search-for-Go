@@ -49,12 +49,14 @@ public class OpeningBook {
 	}
 	public int move;
 	public int movesTaken;
+	
 	public boolean playOpeningBookMove(int[] firstMoves) {
 		move = 0;
 		boolean broken = false;
+		
 		/* if no moves have been played */
 		if(firstMoves[0] == 0) {
-		//	System.out.println("Just playing first move yo");
+			
 			/* find a move without beforemoves */
 			for(int i = 0; i < beforeMoves.size(); i++) {
 				if(beforeMoves.get(i)[0] == -1) {
@@ -65,7 +67,7 @@ public class OpeningBook {
 				}
 			}
 		}
-		// System.out.println(movesLeft);
+		
 		/* if there were moves already recognized and they weren't all equal */
 		if(movesLeft > 0) {
 			
@@ -75,40 +77,39 @@ public class OpeningBook {
 			if(!isContainedInArray(firstMoves, tempMove)) {
 				move = tempMove;
 				movesLeft = movesLeft - 1;
-			//	System.out.println(" " + movesLeft);
 				return true;
 			}
 		} 
 		List<int[]> beforeMoves;
 		List<int[]> movesToTake;
+		
 		/* for every type of modification to the moves */
 		for(int j=0;j<6;j++) {
+			
 			/* modify the beforeMoves and movesToTake */
 			beforeMoves = modifyList(this.beforeMoves, j);
 			movesToTake = modifyList(this.movesToTake, j);
+			
 			/* for every line */
-		//	System.out.println("!!MODIFIED!!");
 			for(int i = 0; i < beforeMoves.size(); i++) {
+				
 				/* if there are more moves than the moves that are being checked then skip this line */
 				if(beforeMoves.get(i).length == movesTaken) {
-		//			printArray(beforeMoves.get(i));
-		//			System.out.println("There have been " +movesTaken+ " moves taken.");
 					broken = false;
+					
 					/* if any of the opening moves last moves match the last move */
-		//			System.out.println(" " + beforeMoves.get(i)[beforeMoves.get(i).length - 1] + ":" + game.getMove(0) + " ");
 					if(beforeMoves.get(i)[beforeMoves.get(i).length - 1] == game.getMove(0)) {
 						
 						/* check if the whole sequence matches, if the length is larger than one */
-						printArray(beforeMoves.get(i));
-						printArray(firstMoves);
 						for(int n=0;n<beforeMoves.get(i).length;n++) {
+							
 							/* if the element in the beforemoves 0-n doesn't match the move -beforeMoves.length ago,
 							 * with -1 to accomodate for the way that getmove functions
 							 */
 							System.out.println("LENGTH: " + beforeMoves.get(i).length + " ");
 							if(beforeMoves.get(i)[n] != firstMoves[n]) {
+								
 								/* there's no need to look at any other moves, so just move onto the next line */
-								System.out.println(beforeMoves.get(i)[n] + " failed to match ");
 								broken = true;
 								break;
 								
@@ -118,7 +119,6 @@ public class OpeningBook {
 								continue;
 							}
 						}
-		//				System.out.println("FOUND A MOVE! ");
 						/* if a move set matched, the move is equal to the matching move to take */
 						int tempMove = movesToTake.get(i)[0];
 						if(!isContainedInArray(firstMoves, tempMove)) {
@@ -147,10 +147,7 @@ public class OpeningBook {
 	}
 	
 	public int[] modifyArray(int[] array, int type) {
-	//	printGrid(convertArrayToGrid(array));
 		int[][] rotate = Game.rotate(convertArrayToGrid(array));
-	//	System.out.println("ROTATE");
-	//	printGrid(rotate);
 		switch(type) {
 		case 0: return array;
 		case 1: return convertGridToArray(rotate, array.length);

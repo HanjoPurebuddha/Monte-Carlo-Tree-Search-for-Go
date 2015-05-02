@@ -23,7 +23,6 @@ public class TreeNode {
     /* initialize the values used in uct, one for uct standard and one for amaf */
     double[] nVisits = new double[2];
     double[] totValue = new double[2];
-    
     /* record every value to be used for UCB1-Tuned */
     List<Double> normalValues;
     List<Double> amafValues;
@@ -87,14 +86,50 @@ public class TreeNode {
     	for(TreeNode c : children) {
     		if(c != avoidClear) {
     			if(c.children.size() > 0) {
+    				//System.out.println("Found more children...");
     				clearParentMemory(avoidClear, c.children);
     			}
     			c = null;
     			
+    		} else {
+    			//System.out.println("not removing this");
     		}
     	}
     }
-
+    
+    /* for every child node that has been inactive, prune it and all its children from the tree
+     * to economize memory and time */
+    public void pruneNodes() {
+    	if(this != null) {
+			if(children.size() > 0) {
+		    	/* for every child of the starting node */
+		    	for(TreeNode c : children) {
+		    		/* if this node has been visited less than the allowed amount of times */
+		    		
+		    		if(c.nVisits[0] < nodeRuleSet.pruneNodes) {
+		    			/* prune it and all of its children */
+		    			clearSubTree(c, c.getChildren());
+		    		} else if(c.children.size() > 0) {
+		    			c.pruneNodes();
+		    		}
+		    		
+		    	}
+			}
+    	}
+    }
+    
+    public void clearSubTree(TreeNode node, List<TreeNode> children) {
+    	for(TreeNode c : children) {
+			if(c.children.size() > 0) {
+				clearSubTree(c, c.children);
+			}
+			c = null;
+			children.remove(c);
+    	}
+    	node = null;
+    	this.children.remove(node);
+    }
+    
     /* get the child node that matches the game state given (last move played, from MCTSPlayer) */
     public TreeNode getChild(int lastMove) {
 		/* for every child, check if the move matches the last move */
@@ -306,6 +341,7 @@ public class TreeNode {
     }
     
     private TreeNode select(List<TreeNode> children) {
+    	
     	/* initialize the values, with the bestvalue put at the smallest possible value */
     	TreeNode selected = null;
     	double bestValue = -Double.MAX_VALUE;
@@ -315,13 +351,12 @@ public class TreeNode {
         	/* if the amaf skip counter has reached the amount of times to wait until skipping amaf,
         	 * or if it is not enabled */
         	
-    		if(raveSkipCounter < nodeRuleSet.raveSkip || nodeRuleSet.raveSkip == -1) {
-    		    /* get the uct value using standard rules */
-    			uctValue = ucbTracker.ucbValue(this, c); // NOTE // Investigate avoiding recalculation if the node stats have not been updated // NOTE //
-    			//if(uctValue < 199)
-    			//	System.out.println(uctValue + " ");
+    		if(nodeRuleSet.raveSkip == -1 || raveSkipCounter < nodeRuleSet.raveSkip) {
+    		   
+    			/* get the uct value using standard rules */
+    			uctValue = ucbTracker.ucbValue(this, c);
+    			
     		    /* and increment the counter */
-    		    
     		    raveSkipCounter++;
     		    
     		} else if(raveSkipCounter == nodeRuleSet.raveSkip) {
@@ -417,10 +452,9 @@ public class TreeNode {
 
     		/* get the move, and play on the board */
     		int move = randomPlayer.playMove();
-    		duplicateGame.recordMove(move);
     		
     		/* if we are using any variation of amaf */
-    		if (nodeRuleSet.amaf || nodeRuleSet.amaf) {
+    		if (nodeRuleSet.amaf || nodeRuleSet.rave) {
     			
 	    		/* if the move isn't a pass */
 	    		if(move > -1) {
