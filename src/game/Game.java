@@ -368,24 +368,28 @@ public abstract class Game implements Cloneable {
 	
 	
 	public boolean matchPattern(int z) {
+		/* Get all of the positions surrounding the current position */
 		int[][] surroundingPositions = populateSurroundingPositions(z);
+		/* For every surrounding position */
 		for(int i=0;i<3;i++) {
 			for(int j=0;j<3;j++) {
-				int[][] patternMatchGrid = populateSurroundingPositions(surroundingPositions[i][j]);
-				int[][][] patternTypes = populatePatternTypes(patternMatchGrid);
-				
-				for(int k=0;k<patternTypes.length;k++) {
-					if(matchesPatterns(patternTypes[k])) {
-						return true;
-					} 
+				if(play(surroundingPositions[i][j])) {
+					int[][] patternMatchGrid = populateSurroundingPositions(surroundingPositions[i][j]);
+					int[][][] patternTypes = populatePatternTypes(patternMatchGrid);
 					
-				}
-				swapPatternColors();
-				if(matchesPatterns(patternTypes[0])) {
+					for(int k=0;k<patternTypes.length;k++) {
+						if(matchesPatterns(patternTypes[k])) {
+							return true;
+						} 
+						
+					}
 					swapPatternColors();
-					return true;
+					if(matchesPatterns(patternTypes[0])) {
+						swapPatternColors();
+						return true;
+					}
+					swapPatternColors();
 				}
-				swapPatternColors();
 			}
 		}
 		return false;
