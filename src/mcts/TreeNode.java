@@ -184,8 +184,8 @@ public class TreeNode {
 		/* and if using amaf update the subtree of the parent of the simulated node */
 		if(nodeRuleSet.amaf || nodeRuleSet.rave) {
 			
-			/* based on the amaf map of the node that was just simulated */
-			updateStatsAmaf(newNode.amafMap, cur.getChildren(), value);
+/* based on the amaf map of the node that was just simulated */
+updateStatsAmaf(newNode.amafMap, cur.getChildren(), value);
 		}
     }
 
@@ -332,10 +332,10 @@ public int getHighestValueMove() {
     	double bestValue = -Double.MAX_VALUE;
         for (TreeNode c : children) {
         	double uctValue = 0;
+        	
         	/* if the amaf skip counter has reached the amount of times to wait until skipping amaf,
         	 * or if it is not enabled */
-        	
-    		if(nodeRuleSet.raveSkip == -1 || raveSkipCounter < nodeRuleSet.raveSkip) {
+    		if(raveSkipCounter < nodeRuleSet.raveSkip) {
     		   
     			/* get the uct value using standard rules */
     			uctValue = ucbTracker.ucbValue(this, c);
@@ -351,10 +351,10 @@ public int getHighestValueMove() {
         			uctValue = ucbTracker.ucbValue(this, c);
         			nodeRuleSet.amaf = true;
     			}
-    			if(nodeRuleSet.amaf == true) {
-    				nodeRuleSet.amaf = false;
+    			if(nodeRuleSet.rave == true) {
+    				nodeRuleSet.rave = false;
         			uctValue = ucbTracker.ucbValue(this, c);
-        			nodeRuleSet.amaf = true;
+        			nodeRuleSet.rave = true;
     			}
     			if(nodeRuleSet.heuristicamaf == true) {
     				nodeRuleSet.heuristicamaf = false;
