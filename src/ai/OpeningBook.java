@@ -50,12 +50,12 @@ public class OpeningBook {
 	public int move;
 	public int movesTaken;
 	
-	public boolean playOpeningBookMove(int[] firstMoves) {
+	public boolean playOpeningBookMove(int[] mostRecentMoves) {
 		move = 0;
 		boolean broken = false;
 		
 		/* if no moves have been played */
-		if(firstMoves[0] == 0) {
+		if(mostRecentMoves[0] == 0) {
 			
 			/* find a move without beforemoves */
 			for(int i = 0; i < beforeMoves.size(); i++) {
@@ -74,7 +74,7 @@ public class OpeningBook {
 			/* get the next move and decrement */
 			printArray(movesToTake.get(moreMovesToPlay));
 			int tempMove = movesToTake.get(moreMovesToPlay)[movesToTake.get(moreMovesToPlay).length - movesLeft];
-			if(!isContainedInArray(firstMoves, tempMove)) {
+			if(!isContainedInArray(mostRecentMoves, tempMove)) {
 				move = tempMove;
 				movesLeft = movesLeft - 1;
 				return true;
@@ -106,8 +106,7 @@ public class OpeningBook {
 							/* if the element in the beforemoves 0-n doesn't match the move -beforeMoves.length ago,
 							 * with -1 to accomodate for the way that getmove functions
 							 */
-							System.out.println("LENGTH: " + beforeMoves.get(i).length + " ");
-							if(beforeMoves.get(i)[n] != firstMoves[n]) {
+							if(beforeMoves.get(i)[n] != mostRecentMoves[n]) {
 								
 								/* there's no need to look at any other moves, so just move onto the next line */
 								broken = true;
@@ -119,13 +118,16 @@ public class OpeningBook {
 								continue;
 							}
 						}
+						
 						/* if a move set matched, the move is equal to the matching move to take */
 						int tempMove = movesToTake.get(i)[0];
-						if(!isContainedInArray(firstMoves, tempMove)) {
+						if(!isContainedInArray(mostRecentMoves, tempMove)) {
 							move = tempMove;
+							
 							/* if there's more moves to play for this set, then set the value equal to the iteration */
 							if(movesToTake.get(i).length > 1) {
 								moreMovesToPlay = i;
+								
 								/* and set the amount of moves left to go through equal to the length -1 */
 								movesLeft = movesToTake.get(i).length -1;
 							}
@@ -164,35 +166,26 @@ public class OpeningBook {
 		for(int i=0;i<array.length;i++) {
 			int counter = 0;
 			for(int k=0; k<grid.length;k++) {
-				
 				for(int j=0; j<grid.length;j++) {
 					counter++;
-					
 					if(counter == array[i]) {
-	//					System.out.println("Success at move: "+counter+" converting to: " + (k+1) + ", " + (j+1));
 						grid[k][j] = i+1;
 					}
 				}
 			}
 		}
-	//	printGrid(grid);
-		
 		return grid;
 	}
 	
 	public int[] convertGridToArray(int[][] grid, int arraySize) {
 		int[] array = new int[arraySize];
-
 			for(int k=0; k<grid.length;k++) {
 				for(int j=0; j<grid.length;j++) {
 					if(grid[k][j] > 0) {
-	//					System.out.println("found #"+grid[k][j]+" at point "+(k+1) + " " + (j+1));
 						array[grid[k][j]-1] = new Vertex(j+1, k+1).toPosition(game.getGrid()) + 1;
 					}
 				}
 			}
-
-	//	printArray(array);
 		return array;
 	}
 	

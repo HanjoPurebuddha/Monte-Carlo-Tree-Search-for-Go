@@ -1,11 +1,9 @@
 package game;
-
-import gtp.*;
-
 /**
  * Doesn't allow playing in eyes or passing.  Game is over when there are no more legal moves.
  * @author Piotr Kaminski
  */
+// Very few things added here.
 public class SimulateGame extends TrompTaylorGame {
 
 	public SimulateGame(int sideSize) {
@@ -18,11 +16,11 @@ public class SimulateGame extends TrompTaylorGame {
 	}
 
 	
+	//Method changed to use passes.
 	public boolean isOver() {
 		if(passes > 0)
 			return true;
 		return false;
-		//return gameOver;
 	}
 	
 	public SimulateGame duplicate() {
@@ -44,9 +42,8 @@ public class SimulateGame extends TrompTaylorGame {
 		}
 	}
 
+	// Changed this method into using avoidEyes, so that it can be turned on/off
 	public boolean validateBoard(int z, Board oldBoard) {
-		// check if z is playing into what looks like an eye
-		// (eye:  neighbours same color, no more than 1 diagonal other color, except at edges)
 		if(avoidEyes) {
 			if(checkEye(z) == false)
 				return false;

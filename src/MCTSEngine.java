@@ -38,7 +38,7 @@ public class MCTSEngine {
 	public String version() {return "0.1";}	
 	
 	
-	int iterations = 3000; // 3000 = 10 seconds max capacity
+	int iterations = 1000; // 3000 = 10 seconds max capacity
 	int time = iterations*2;
 	private Player[] players = new Player[2];
 	{
@@ -64,22 +64,22 @@ public class MCTSEngine {
 		
 		//black
         players[0] = new MCTSPlayer(0, iterations, true, true, false, false, // pers
-				true, false, false, true, 1, -1, 1000, -1, 20,  //is rave skip effective
+				true, false, false, true, -1, -1, 1000, 20, -1,  //is rave skip effective
 				0.9, 50, -5000, -1, 
 				true, false, true, false, true, // how good is simulating avoid eyes, simulating avoid patterns, mercy
 				0.05, -1, 0.3, -1, 
 				true, false, false, false, 
-				true, 2, -1, 
+				true, 2, 4, 
 				false, false, false, true, 
 				false, true, false, 10);
 		//white
 		players[1] = new MCTSPlayer(0, iterations, true, true, false, false,
-				true, false, false, true, -1, -1, 1000, -1, 20,
-				0.9, 50, -5000, 0, 
+				true, false, false, true, -1, -1, 1000, 20, -1,
+				0.9, 50, -5000, -1, 
 				true, false, true, false, true,
-				0.05, 0, 0.3, 0,
+				0.05, 0, 0.3, -1,
 				true, false, false, false,
-				true, 2, -1, 
+				true, 2, 4, 
 				false, false, false, true,
 				false, true, false, 10);
         //players[0] = new SimulatePlayer(true, false, true, false, true, 0.1, 0.1, 0.1, 0.1);
@@ -165,7 +165,7 @@ public class MCTSEngine {
 		game.recordMove(move.vertex.toPosition(game.getGrid()));
 	}
 	
-	boolean noTree = false;
+	boolean initrootNode = false;
 	
 	public Vertex genmove(Color color) {
 		//try to use policy/open book/etc to find a move, if it fails...

@@ -12,6 +12,9 @@ import gtp.*;
  * @see http://www.cwi.nl/~tromp/go.html
  * @author Piotr Kaminski
  */
+
+// Just removed some error messages from this class. Not much change.
+
 public class TrompTaylorGame extends Game {
 	
 	protected Set previousBoards = new HashSet();
@@ -43,7 +46,6 @@ public class TrompTaylorGame extends Game {
 	
 	public void setFixedHandicap(int handicap) {
 		super.setFixedHandicap(handicap);
-		
 		previousBoards.clear();
 		Board snapshot = board.duplicate();
 		snapshot.setNextToPlay(Color.BLACK);  // positional superko, so don't care who's to play
@@ -79,7 +81,6 @@ public class TrompTaylorGame extends Game {
 	
 
 	public boolean play(int z) {
-		//if (!isPassingAllowed() && z == MOVE_PASS) return false;
 		if (isOver()) return false;
 		Color other = nextToPlay.inverse();
 		if (z == MOVE_PASS || getPoint(z) != Point.EMPTY) {

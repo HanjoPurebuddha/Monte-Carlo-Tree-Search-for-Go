@@ -16,7 +16,7 @@ public abstract class Player {
 	Color side;
 	String name;
 	final Random random = new Random();
-	public boolean noTree;
+	public boolean initrootNode;
 	public int raveSkipCounter;
 	private int movesTaken;
 	OpeningBook openingBook = null;

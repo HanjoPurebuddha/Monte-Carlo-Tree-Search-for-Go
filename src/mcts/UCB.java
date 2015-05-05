@@ -100,19 +100,9 @@ public class UCB {
     	return weight;
     }
     
-    /* from mcts with information sharing.pdf/pachi */
-    public double calculatePachiRaveWeight(TreeNode tn) {
-    	/* from pachi, simsRAVE / (simsRAVE + sims + simsRAVE * sims / simsEQUIV) */
-    	double weight = tn.nVisits[1] / ((tn.nVisits[1] + tn.nVisits[0] + tn.nVisits[1] * tn.nVisits[0]) / nodeRuleSet.raveWeight);
-    	if(weight < 0) {
-    		return 0;
-    	}
-    	return weight;
-    }
-    
     /* from thesis_1.pdf/mogo thesis 
      * optimally tested value: 1000 or more for 2300 simulations */
-    public double calculateMogoRaveWeight(TreeNode tn) {
+    public double calculateWeight(TreeNode tn) {
     	/* sqrt(simsEQUIV / 3N(s) + simsEQUIV) */
     	double weight = Math.sqrt(nodeRuleSet.raveWeight / (tn.nVisits[0] +  nodeRuleSet.raveWeight * tn.nVisits[0] + nodeRuleSet.raveWeight * tn.nVisits[0] + nodeRuleSet.raveWeight));
     	if(weight < 0) {
@@ -121,22 +111,6 @@ public class UCB {
     	return weight;
     }
     
-    /* i think i just made this one up ? */
-    public double calculateWeight(TreeNode tn) {
-    	
-    	/* reduce the value of nodes the deeper we go, allowing more exploration of alternate subtrees, etc
-    	 */
-    	if(nodeRuleSet.explorationWeight == 0) {
-    		return 1;
-    	}
-    	double weight = 1 - (nodeRuleSet.initialWeight * (tn.nVisits[1] / nodeRuleSet.explorationWeight));
-    	if(weight < 0) {
-    		return 0.1;
-    	}
-    	return weight;
-    }
-
-
     /* perform the calculation needed to balance exploration and exploitation */
     public double getBonus(TreeNode tn) {
     	
@@ -177,7 +151,7 @@ public class UCB {
         } else if (nodeRuleSet.rave) {
         	
         	/* calculate it using the weight */
-        	double weight = calculateMogoRaveWeight(tn);
+        	double weight = calculateWeight(tn);
         	/* supplied by pachi paper */
         	return (weight * calculateUctValue(1, parent, tn)) + ((1 - weight) * calculateUctValue(0, parent, tn));
 	        

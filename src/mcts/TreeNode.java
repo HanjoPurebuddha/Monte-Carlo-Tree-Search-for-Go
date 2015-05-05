@@ -32,10 +32,6 @@ public class TreeNode {
     
     /* the playerColor for use in enforcing positive values for the player in the amaf map */
     Color playerColor;
-    
-    /* setup the testing variable to allow prints or disallow them */
-    boolean testing = false;
-    
     Color[] amafMap;
     
     /* each node has the move taken to get to that move */
@@ -86,13 +82,10 @@ public class TreeNode {
     	for(TreeNode c : children) {
     		if(c != avoidClear) {
     			if(c.children.size() > 0) {
-    				//System.out.println("Found more children...");
     				clearParentMemory(avoidClear, c.children);
     			}
     			c = null;
     			
-    		} else {
-    			//System.out.println("not removing this");
     		}
     	}
     }
@@ -217,7 +210,6 @@ public class TreeNode {
     		highestValueNode = getMaxRobust();
     		
     	}
-    	print("NODE SELECTED:" +highestValueNode);
     	return highestValueNode.move;
     }
     
@@ -238,7 +230,6 @@ public class TreeNode {
                 
                 /* and the best value is the current value */
                 bestValue = currentValue;
-                print("found new bestValue: " + currentValue);
                 
             }
         }
@@ -253,7 +244,6 @@ public class TreeNode {
         for (TreeNode c : children) {
         	double currentMean = 0;
         	double currentVisited = 0;
-        	System.out.println("["+c.totValue[0] / c.nVisits[0] + " " + c.nVisits[0] +"] ");
         	currentMean = c.totValue[0]; 
         	currentVisited = c.nVisits[0];
             if (currentMean > bestMean && currentVisited > bestVisited) {
@@ -264,7 +254,6 @@ public class TreeNode {
                 /* and the best value is the current value */
                 bestMean = currentMean;
                 bestVisited = currentVisited;
-                print("found new bestValue: " + bestMean);
                 
             }
         }
@@ -345,7 +334,6 @@ public class TreeNode {
     	/* initialize the values, with the bestvalue put at the smallest possible value */
     	TreeNode selected = null;
     	double bestValue = -Double.MAX_VALUE;
-        //System.out.println("amount of children: " + children.size());
         for (TreeNode c : children) {
         	double uctValue = 0;
         	/* if the amaf skip counter has reached the amount of times to wait until skipping amaf,
@@ -469,12 +457,10 @@ public class TreeNode {
     	float score = duplicateGame.score(playerColor);
     	/* if we want the score from the perspective of white */
 
-    	//System.out.println(score + " ");
     	/* if using binary scoring */
     	if(nodeRuleSet.binaryScoring) {
     		/* if we are using even scoring, and the scores end similarly */
     		if(score < nodeRuleSet.evenScoring && score > -nodeRuleSet.evenScoring) {
-    			//System.out.println("Even score!");
     			return 0.5;
     		}
     		/* return 0 for loss, 1 for win */
@@ -489,12 +475,6 @@ public class TreeNode {
     	
     }
 
-    /* methods to print things when explicitly allowed to */
-    private void print(String line) {
-    	if(testing)
-    		System.out.println(line);
-    }
-    public int actions = 0;
     /* update the stats for this node */
     private void updateStats(int type, double value) {
     	
