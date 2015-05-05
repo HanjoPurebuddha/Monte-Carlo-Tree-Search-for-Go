@@ -60,11 +60,17 @@ public class UCB {
     	 * variance computed by subtracting the mean from each value of the reward, and then getting the mean
     	 * of those subtracted values squared*/
     	double variance = 0;
-    	for(double result : tn.normalValues) {
-    		variance = variance + Math.sqrt((result - mean));
+    	if(type==0) {
+	    	for(double result : tn.simulationRewards) {
+	    		variance = variance + Math.sqrt((result - mean));
+	    	}
+    	} else {
+    		for(double result : tn.amafRewards) {
+	    		variance = variance + Math.sqrt((result - mean));
+	    	}
     	}
     	variance = variance / (tn.nVisits[type]);
-    	variance = variance + Math.sqrt(2*Math.log(parent.nVisits[0]+1) / tn.nVisits[0]);
+    	variance = variance + Math.sqrt(2*Math.log(parent.nVisits[type]+1) / tn.nVisits[type]);
     	if(variance < value)
     		value = variance;
     	/* if overall V is less than 0.25, return 0.25 */
