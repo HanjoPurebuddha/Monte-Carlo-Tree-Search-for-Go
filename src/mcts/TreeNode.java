@@ -143,75 +143,71 @@ public class TreeNode {
     
     /* develop the tree */
     public void developTree() {
-    	
-    	/* create a list of all visited nodes to backpropogate later */
-        List<TreeNode> visited = new LinkedList<TreeNode>();
-        
-        /* set the current node to this node, and add it to the visited list */
-        TreeNode cur = this;
-        visited.add(this);
-
-        while (!cur.isLeaf()) {
-        	/* follow the highest uct value node, and add it to the visited list */
-        	cur = select(cur.getChildren());
-            visited.add(cur);
-        }
-        
-        
-        /* at the bottom of the tree expand the children for the node, including a pass move
-         * but only if it hasn't been expanded before */
-        cur.expand();
-
-        /* get the best child from the expanded nodes, even if it's just passing */
-        TreeNode newNode = null;
-        if(cur.children.size() > 0) {
-	        if(nodeRuleSet.selectRandom)
-	        	newNode = cur.selectRandom();
-	        else
-	        	newNode = select(cur.getChildren());
-		    visited.add(newNode);
-        } else {
-        	newNode = cur;
-        }
-        
-	    /* simulate from the node, and get the value from it */
-	    double value = simulate(newNode);
-	    
-	    /* backpropogate the values of all visited nodes */
-	    for (TreeNode node : visited) {
-	    	
-	    	/* type 0 for just uct updating */
-	        node.updateStats(0, value);
-	        
-	    }
-	    
-	    /* and if using amaf update the subtree of the parent of the simulated node */
-	    if(nodeRuleSet.amaf || nodeRuleSet.amaf) {
-	    	
-	    	/* based on the amaf map of the node that was just simulated */
-	    	updateStatsAmaf(newNode.amafMap, cur.getChildren(), value);
-	    }
+		  	
+		/* create a list of all visited nodes to backpropogate later */
+		List<TreeNode> visited = new LinkedList<TreeNode>();
+		
+		/* set the current node to this node, and add it to the visited list */
+		TreeNode cur = this;
+		visited.add(this);
+		
+		while (!cur.isLeaf()) {
+			/* follow the highest uct value node, and add it to the visited list */
+			cur = select(cur.getChildren());
+		    visited.add(cur);
+		}
+		  
+		  
+		/* at the bottom of the tree expand the children for the node, including a pass move but only if it hasn't been expanded before */
+		cur.expand();
+		
+		/* get the best child from the expanded nodes, even if it's just passing */
+		TreeNode newNode = null;
+		if(cur.children.size() > 0) {
+		  	newNode = cur.selectRandom();
+		  	visited.add(newNode);
+		} else {
+			newNode = cur;
+		}
+		
+		/* simulate from the node, and get the value from it */
+		double value = simulate(newNode);
+		
+		/* backpropogate the values of all visited nodes */
+		for (TreeNode node : visited) {
+			
+			/* type 0 for just uct updating */
+		    node.updateStats(0, value);
+		    
+		}
+		
+		/* and if using amaf update the subtree of the parent of the simulated node */
+		if(nodeRuleSet.amaf || nodeRuleSet.rave) {
+			
+			/* based on the amaf map of the node that was just simulated */
+			updateStatsAmaf(newNode.amafMap, cur.getChildren(), value);
+		}
     }
-    
-    
-    /* get the highest uct value child node of the node given */
-    public int getHighestValueMove() {
-    	TreeNode highestValueNode = null;
-    	if(nodeRuleSet.pickMax) {
-    		highestValueNode = getMaxOrRobust(0);
-    	}
-    	if(nodeRuleSet.pickRobust) {
-    		highestValueNode = getMaxOrRobust(1);
-    	}
-    	if(nodeRuleSet.pickSecure) {
-    		highestValueNode = select(getChildren());
-    	}
-    	if(nodeRuleSet.pickMaxRobust) {
-    		highestValueNode = getMaxRobust();
-    		
-    	}
-    	return highestValueNode.move;
-    }
+
+
+/* get the highest uct value child node of the node given */
+public int getHighestValueMove() {
+	TreeNode highestValueNode = null;
+	if(nodeRuleSet.pickMax) {
+		highestValueNode = getMaxOrRobust(0);
+	}
+	if(nodeRuleSet.pickRobust) {
+		highestValueNode = getMaxOrRobust(1);
+	}
+	if(nodeRuleSet.pickSecure) {
+		highestValueNode = select(getChildren());
+	}
+	if(nodeRuleSet.pickMaxRobust) {
+		highestValueNode = getMaxRobust();
+		
+	}
+	return highestValueNode.move;
+}
     
     public TreeNode getMaxOrRobust(int type) {
     	/* initialize the values, with the bestvalue put at the smallest possible value */
